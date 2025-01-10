@@ -30,7 +30,7 @@ export default function Onboarding() {
     // const queryString = new URLSearchParams(formData).toString()
     // console.log(queryString);
     // Redirect to the next step with the form data
-    router.push(`/onboarding/success`);
+    router.push(`/dashboard`);
     // success?${queryString}`);
   };
 
