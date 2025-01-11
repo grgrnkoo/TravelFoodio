@@ -21,7 +21,10 @@ export default function Header() {
                             <button><Link href='/login'>Login</Link></button>
                         </>
                     ) : (
-                        <button onClick={signOut}>Sign Out</button>
+                        <>
+                            <button><Link href='/dashboard'>Dashboard</Link></button>
+                            <button onClick={signOut}>Sign Out</button>
+                        </>
                     )
                 }
             </div>

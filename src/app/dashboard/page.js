@@ -1,33 +1,31 @@
 'use client'
 
-// import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { SessionProvider, useSession } from "next-auth/react";
-import { redirect } from "next/dist/server/api-utils";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-async function fetchData() {
-    const response = await axios.get('/api/users');
-    console.log(response.data);
-    return response.data;
-}
 
 export default function Dashboard() {
-    const { data: session } = useSession();
-
-    if (!session) {
-        redirect('/login');
-    }
-
-    console.log(session);
+    const { data: session, status } = useSession();
+    const router = useRouter();
 
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        fetchData()
-            .then((fetchedData) => setData(fetchedData))
-            .catch((error) => console.error('Error fetching data: ', error));
-    }, []);
+        if (status === "unauthenticated") {
+            router.push('/login'); // add error with query params later
+        }
+    }, [status, router]);
+
+
+    useEffect(() => {
+        if (status === "authenticated") {
+            axios.get(`/api/users/${session.user?.email}`)
+                .then(response => setData(response.data))
+                .catch(error => console.error('Error fetching user data:', error));
+        };
+    }, [status]);
 
     console.log(data);
 
@@ -41,10 +39,10 @@ export default function Dashboard() {
                 ) : (
                     <div>
                         <ul>
-                            <li>{data[0].age && `Age: ${data[0].age}`}</li>
+                            {/* <li>{data[0].age && `Age: ${data[0].age}`}</li>
                             <li>{data[0].weight && `Weight: ${data[0].weight}`}</li>
                             <li>{data[0].goals && `Goals: ${data[0].goals}`}</li>
-                            <li>{data[0].additionalInfo && `Additional info: ${data[0].additionalInfo}`}</li>
+                            <li>{data[0].additionalInfo && `Additional info: ${data[0].additionalInfo}`}</li> */}
                         </ul>
                     </div>
                 )

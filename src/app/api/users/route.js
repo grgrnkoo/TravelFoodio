@@ -1,9 +1,9 @@
-import { getServerSession } from "next-auth";
 import dbConnect from "../../../../_lib/dbConnect";
 import User from "../../../../models/User";
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
+
     try {
         await dbConnect();
         const { email } = await request.json();
@@ -19,6 +19,7 @@ export async function POST(request) {
 export async function GET(request) {
     try {
         await dbConnect();
+        console.log('Request:', request);
         const users = await User.find();
         return NextResponse.json(users, { status: 200 });
     } catch (error) {

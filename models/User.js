@@ -16,19 +16,23 @@ const userSchema = new mongoose.Schema({
     },
     age: {
         type: Number,
-        required: false
+        required: false,
+        default: 0
     },
     weight: {
         type: Number,
-        required: false
+        required: false,
+        default: 0
     },
     goals: {
         type: String,
-        required: false
+        required: false,
+        default: ""
     },
     additionalInfo: {
         type: String,
-        required: false
+        required: false,
+        default: ""
     }
 })
 

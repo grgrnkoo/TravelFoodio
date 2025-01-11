@@ -2,17 +2,22 @@
 
 import WelcomingForm from "@/ui/welcoming-form";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Onboarding() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const username = 'testuser';
+
+  if (status === "unauthenticated") {
+    router.push('/login');
+  }
 
   const handleFormSubmit = async ({ age, weight, goals, additionalInfo }) => {
     console.log(`State values: ${age}, ${weight}, ${goals}, ${additionalInfo}`);
 
     try {
-      const response = await axios.post('./api/users', { username, age, weight, goals, additionalInfo })
+      const response = await axios.put(`./api/users/${session.user?.email}`, { username, age, weight, goals, additionalInfo })
       console.log(response);
     } catch (error) {
       console.log(error);
