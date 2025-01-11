@@ -5,8 +5,8 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
     try {
         await dbConnect();
-        const { age, weight, goals, additionalInfo } = await request.json();
-        const newUser = new User({ age, weight, goals, additionalInfo });
+        const { email } = await request.json();
+        const newUser = new User({ email });
         await newUser.save();
 
         return NextResponse.json(newUser, { status: 201 });
