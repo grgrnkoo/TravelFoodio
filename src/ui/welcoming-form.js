@@ -3,6 +3,7 @@
 import { useState } from "react"
 
 export default function WelcomingForm({ onSubmit }) {
+    // Onboarding form. Test one. Would be updated later
     const [age, setAge] = useState();
     const [weight, setWeight] = useState();
     const [goals, setGoals] = useState('');

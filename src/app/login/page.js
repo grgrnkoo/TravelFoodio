@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 export default function Login() {
+    // Login page
     const { data: session, status } = useSession();
     const [data, setData] = useState({});
     const router = useRouter();
@@ -19,8 +20,11 @@ export default function Login() {
     }, [status]);
 
     if (data.age === 0 || data.weight === 0 || data.goals === '' || data.additionalInfo === '') {
+        // Redirect to onboarding if user exists but didn't fill 
+        // any of onboarding data
         router.push('/onboarding');
     } else if (data.age > 0 && data.weight > 0 && data.goals.length > 0 && data.additionalInfo.length > 0) {
+        //Redirect to a dashboard if user exists and completed onboarding
         router.push('/dashboard');
     }
     console.log(data);

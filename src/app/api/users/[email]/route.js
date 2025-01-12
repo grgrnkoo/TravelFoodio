@@ -14,6 +14,7 @@ export async function GET(request, { params }) {
     }
 
     try {
+        // Request of user by E-Mail
         await dbConnect();
         const user = await User.findOne({ email });
 

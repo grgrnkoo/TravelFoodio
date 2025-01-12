@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
 
     try {
+        // Create a user with E-Mail field filled
         await dbConnect();
         const { email } = await request.json();
         const newUser = new User({ email });
@@ -17,6 +18,7 @@ export async function POST(request) {
 }
 
 export async function GET(request) {
+    // Fetch the whole DB
     try {
         await dbConnect();
         console.log('Request:', request);

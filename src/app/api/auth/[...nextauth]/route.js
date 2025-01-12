@@ -4,6 +4,7 @@ import dbConnect from "../../../../../_lib/dbConnect";
 import User from "../../../../../models/User";
 
 const handler = NextAuth({
+    // Google Authentication
     providers: [
         GoogleProvider
             ({
@@ -14,6 +15,7 @@ const handler = NextAuth({
     callbacks: {
         async signIn({ user }) {
             try {
+                // Adds a user to DB if there's no such e-mail
                 await dbConnect();
 
                 const existingUser = await User.findOne({ email: user.email });
@@ -34,6 +36,7 @@ const handler = NextAuth({
             }
         },
         async session({ session, token }) {
+            // Adds username and ID to a session object(Plan is to make username redactable)
             const dbUser = await User.findOne({ email: session.user.email });
             session.user.id = dbUser?._id;
             session.user.username = dbUser?.username;

@@ -6,17 +6,21 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Onboarding() {
+  // Onboarding page
   const { data: session, status } = useSession();
   const router = useRouter();
 
   if (status === "unauthenticated") {
+    // Redirect to login if user not logged in
     router.push('/login');
   }
 
   const handleFormSubmit = async ({ age, weight, goals, additionalInfo }) => {
+    // Retrieve data from a form
     console.log(`State values: ${age}, ${weight}, ${goals}, ${additionalInfo}`);
 
     try {
+      // Update user object in a database with onboarding data
       const response = await axios.put(`./api/users/${session.user?.email}`, { username, age, weight, goals, additionalInfo })
       console.log(response);
     } catch (error) {
