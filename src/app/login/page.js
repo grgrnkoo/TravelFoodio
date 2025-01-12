@@ -9,6 +9,7 @@ export default function Login() {
     // Login page
     const { data: session, status } = useSession();
     const [data, setData] = useState({});
+    const [formEmail, setFormEmail] = useState('');
     const router = useRouter();
 
     useEffect(() => {
@@ -30,7 +31,39 @@ export default function Login() {
     console.log(data);
     console.log(session);
 
+    const handleChange = (e) => {
+        e.preventDefault();
+        setFormEmail(e.target.value);
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            // Call NextAuth's email provider
+            // await signIn("email", { formEmail });
+            alert("Magic link sent! Please check your email.");
+          } catch (error) {
+            console.error("Error sending Magic Link:", error);
+            alert("Failed to send magic link. Please try again later.");
+          }
+    }
+
     return <>
         <button onClick={() => signIn('google')}>Sign in with Google</button>
+        <form 
+            className="flex flex-col mt-4"
+            onSubmit={handleSubmit}
+        >
+            <input
+                type='email'
+                name='magic-email'
+                id='magic-email'
+                className="border-r-2 border-2"
+                onChange={handleChange}
+                value={formEmail}
+            />
+            <button type='submit'>Send auth link</button>
+        </form>
     </>
 }
