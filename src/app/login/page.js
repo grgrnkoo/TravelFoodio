@@ -41,7 +41,7 @@ export default function Login() {
 
         try {
             // Call NextAuth's email provider
-            // await signIn("email", { formEmail });
+            await signIn("resend", { email: formEmail });
             alert("Magic link sent! Please check your email.");
           } catch (error) {
             console.error("Error sending Magic Link:", error);
