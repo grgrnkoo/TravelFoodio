@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from 'next-auth/providers/google';
-import dbConnect from "../../../../../_lib/dbConnect";
-import User from "../../../../../models/User";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import clientPromise from "../../../../../_lib/client";
+import { sendVerificationRequest } from "../../../../../_lib/sendVerificationRequest";
 
 const handler = NextAuth({
     // Google Authentication
@@ -11,42 +12,22 @@ const handler = NextAuth({
                 clientId: process.env.GOOGLE_CLIENT_ID,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET
             }),
+        {
+            name: 'http-email',
+            id: 'resend',
+            type: 'email',
+            maxAge: 60 * 60, // Email link will expire in 1 hour
+            sendVerificationRequest
+        }
     ],
     callbacks: {
-        async signIn({ user }) {
-            try {
-                // Adds a user to DB if there's no such e-mail
-                await dbConnect();
-
-                const existingUser = await User.findOne({ email: user.email });
-
-                if (!existingUser) {
-                    const newUser = await User.create({
-                        email: user.email,
-                        username: user.email.split('@')[0]
-                    });
-
-                    console.log('User created: ', newUser)
-                }
-
-                return true;
-            } catch (error) {
-                console.log(error);
-                return false;
-            }
-        },
-        async session({ session, token }) {
-            // Adds username and ID to a session object(Plan is to make username redactable)
-            const dbUser = await User.findOne({ email: session.user.email });
-            session.user.id = dbUser?._id;
-            session.user.username = dbUser?.username;
-            return session;
-        }
+        
     },
     secret: process.env.NEXTAUTH_SECRET,
     pages: {
-        login: '/login'
-    }
+        signIn: '/login'
+    },
+    adapter: MongoDBAdapter(clientPromise)
 })
 
 export { handler as GET, handler as POST }
