@@ -7,7 +7,12 @@ import { useRouter } from "next/navigation";
 
 export default function Onboarding() {
   // Onboarding page
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect('/login?callbackUrl=/onboarding'); // add query parameters to show error later
+    }
+  });
   const router = useRouter();
 
   if (status === "unauthenticated") {

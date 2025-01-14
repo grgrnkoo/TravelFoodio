@@ -3,22 +3,27 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 
 export default function Dashboard() {
     // Dashboard page
-    const { data: session, status } = useSession();
+    const { data: session, status } = useSession({
+        required: true,
+        onUnauthenticated() {
+            redirect('/login?callbackUrl=/dashboard'); // add query parameters to show error later
+        }
+    });
     const router = useRouter();
 
     const [data, setData] = useState([]);
 
-    useEffect(() => {
-        // Redirect to a login page if no session
-        if (status === "unauthenticated") {
-            router.push('/login'); // add error with query params later
-        }
-    }, [status, router]);
+    // useEffect(() => {
+    //     // Redirect to a login page if no session
+    //     if (status === "unauthenticated") {
+    //         router.push('/login'); // add error with query params later
+    //     }
+    // }, []);
 
 
     useEffect(() => {
@@ -31,8 +36,6 @@ export default function Dashboard() {
     }, [status]);
 
     console.log(data);
-
-    // if (data.length !== 0) { const { age, weight, goals, additionalInfo } = data[0]; }
 
     return (
         <>
