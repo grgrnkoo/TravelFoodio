@@ -5,6 +5,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
+import LoginWithEmail from "../../components/LoginWithEmail";
+import { GoogleAuthButton } from "@/components/GoogleButton/GoogleAuthButton";
 
 export default function Login() {
     // Login page
@@ -45,7 +47,8 @@ export default function Login() {
 
         try {
             // Call NextAuth's email provider
-            await signIn('resend', { email: formEmail, callbackUrl });
+            const result = await signIn('resend', { email: formEmail, callbackUrl });
+            console.log('Magic link result: ', result)
             alert("Magic link sent! Please check your email.");
           } catch (error) {
             console.error("Error sending Magic Link:", error);
@@ -53,8 +56,13 @@ export default function Login() {
           }
     }
 
+    function handleClick (e) {
+        e.preventDefault();
+        signIn('google');
+    }
+
     return <div className="flex flex-col">
-        <button onClick={() => signIn('google')}>Sign in with Google</button>
+        <GoogleAuthButton onClick={handleClick} />
         <form 
             className="flex flex-col mt-4"
             onSubmit={handleSubmit}
@@ -63,11 +71,11 @@ export default function Login() {
                 type='email'
                 name='magic-email'
                 id='magic-email'
-                className="border-r-2 border-2 rounded-md"
+                className="border-r-2 border-2 rounded-md mb-4"
                 onChange={handleChange}
                 value={formEmail}
             />
-            <button type='submit' className="mt-2 bg-slate-300 p-2 rounded-md">Send auth link</button>
+            <LoginWithEmail type='submit'/>
         </form>
     </div>
 }

@@ -7,7 +7,6 @@ export async function sendVerificationRequest(params) {
     const { host } = new URL(url);
 
     try {
-        console.log('Identifier: ', identifier, 'URL: ', url, 'Provider: ', provider);
         const data = await resend.emails.send({
             from: process.env.EMAIL_FROM,
             to: identifier,
