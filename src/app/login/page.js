@@ -5,12 +5,14 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
+import LoginWithEmail from "../../components/LoginWithEmail";
+import { GoogleAuthButton } from "@/components/GoogleButton/GoogleAuthButton";
 
 export default function Login() {
     // Login page
     const { data: session, status } = useSession();
     const [data, setData] = useState({});
-    const [formEmail, setFormEmail] = useState('');
+    const [formEmail, setFormEmail] = useState('grigorenko996@gmail.com');
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -53,8 +55,13 @@ export default function Login() {
           }
     }
 
+    function handleClick (e) {
+        e.preventDefault();
+        signIn('google');
+    }
+
     return <div className="flex flex-col">
-        <button onClick={() => signIn('google')}>Sign in with Google</button>
+        <GoogleAuthButton onClick={handleClick} />
         <form 
             className="flex flex-col mt-4"
             onSubmit={handleSubmit}
@@ -67,7 +74,7 @@ export default function Login() {
                 onChange={handleChange}
                 value={formEmail}
             />
-            <button type='submit' className="mt-2 bg-slate-300 p-2 rounded-md">Send auth link</button>
+            <LoginWithEmail type='submit'/>
         </form>
     </div>
 }
