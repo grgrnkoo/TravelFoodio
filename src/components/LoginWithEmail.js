@@ -8,8 +8,11 @@ export default function LoginWithEmail() {
   const [hover, setHover] = useState(false);
 
   return (
-    <Button onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-      {hover ? <MailOpen /> : <Mail />} Login with Email
+    <Button
+      onMouseOver={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {hover ? <MailOpen  className="pb-px"/> : <Mail />} Login with Email
     </Button>
   )
 }

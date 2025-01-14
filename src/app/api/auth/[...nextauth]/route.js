@@ -10,27 +10,28 @@ const handler = NextAuth({
         GoogleProvider
             ({
                 clientId: process.env.GOOGLE_CLIENT_ID,
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             }),
         {
-            name: 'http-email',
+            // name: 'http-email',
             id: 'resend',
             type: 'email',
-            maxAge: 60 * 60 * 1000, // Email link will expire in 1 hour
+            maxAge: 60 * 60, // Email link will expire in 1 hour
             sendVerificationRequest
         }
     ],
     callbacks: {
         
     },
+    session: {
+        strategy: 'jwt'
+    },
     secret: process.env.NEXTAUTH_SECRET,
     pages: {
         signIn: '/login'
     },
-    session: {
-        strategy: 'jwt'
-    },
-    adapter: MongoDBAdapter(clientPromise)
+    adapter: MongoDBAdapter(clientPromise),
+    allowDangerousEmailAccountLinking: true
 })
 
 export { handler as GET, handler as POST }

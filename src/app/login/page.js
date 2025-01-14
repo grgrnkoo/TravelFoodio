@@ -12,7 +12,7 @@ export default function Login() {
     // Login page
     const { data: session, status } = useSession();
     const [data, setData] = useState({});
-    const [formEmail, setFormEmail] = useState('grigorenko996@gmail.com');
+    const [formEmail, setFormEmail] = useState('');
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -47,7 +47,8 @@ export default function Login() {
 
         try {
             // Call NextAuth's email provider
-            await signIn('resend', { email: formEmail, callbackUrl });
+            const result = await signIn('resend', { email: formEmail, callbackUrl });
+            console.log('Magic link result: ', result)
             alert("Magic link sent! Please check your email.");
           } catch (error) {
             console.error("Error sending Magic Link:", error);
@@ -70,7 +71,7 @@ export default function Login() {
                 type='email'
                 name='magic-email'
                 id='magic-email'
-                className="border-r-2 border-2 rounded-md"
+                className="border-r-2 border-2 rounded-md mb-4"
                 onChange={handleChange}
                 value={formEmail}
             />

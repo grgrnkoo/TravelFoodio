@@ -15,10 +15,10 @@ export default function Onboarding() {
   });
   const router = useRouter();
 
-  if (status === "unauthenticated") {
-    // Redirect to login if user not logged in
-    router.push('/login');
-  }
+  // if (status === "unauthenticated") {
+  //   // Redirect to login if user not logged in
+  //   router.push('/login');
+  // }
 
   const handleFormSubmit = async ({ age, weight, goals, additionalInfo }) => {
     // Retrieve data from a form
