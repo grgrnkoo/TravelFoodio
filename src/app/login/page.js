@@ -4,6 +4,7 @@ import { signIn, useSession } from "next-auth/react"
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
 
 export default function Login() {
     // Login page
@@ -11,6 +12,9 @@ export default function Login() {
     const [data, setData] = useState({});
     const [formEmail, setFormEmail] = useState('');
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
     useEffect(() => {
         if (status === "authenticated") {
@@ -20,14 +24,14 @@ export default function Login() {
         }
     }, [status]);
 
-    if (data.age === 0 || data.weight === 0 || data.goals === '' || data.additionalInfo === '') {
-        // Redirect to onboarding if user exists but didn't fill 
-        // any of onboarding data
-        router.push('/onboarding');
-    } else if (data.age > 0 && data.weight > 0 && data.goals.length > 0 && data.additionalInfo.length > 0) {
-        //Redirect to a dashboard if user exists and completed onboarding
-        router.push('/dashboard');
-    }
+    // if (data.age === 0 || data.weight === 0 || data.goals === '' || data.additionalInfo === '') {
+    //     // Redirect to onboarding if user exists but didn't fill 
+    //     // any of onboarding data
+    //     router.push('/onboarding');
+    // } else if (data.age > 0 && data.weight > 0 && data.goals.length > 0 && data.additionalInfo.length > 0) {
+    //     //Redirect to a dashboard if user exists and completed onboarding
+    //     router.push('/dashboard');
+    // }
     console.log(data);
     console.log(session);
 
@@ -41,7 +45,11 @@ export default function Login() {
 
         try {
             // Call NextAuth's email provider
+<<<<<<< HEAD
+            await signIn('resend', { email: formEmail, callbackUrl });
+=======
             await signIn('email');
+>>>>>>> main
             alert("Magic link sent! Please check your email.");
           } catch (error) {
             console.error("Error sending Magic Link:", error);
@@ -49,7 +57,11 @@ export default function Login() {
           }
     }
 
+<<<<<<< HEAD
+    return <div className="flex flex-col">
+=======
     return <>
+>>>>>>> main
         <button onClick={() => signIn('google')}>Sign in with Google</button>
         <form 
             className="flex flex-col mt-4"
@@ -59,6 +71,15 @@ export default function Login() {
                 type='email'
                 name='magic-email'
                 id='magic-email'
+<<<<<<< HEAD
+                className="border-r-2 border-2 rounded-md"
+                onChange={handleChange}
+                value={formEmail}
+            />
+            <button type='submit' className="mt-2 bg-slate-300 p-2 rounded-md">Send auth link</button>
+        </form>
+    </div>
+=======
                 className="border-r-2 border-2"
                 onChange={handleChange}
                 value={formEmail}
@@ -66,4 +87,5 @@ export default function Login() {
             <button type='submit'>Send auth link</button>
         </form>
     </>
+>>>>>>> main
 }
