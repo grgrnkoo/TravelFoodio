@@ -16,7 +16,7 @@ export async function sendVerificationRequest(params) {
         })
     } catch (error) {
         console.error('Error sending email: ', error);
-        throw new Error('Error sending email: ', error).message;
+        throw new Error('Error sending email: ', error.message);
     }
 }
 

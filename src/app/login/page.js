@@ -45,11 +45,7 @@ export default function Login() {
 
         try {
             // Call NextAuth's email provider
-<<<<<<< HEAD
             await signIn('resend', { email: formEmail, callbackUrl });
-=======
-            await signIn('email');
->>>>>>> main
             alert("Magic link sent! Please check your email.");
           } catch (error) {
             console.error("Error sending Magic Link:", error);
@@ -57,11 +53,7 @@ export default function Login() {
           }
     }
 
-<<<<<<< HEAD
     return <div className="flex flex-col">
-=======
-    return <>
->>>>>>> main
         <button onClick={() => signIn('google')}>Sign in with Google</button>
         <form 
             className="flex flex-col mt-4"
@@ -71,7 +63,6 @@ export default function Login() {
                 type='email'
                 name='magic-email'
                 id='magic-email'
-<<<<<<< HEAD
                 className="border-r-2 border-2 rounded-md"
                 onChange={handleChange}
                 value={formEmail}
@@ -79,13 +70,4 @@ export default function Login() {
             <button type='submit' className="mt-2 bg-slate-300 p-2 rounded-md">Send auth link</button>
         </form>
     </div>
-=======
-                className="border-r-2 border-2"
-                onChange={handleChange}
-                value={formEmail}
-            />
-            <button type='submit'>Send auth link</button>
-        </form>
-    </>
->>>>>>> main
 }
