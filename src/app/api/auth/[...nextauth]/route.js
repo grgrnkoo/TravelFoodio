@@ -16,7 +16,7 @@ const handler = NextAuth({
             name: 'http-email',
             id: 'resend',
             type: 'email',
-            maxAge: 60 * 60, // Email link will expire in 1 hour
+            maxAge: 60 * 60 * 1000, // Email link will expire in 1 hour
             sendVerificationRequest
         }
     ],
