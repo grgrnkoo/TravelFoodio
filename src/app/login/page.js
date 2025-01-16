@@ -2,7 +2,7 @@
 
 import { signIn, useSession } from "next-auth/react"
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import LoginWithEmail from "../../components/LoginWithEmail";
@@ -13,7 +13,6 @@ export default function Login() {
     const { data: session, status } = useSession();
     const [data, setData] = useState({});
     const [formEmail, setFormEmail] = useState('');
-    const router = useRouter();
     const searchParams = useSearchParams();
 
     const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
@@ -23,6 +22,7 @@ export default function Login() {
             axios.get(`/api/users/${session.user?.email}`)
                 .then(response => setData(response.data))
                 .catch(error => console.error('Error fetching user data:', error));
+            redirect('/dashboard');
         }
     }, [status]);
 
@@ -34,6 +34,8 @@ export default function Login() {
     //     //Redirect to a dashboard if user exists and completed onboarding
     //     router.push('/dashboard');
     // }
+
+
     console.log(data);
     console.log(session);
 
@@ -50,32 +52,36 @@ export default function Login() {
             const result = await signIn('resend', { email: formEmail, callbackUrl });
             console.log('Magic link result: ', result)
             alert("Magic link sent! Please check your email.");
-          } catch (error) {
+        } catch (error) {
             console.error("Error sending Magic Link:", error);
             alert("Failed to send magic link. Please try again later.");
-          }
+        }
     }
 
-    function handleClick (e) {
+    function handleClick(e) {
         e.preventDefault();
         signIn('google');
     }
 
-    return <div className="flex flex-col">
-        <GoogleAuthButton onClick={handleClick} />
-        <form 
-            className="flex flex-col mt-4"
-            onSubmit={handleSubmit}
-        >
-            <input
-                type='email'
-                name='magic-email'
-                id='magic-email'
-                className="border-r-2 border-2 rounded-md mb-4"
-                onChange={handleChange}
-                value={formEmail}
-            />
-            <LoginWithEmail type='submit'/>
-        </form>
-    </div>
+    return (
+        status === 'unauthenticated' && (
+            <div className="flex flex-col">
+                <GoogleAuthButton onClick={handleClick} />
+                <form
+                    className="flex flex-col mt-4"
+                    onSubmit={handleSubmit}
+                >
+                    <input
+                        type='email'
+                        name='magic-email'
+                        id='magic-email'
+                        className="border-r-2 border-2 rounded-md mb-4"
+                        onChange={handleChange}
+                        value={formEmail}
+                    />
+                    <LoginWithEmail type='submit' />
+                </form>
+            </div>
+        )
+    )
 }
