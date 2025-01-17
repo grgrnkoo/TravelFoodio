@@ -32,30 +32,30 @@ const handler = NextAuth({
         }
     ],
     callbacks: {
-        async signIn({ user, account, profile }) {
-            console.log('Profile sub: ', profile.sub)
-            if (account.provider === 'resend') {
-                // Extract the username from the email
-                if (user.email) {
-                    user.username = user.email.split('@')[0];
-                }
-            }
-            return true; // Continue with the sign-in process
-        },
-        async session({ session, user }) {
-            // Add the username to the session object
-            if (user?.username) {
-                session.user.username = user.username;
-            }
-            return session;
-        },
-        async jwt({ token, user }) {
-            // Add the username to the JWT token
-            if (user?.username) {
-                token.username = user.username;
-            }
-            return token;
-        },
+        // async signIn({ user, account, profile }) {
+        //     console.log('Profile sub: ', profile.sub)
+        //     if (account.provider === 'resend') {
+        //         // Extract the username from the email
+        //         if (user.email) {
+        //             user.username = user.email.split('@')[0];
+        //         }
+        //     }
+        //     return true; // Continue with the sign-in process
+        // },
+        // async session({ session, user }) {
+        //     // Add the username to the session object
+        //     if (user?.username) {
+        //         session.user.username = user.username;
+        //     }
+        //     return session;
+        // },
+        // async jwt({ token, user }) {
+        //     // Add the username to the JWT token
+        //     if (user?.username) {
+        //         token.username = user.username;
+        //     }
+        //     return token;
+        // },
         async redirect({ url, baseUrl }) {
             return baseUrl + '/dashboard';
         }
