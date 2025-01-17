@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
 
 
-export default function Dashboard() {
+export default function Dashboard({children}) {
     // Dashboard page
     const { data: session, status } = useSession({
         required: true,
@@ -40,18 +40,7 @@ export default function Dashboard() {
     return (
         <>
             {
-                data.length === 0 ? (
-                    <p>Loading...</p>
-                ) : (
-                    <div>
-                        <ul>
-                            {/* <li>{data[0].age && `Age: ${data[0].age}`}</li>
-                            <li>{data[0].weight && `Weight: ${data[0].weight}`}</li>
-                            <li>{data[0].goals && `Goals: ${data[0].goals}`}</li>
-                            <li>{data[0].additionalInfo && `Additional info: ${data[0].additionalInfo}`}</li> */}
-                        </ul>
-                    </div>
-                )
+              children
             }
         </>
     );
