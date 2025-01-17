@@ -1,7 +1,4 @@
 {
-    "0": [
-        "Welcome to FoodSm.art! Feel free to express yourself however you like—whether it’s plain text, numbers, or both. Our AI can process your answers, even in different languages. Just make sure to reply to each message in one single response."
-    ],
     "1":   [
         "Hello! I'm your personal assistant, here to help you with your goals. May I know your name?",
         "Welcome! I'm here to support you along the way. Let's get started by knowing your name.",
@@ -10,11 +7,11 @@
         "Hi! I'm your guide, ready to assist with whatever you need. What's your name so we can begin?"
     ],
     "2": [
-        "[User's Name]! Glad to have you here! How old are you?",
-        "[User's Name]! It's great to meet you! Can I know your age?",
-        "[User's Name]! Excited to get started with you. What's your age?",
-        "[User's Name]! I'm here to support you. Could you tell me your age?",
-        "[User's Name]! Looking forward to working together. What's your age?"
+        "${userName}! Glad to have you here! How old are you?",
+        "${userName}! It's great to meet you! Can I know your age?",
+        "${userName}! Excited to get started with you. What's your age?",
+        "${userName}! I'm here to support you. Could you tell me your age?",
+        "${userName}! Looking forward to working together. What's your age?"
     ],
     "3": [
         "Got it! To help you better, I need to know where you're from. Could you share your city and country so I can recommend meals that are easily available for you?",
