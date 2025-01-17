@@ -4,6 +4,7 @@ import WelcomingForm from "@/ui/welcoming-form";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Chat } from "@/components/Chat";
 
 export default function Onboarding() {
   // Onboarding page
@@ -44,13 +45,13 @@ export default function Onboarding() {
     // const queryString = new URLSearchParams(formData).toString()
     // console.log(queryString);
     // Redirect to the next step with the form data
-    router.push(`/dashboard`);
+
     // success?${queryString}`);
   };
 
   return (
     <div>
-      <WelcomingForm onSubmit={handleFormSubmit} />
+      <Chat />
     </div>
   );
 }
