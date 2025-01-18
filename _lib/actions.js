@@ -42,3 +42,22 @@ export async function getUserByEmail(email) {
         return null;
     }
 }
+
+// export async function addData(email, data) {
+//     console.log('Function email and data: ', email, data);
+
+//     const baseUrl = process.env.NEXTAUTH_URL;
+
+//     fetch(`${baseUrl}/api/users/${email}`, {
+//         method: 'PUT',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//             email: email,
+//             userPortrait: data
+//         })
+//     }).then((response) => response.json())
+//         .then((data) => console.log('User updated: ', data))
+//         .catch((error) => console.error('Error: ', error));
+// }

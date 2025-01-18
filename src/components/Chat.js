@@ -5,81 +5,104 @@ import { MessageWindow } from './MessageWindow'
 import { ChatInput } from './ChatInput'
 import questionsJson from '../lib/questions.json'
 import { useSession } from 'next-auth/react'
+import ChatSubmitButtons from './ChatSubmitButtons'
+import { addData } from '../../_lib/actions'
 
 export const initialMessage = {
   id: 0,
   content: `Welcome to FoodSm.art! Feel free to express yourself however you like—whether it’s plain text, numbers, or both. Our AI can process your answers, even in different languages. Just make sure to reply to each message in one single response.`,
-  role: 'disclaimer'
+  role: 'assistant'
 }
 
 export function Chat() {
   const { data: session } = useSession();
+  console.log(session);
+  const userName = session?.user?.name?.split(' ')[0];
 
-  const [userName, setUserName] = useState(session?.user?.name?.split(' ')[0]);
   const [messages, setMessages] = useState([initialMessage])
   const [typingMessage, setTypingMessage] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [userReplies, setUserReplies] = useState([]);
-  const [tempUserName, setTempUserName] = useState()
+  const [showSubmitButtons, setShowSubmitButtons] = useState(false);
 
   const handleSendMessage = (content) => {
-    // if(userReplies.length === 1 && userName === undefined) {
-    //   setTempUserName(content);
-    //   console.log(content, userReplies.length, userName, tempUserName);
-    // }
-    setUserReplies([...userReplies, content]);
+    // Add the user's reply to a local array
+    const updatedReplies = [...userReplies, content];
+
+    // Create a new message object for the user's input
     const newMessage = {
       id: Date.now(),
       content,
-      role: 'user'
-    }
-    setMessages((prevMessages) => [...prevMessages, newMessage])
+      role: 'user',
+    };
 
-    // Simulate a reply with a random delay between 0 and 2 seconds
-    console.log(userReplies)
-    const reply = generateNewReply(userName, userReplies, tempUserName)
+    // Generate the AI's reply immediately
+    const reply = generateNewReply(userName, updatedReplies, setShowSubmitButtons);
 
-    setIsLoading(true)
-    const randomDelay = Math.random() * 2000 // Random delay between 0 and 2000 milliseconds
+    // Update state in a single batch
+    setUserReplies(updatedReplies);
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setIsLoading(true);
 
+    // Simulate AI typing after a random delay
+    const randomDelay = Math.random() * 2000;
     setTimeout(() => {
-      setIsLoading(false)
-      setTypingMessage({ id: Date.now() + 1, content: "", role: 'assistant' })
+      setIsLoading(false);
 
-      let i = 0
+      // Simulate typing with a local typing message variable
+      let typingContent = '';
+      let i = 0;
+
       const typingInterval = setInterval(() => {
         if (i < reply.length) {
-          setTypingMessage(prev => ({
-            ...prev,
-            content: prev.content + reply[i]
-          }))
-          i++
+          typingContent += reply[i];
+          setTypingMessage({ id: Date.now(), content: typingContent, role: 'assistant' });
+          i++;
         } else {
-          clearInterval(typingInterval)
-          setMessages(prev => [...prev, { ...typingMessage, content: reply }])
-          setTypingMessage(null)
-        }
-      }, 50) // Adjust this value to change typing speed
-    }, randomDelay)
-    console.log((messages.length / 2).toFixed());
-  }
+          clearInterval(typingInterval);
 
-  useEffect(() => {
-    if (userReplies.length === 2 && userName === undefined) {
-      setTempUserName(userReplies[1]); // Update tempUserName reliably
-    }
-  }, [userReplies, userName]);
+          // Add the final reply to messages
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { id: Date.now(), content: reply, role: 'assistant' },
+          ]);
+          setTypingMessage(null);
+        }
+      }, 50); // Adjust typing speed here
+    }, randomDelay);
+  };
+
+  const resetChat = () => {
+    // Reset states to their initial values
+    setMessages([initialMessage]); // reset the message array
+    setUserReplies([]); // clear the user replies
+    setTypingMessage(null); // reset typing message state
+    setIsLoading(false); // reset loading state
+    setShowSubmitButtons(false);
+  };
+
+  const submitData = () => {
+    // const email = session.email;
+    const arrayToPush = userReplies.shift();
+    // addData(email, arrayToPush);
+  }
 
   return (
     <div className="flex flex-col h-screen max-w-2xl mx-auto">
-      <div className="flex-1 overflow-scroll">
+      <div className="flex-1 overflow-y-scroll">
         <MessageWindow messages={messages} typingMessage={typingMessage} isLoading={isLoading} />
       </div>
-      <ChatInput
-        onSendMessage={handleSendMessage}
-        typingMessage={typingMessage}
-        isLoading={isLoading}
-      />
+      { !showSubmitButtons ?
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          typingMessage={typingMessage}
+          isLoading={isLoading}
+        /> : 
+        <ChatSubmitButtons 
+          resetChat = {resetChat}
+          submitData={submitData}
+        />
+      }
     </div>
   )
 }
@@ -89,25 +112,37 @@ function getRandomNumber(number) {
   return Number((Math.random() * number).toFixed());
 }
 
-function generateNewReply(userName, userReplies, tempUserName) {
+
+function generateNewReply(userName, userReplies, setShowSubmitButtons) {
   let reply;
   const length = userReplies.length;
-  // const tempUserName = userReplies[1];
+  console.log(userReplies);
 
-  if (userName) {
-    reply = questionsJson[length + 2][getRandomNumber(4)];
+  if (userName && length < 5) {
+    reply = questionsJson[length][getRandomNumber(4)];
     if (reply.includes('${userName}')) {
       // Replace the placeholder with the actual value
-      reply = reply.replace('${userName}!', `${userName}!`);
+      reply = reply.replace('${userName}', `${userName}`);
     }
-  } if (!userName) {
-    reply = questionsJson[length + 1][getRandomNumber(4)];
-    console.log(userReplies, tempUserName);
+  } else if (!userName && length < 6) {
+    console.log(userName)
+    reply = questionsJson[length - 1][getRandomNumber(4)];
     if (reply.includes('${userName}')) {
       // Replace the placeholder with the actual value
-      reply = reply.replace('${userName}!', 'Nice to meet you!');
+      reply = reply.replace('${userName}', userReplies[1] || 'Nice to meet you');
     }
+  } else {
+    reply = 'no more replies';
+    console.log('No more questions', userReplies);
+    setShowSubmitButtons(true);
+    generateOpenAiSummary(userReplies);
   }
+
   return reply;
 }
 
+function generateOpenAiSummary(userReplies) {
+  const aiReply = userReplies;
+  console.log('would be sent to ai', userReplies);
+  return aiReply;
+}

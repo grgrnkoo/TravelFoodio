@@ -13,7 +13,6 @@ export function MessageWindow({ messages, typingMessage, isLoading }) {
 
   return (
     <ScrollArea className="flex-1 p-4 space-y-4" ref={scrollAreaRef}>
-      {/* <MessageDisclaimer key={initialMessage.id} message={initialMessage} /> */}
       {messages.map((message) => (
         <MessageBubble key={message.id} message={message} />
       ))}
