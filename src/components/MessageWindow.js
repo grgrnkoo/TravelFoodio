@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { initialMessage } from './Chat'
 
 export function MessageWindow({ messages, typingMessage, isLoading }) {
   const scrollAreaRef = useRef(null)
@@ -56,3 +57,12 @@ function LoadingAnimation() {
   )
 }
 
+function MessageDisclaimer() {
+  return (
+    <div 
+      className='flex text-center justify-self-center bg-rose-200 rounded-xl px-4 py-6 my-8 max-w-[80%]'
+    >
+      {initialMessage.content}
+    </div>
+  )
+}

@@ -29,7 +29,7 @@ export default function Dashboard({children}) {
     useEffect(() => {
         if (status === "authenticated") {
             // Fetch data by an email from a session
-            axios.get(`/api/users/${session.user?.email}`)
+            axios.get(`/api/users/${session?.user?.email}`)
                 .then(response => setData(response.data))
                 .catch(error => console.error('Error fetching user data:', error));
         };
