@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { MessageWindow } from './MessageWindow'
 import { ChatInput } from './ChatInput'
 import questionsJson from '../lib/questions.json'
-import { useSession } from 'next-auth/react'
 import ChatSubmitButtons from './ChatSubmitButtons'
 import { addData } from '../../_lib/actions'
 
@@ -14,8 +13,8 @@ export const initialMessage = {
   role: 'assistant'
 }
 
-export function Chat() {
-  const { data: session } = useSession();
+export function Chat({ session }) {
+  // const { data: session } = useSession();
   console.log(session);
   const userName = session?.user?.name?.split(' ')[0];
 
@@ -81,10 +80,12 @@ export function Chat() {
     setShowSubmitButtons(false);
   };
 
-  const submitData = () => {
-    // const email = session.email;
-    const arrayToPush = userReplies.shift();
-    // addData(email, arrayToPush);
+  const submitData = async () => {
+    // const addData = dynamic(() => import('../../_lib/actions').then((mod) => mod.addData), { ssr: false });
+    const email = session?.user?.email;
+    const arrayToPush = userReplies;
+    console.log('addData clicked')
+    await addData(email, arrayToPush);
   }
 
   return (
@@ -92,14 +93,14 @@ export function Chat() {
       <div className="flex-1 overflow-y-scroll">
         <MessageWindow messages={messages} typingMessage={typingMessage} isLoading={isLoading} />
       </div>
-      { !showSubmitButtons ?
+      {!showSubmitButtons ?
         <ChatInput
           onSendMessage={handleSendMessage}
           typingMessage={typingMessage}
           isLoading={isLoading}
-        /> : 
-        <ChatSubmitButtons 
-          resetChat = {resetChat}
+        /> :
+        <ChatSubmitButtons
+          resetChat={resetChat}
           submitData={submitData}
         />
       }

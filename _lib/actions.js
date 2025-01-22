@@ -1,4 +1,4 @@
-import User from "../models/User";
+// import User from "../models/User";
 
 export async function addUsername(user) {
     const { email, name } = user;
@@ -43,21 +43,27 @@ export async function getUserByEmail(email) {
     }
 }
 
-// export async function addData(email, data) {
-//     console.log('Function email and data: ', email, data);
+export async function addData(email, data) {
+    console.log('add data triggered')
+    if (!email || !data) {
+        console.error('Invalid email or data:', email, data);
+        return;
+    }
 
-//     const baseUrl = process.env.NEXTAUTH_URL;
+    console.log('Function email and data: ', email, data);
 
-//     fetch(`${baseUrl}/api/users/${email}`, {
-//         method: 'PUT',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//             email: email,
-//             userPortrait: data
-//         })
-//     }).then((response) => response.json())
-//         .then((data) => console.log('User updated: ', data))
-//         .catch((error) => console.error('Error: ', error));
-// }
+    const baseUrl = process.env.NEXTAUTH_URL;
+    console.log(baseUrl);
+    
+    await fetch(`/api/users/${email}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            userPortrait: data
+        })
+    }).then((response) => response.json())
+        .then((data) => console.log('User updated: ', data, email))
+        .catch((error) => console.error('Error: ', error));
+}
