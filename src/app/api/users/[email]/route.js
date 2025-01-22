@@ -27,35 +27,36 @@ export async function GET(request, { params }) {
     }
 }
 
+
 export async function PUT(request) {
-    // Fetch the whole DB
     try {
+        // Get the email and new data from the request
         await dbConnect();
-        const { email, ...updateFields } = await request.json();
+        const email = await request.url.split('/').pop().trim();
+        console.log('Email: ', email);
+        console.log('Request: ', request.url.split('/').pop().trim());
+        const updateData = await request.json();  // Get the fields to update from the request body
 
-        if (!email) {
-            return NextResponse.json({ message: 'Email is required' }, { status: 400 });
-        }
-
-        if (Object.keys(updateFields).length === 0) {
-            return NextResponse.json({ message: 'No fields to update' }, { status: 400 });
-        }
-
+        // Find the user by email and update their data
         const updatedUser = await User.findOneAndUpdate(
-            { email },
-            updateFields,
-            { new: true }
+            { email },  // Find user by email
+            { $set: updateData },  // Use $set to update the user's fields with the new data
+            { new: true }  // Return the updated document
         );
 
         if (!updatedUser) {
-            return NextResponse.json({ message: 'User not found' }, { status: 404 });
-        };
+            return NextResponse.json(
+                { message: "User not found" },
+                { status: 404 }
+            );
+        }
 
+        // Return the updated user information
         return NextResponse.json(updatedUser, { status: 200 });
     } catch (error) {
         console.log(error);
         return NextResponse.json(
-            { message: "Failed to update users", error: error.message },
+            { message: "Failed to update user", error: error.message },
             { status: 500 }
         );
     }

@@ -1,51 +1,26 @@
-'use client'
-
-import WelcomingForm from "@/ui/welcoming-form";
 import axios from "axios";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Chat } from "@/components/Chat";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import fetch from "node-fetch";
 
-export default function Onboarding() {
+export default async function Onboarding() {
   // Onboarding page
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      redirect('/login?callbackUrl=/onboarding'); // add query parameters to show error later
-    }
-  });
 
-  // const handleFormSubmit = async ({ age, weight, goals, additionalInfo }) => {
-  //   // Retrieve data from a form
-  //   console.log(`State values: ${age}, ${weight}, ${goals}, ${additionalInfo}`);
+  try {
+    const session = await getServerSession(authOptions);
+    return (
+      <div>
+        <Chat session={session} />
+      </div>
+    );
+  } catch (error) {
+    console.error('Error fetching session', error);
+    return (
+      <div>
+        <p>Error fetching session: {error}</p>
+      </div>
+    );
+  }
 
-  //   try {
-  //     // Update user object in a database with onboarding data
-  //     const response = await axios.put(`./api/users/${session.user?.email}`, { username, age, weight, goals, additionalInfo })
-  //     console.log(response);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-
-
-  //   // const formData = {
-  //   //   age: event.target.age.value,
-  //   //   weight: event.target.weight.value,
-  //   //   goals: event.target.goals.value,
-  //   //   additionalInfo: event.target.additionalInfo.value,
-  //   // }
-
-
-  //   // const queryString = new URLSearchParams(formData).toString()
-  //   // console.log(queryString);
-  //   // Redirect to the next step with the form data
-
-  //   // success?${queryString}`);
-  // };
-
-  return (
-    <div>
-      <Chat />
-    </div>
-  );
 }
