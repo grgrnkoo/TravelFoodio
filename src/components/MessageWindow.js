@@ -56,13 +56,3 @@ function LoadingAnimation() {
     </div>
   )
 }
-
-function MessageDisclaimer() {
-  return (
-    <div 
-      className='flex text-center justify-self-center bg-rose-200 rounded-xl px-4 py-6 my-8 max-w-[80%]'
-    >
-      {initialMessage.content}
-    </div>
-  )
-}
