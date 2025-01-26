@@ -15,7 +15,7 @@ export const initialMessage = {
 
 export function Chat({ session }) {
   // const { data: session } = useSession();
-  console.log(session);
+  // console.log(session);
   const userName = session?.user?.name?.split(' ')[0];
 
   const [messages, setMessages] = useState([initialMessage])
@@ -24,7 +24,7 @@ export function Chat({ session }) {
   const [userReplies, setUserReplies] = useState([]);
   const [showSubmitButtons, setShowSubmitButtons] = useState(false);
 
-  const handleSendMessage = (content) => {
+  const handleSendMessage = async (content) => {
     // Add the user's reply to a local array
     const updatedReplies = [...userReplies, content];
 
@@ -36,7 +36,7 @@ export function Chat({ session }) {
     };
 
     // Generate the AI's reply immediately
-    const reply = generateNewReply(userName, updatedReplies, setShowSubmitButtons);
+    const reply = await generateNewReply(userName, updatedReplies, setShowSubmitButtons);
 
     // Update state in a single batch
     setUserReplies(updatedReplies);
@@ -44,7 +44,8 @@ export function Chat({ session }) {
     setIsLoading(true);
 
     // Simulate AI typing after a random delay
-    const randomDelay = Math.random() * 2000;
+    // const randomDelay = Math.random() * 2000;
+    const randomDelay = 0;
     setTimeout(() => {
       setIsLoading(false);
 
@@ -67,7 +68,7 @@ export function Chat({ session }) {
           ]);
           setTypingMessage(null);
         }
-      }, 50); // Adjust typing speed here
+      }, 0); // Adjust typing speed here
     }, randomDelay);
   };
 
@@ -114,7 +115,7 @@ function getRandomNumber(number) {
 }
 
 
-function generateNewReply(userName, userReplies, setShowSubmitButtons) {
+async function generateNewReply(userName, userReplies, setShowSubmitButtons) {
   let reply;
   const length = userReplies.length;
   console.log(userReplies);
@@ -126,24 +127,44 @@ function generateNewReply(userName, userReplies, setShowSubmitButtons) {
       reply = reply.replace('${userName}', `${userName}`);
     }
   } else if (!userName && length < 6) {
-    console.log(userName)
     reply = questionsJson[length - 1][getRandomNumber(4)];
     if (reply.includes('${userName}')) {
       // Replace the placeholder with the actual value
       reply = reply.replace('${userName}', userReplies[1] || 'Nice to meet you');
     }
   } else {
-    reply = 'no more replies';
+    // reply = 'no more replies';
+    reply = await generateOpenAiSummary(userReplies);;
     console.log('No more questions', userReplies);
     setShowSubmitButtons(true);
-    generateOpenAiSummary(userReplies);
+    // generateOpenAiSummary(userReplies);
   }
 
   return reply;
 }
 
-function generateOpenAiSummary(userReplies) {
-  const aiReply = userReplies;
-  console.log('would be sent to ai', userReplies);
+async function generateOpenAiSummary(userReplies) {
+  let aiReply = '';
+  const repliesSentToAi = userReplies?.slice(1);
+
+  try {
+    const res = await fetch('../api/generateResponse', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ repliesSentToAi })
+    })
+
+    const data = await res.json();
+    if (res.ok) {
+      console.log(data.message);
+      aiReply = data.message
+    } else {
+      console.error(data.error);
+    }
+  } catch (error) {
+    console.error('Error sending OpenAI request: ', error);
+  }
   return aiReply;
 }
