@@ -14,31 +14,31 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    userPortrait: {
-        type: [String],
+    // userPortrait: {
+    //     type: [String],
+    //     required: false,
+    //     default: []
+    // },
+    age: {
+        type: String,
         required: false,
-        default: []
+        default: 0
+    },
+    location: {
+        type: String,
+        required: false,
+        default: 0
+    },
+    goals: {
+        type: String,
+        required: false,
+        default: ""
+    },
+    dietaryRestrictions: {
+        type: String,
+        required: false,
+        default: ""
     }
-    // age: {
-    //     type: Number,
-    //     required: false,
-    //     default: 0
-    // },
-    // weight: {
-    //     type: Number,
-    //     required: false,
-    //     default: 0
-    // },
-    // goals: {
-    //     type: String,
-    //     required: false,
-    //     default: ""
-    // },
-    // additionalInfo: {
-    //     type: String,
-    //     required: false,
-    //     default: ""
-    // }
 })
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
