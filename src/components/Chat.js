@@ -23,6 +23,7 @@ export function Chat({ session }) {
   const [isLoading, setIsLoading] = useState(false)
   const [userReplies, setUserReplies] = useState([]);
   const [showSubmitButtons, setShowSubmitButtons] = useState(false);
+  const [aiReply, setAiReply] = useState('');
 
   const handleSendMessage = async (content) => {
     // Add the user's reply to a local array
@@ -79,6 +80,7 @@ export function Chat({ session }) {
     setTypingMessage(null); // reset typing message state
     setIsLoading(false); // reset loading state
     setShowSubmitButtons(false);
+    setAiReply('');
   };
 
   const submitData = async () => {
@@ -87,6 +89,37 @@ export function Chat({ session }) {
     const arrayToPush = userReplies;
     console.log('addData clicked')
     await addData(email, arrayToPush);
+  }
+
+
+
+  async function generateNewReply(userName, userReplies, setShowSubmitButtons) {
+    let reply;
+    const length = userReplies.length;
+    console.log(userReplies);
+
+    if (userName && length < 5) {
+      reply = questionsJson[length][getRandomNumber(4)];
+      if (reply.includes('${userName}')) {
+        // Replace the placeholder with the actual value
+        reply = reply.replace('${userName}', `${userName}`);
+      }
+    } else if (!userName && length < 6) {
+      reply = questionsJson[length - 1][getRandomNumber(4)];
+      if (reply.includes('${userName}')) {
+        // Replace the placeholder with the actual value
+        reply = reply.replace('${userName}', userReplies[1] || 'Nice to meet you');
+      }
+    } else {
+      // Directly generate the AI reply here
+      const aiGeneratedReply = await generateOpenAiSummary(userReplies);
+      reply = aiGeneratedReply; // Use AI reply as message content
+      setAiReply(aiGeneratedReply);
+      console.log('No more questions', JSON.parse(aiGeneratedReply));
+      setShowSubmitButtons(true);
+    }
+
+    return reply;
   }
 
   return (
@@ -101,6 +134,7 @@ export function Chat({ session }) {
           isLoading={isLoading}
         /> :
         <ChatSubmitButtons
+        // add error state and some text like 'check your ai summary and restart if you want to change anything'
           resetChat={resetChat}
           submitData={submitData}
         />
@@ -112,35 +146,6 @@ export function Chat({ session }) {
 function getRandomNumber(number) {
   // Generates random number from 0 to number
   return Number((Math.random() * number).toFixed());
-}
-
-
-async function generateNewReply(userName, userReplies, setShowSubmitButtons) {
-  let reply;
-  const length = userReplies.length;
-  console.log(userReplies);
-
-  if (userName && length < 5) {
-    reply = questionsJson[length][getRandomNumber(4)];
-    if (reply.includes('${userName}')) {
-      // Replace the placeholder with the actual value
-      reply = reply.replace('${userName}', `${userName}`);
-    }
-  } else if (!userName && length < 6) {
-    reply = questionsJson[length - 1][getRandomNumber(4)];
-    if (reply.includes('${userName}')) {
-      // Replace the placeholder with the actual value
-      reply = reply.replace('${userName}', userReplies[1] || 'Nice to meet you');
-    }
-  } else {
-    // reply = 'no more replies';
-    reply = await generateOpenAiSummary(userReplies);;
-    console.log('No more questions', userReplies);
-    setShowSubmitButtons(true);
-    // generateOpenAiSummary(userReplies);
-  }
-
-  return reply;
 }
 
 async function generateOpenAiSummary(userReplies) {
@@ -160,6 +165,7 @@ async function generateOpenAiSummary(userReplies) {
     if (res.ok) {
       console.log(data.message);
       aiReply = data.message
+      // setAiReply(data.message);
     } else {
       console.error(data.error);
     }

@@ -25,7 +25,7 @@ export function MessageWindow({ messages, typingMessage, isLoading }) {
 function MessageBubble({ message }) {
   return (
     <div
-      className={`flex ${
+      className={`mb-2 flex ${
         message.role === 'user' ? 'justify-end' : 'justify-start'
       }`}
     >
