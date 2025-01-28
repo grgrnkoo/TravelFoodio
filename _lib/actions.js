@@ -23,8 +23,11 @@ export async function addUsername(user) {
 }
 
 export async function getUserByEmail(email) {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'; // Fallback to localhost if NEXTAUTH_URL is not set
+    const apiUrl = `${baseUrl}/api/users/${email}`;
+
     try {
-        const response = await fetch(`/api/users/${email}`, {
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -54,15 +57,13 @@ export async function addData(email, data) {
 
     const baseUrl = process.env.NEXTAUTH_URL;
     console.log(baseUrl);
-    
+
     await fetch(`/api/users/${email}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            userPortrait: data
-        })
+        body: data
     }).then((response) => response.json())
         .then((data) => console.log('User updated: ', data, email))
         .catch((error) => console.error('Error: ', error));

@@ -1,47 +1,26 @@
-'use client'
+import React from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+import UserProfile from "@/components/UserProfile";
+import { getUserByEmail } from "../../../_lib/actions";
 
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
 
-
-export default function Dashboard({children}) {
+export default async function Dashboard({ children }) {
     // Dashboard page
-    const { data: session, status } = useSession({
-        required: true,
-        onUnauthenticated() {
-            redirect('/login?callbackUrl=/dashboard'); // add query parameters to show error later
-        }
-    });
-    const router = useRouter();
+    const session = await getServerSession(authOptions);
+    // const session = await getServerSession();
 
-    const [data, setData] = useState([]);
+    const userProfile = await getUserByEmail(session?.user?.email);
 
-    // useEffect(() => {
-    //     // Redirect to a login page if no session
-    //     if (status === "unauthenticated") {
-    //         router.push('/login'); // add error with query params later
-    //     }
-    // }, []);
-
-
-    useEffect(() => {
-        if (status === "authenticated") {
-            // Fetch data by an email from a session
-            axios.get(`/api/users/${session?.user?.email}`)
-                .then(response => setData(response.data))
-                .catch(error => console.error('Error fetching user data:', error));
-        };
-    }, [status]);
-
-    console.log(data);
+    console.log('Session: ', session);
+    console.log('User: ', userProfile);
 
     return (
         <>
-            {
-              children
-            }
+            <UserProfile />
+            {children && React.isValidElement(children) 
+                ? React.cloneElement(children, { userProfile }) 
+                : null}
         </>
     );
 }

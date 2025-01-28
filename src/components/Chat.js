@@ -84,11 +84,11 @@ export function Chat({ session }) {
   };
 
   const submitData = async () => {
-    // const addData = dynamic(() => import('../../_lib/actions').then((mod) => mod.addData), { ssr: false });
     const email = session?.user?.email;
     const arrayToPush = userReplies;
-    console.log('addData clicked')
-    await addData(email, arrayToPush);
+    console.log('addData clicked. arrayToPush:', arrayToPush)
+    console.log('AI Summary:', aiReply);
+    await addData(email, aiReply);
   }
 
 
