@@ -7,7 +7,8 @@ import { UserContext } from "@/components/UserProvider";
 
 export default function MenuGenerator() {
     const {session, userProfile} = useContext(UserContext);
-    
+
+    console.log('Menu context: ', session, userProfile)
     const handleGenerateMenu = async () => {
 
     }
