@@ -2,20 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import Menu from "@/components/Menu";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { UserContext } from "@/components/UserProvider";
 
-export default function MenuGenerator({ userProfile }) {
-    const [localUserProfile, setLocalUserProfile] = useState(userProfile);
-
-    // Update the local state when the parent sends new userReplies
-    useEffect(() => {
-        if (userProfile) {
-            setLocalUserProfile(userProfile);
-        }
-    }, [userProfile]);
-    // const { age, goals, location, dietaryRestrictions } = user;
-    if (!userProfile) console.log('loading');
-    console.log(localUserProfile);
+export default function MenuGenerator() {
+    const {session, userProfile} = useContext(UserContext);
+    
     const handleGenerateMenu = async () => {
 
     }
