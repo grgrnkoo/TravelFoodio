@@ -14,11 +14,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    // userPortrait: {
-    //     type: [String],
-    //     required: false,
-    //     default: []
-    // },
     age: {
         type: String,
         required: false,
