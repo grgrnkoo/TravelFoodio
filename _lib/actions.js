@@ -1,5 +1,7 @@
 // import User from "../models/User";
 
+import dbConnect from "./dbConnect";
+
 export async function addUsername(user) {
     const { email, name } = user;
     const username = email.split('@')[0];

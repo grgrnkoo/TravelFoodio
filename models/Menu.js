@@ -7,7 +7,7 @@ const menuSchema = new mongoose.Schema({
         required: true
     },
     menu: {
-        type: { Object },
+        type: mongoose.Schema.Types.Mixed,
         required: true
     },
     createdAt: {
@@ -19,6 +19,6 @@ const menuSchema = new mongoose.Schema({
     }
 })
 
-const Menu = mongoose.models.Menu || mongoose.model("User", menuSchema);
+const Menu = mongoose.models.Menu || mongoose.model("Menu", menuSchema);
 
 export default Menu;
