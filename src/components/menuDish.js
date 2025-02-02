@@ -3,8 +3,6 @@
 export default function MenuDish(props) {
     const { menuDish } = props;
 
-
-    console.log('Meal from lower component: ', menuDish)
     return (
         <div
             key={menuDish.meal}
