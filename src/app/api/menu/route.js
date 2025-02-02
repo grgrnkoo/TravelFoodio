@@ -7,21 +7,30 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
+    const date = new Date();
+    const dayStart = new Date(date.setHours(0, 0, 0, 0));
+    const dayEnd = new Date(date.setHours(23, 59, 59, 999));
 
-    console.log('Search Params: ', searchParams)
 
     if (!userId) {
         return NextResponse.json({ message: "User ID is required" }, { status: 400 });
     }
 
     try {
-        const menu = await Menu.findOne({ userId }).sort({ createdAt: -1 });
+        // const menu = await Menu.findOne({ userId }).sort({ createdAt: -1 });
 
-        if (!menu) {
+        const existingMenu = await Menu.findOne({
+            userId,
+            createdAt: { $gte: dayStart, $lt: dayEnd },
+        });
+
+        console.log('Existing menu:', existingMenu)
+
+        if (!existingMenu) {
             return NextResponse.json({ message: "No menu found" }, { status: 404 });
         }
 
-        return NextResponse.json(menu, { status: 200 });
+        return NextResponse.json(existingMenu, { status: 200 });
     } catch (error) {
         return NextResponse.json({ message: "Error fetching menu", error }, { status: 500 });
     }

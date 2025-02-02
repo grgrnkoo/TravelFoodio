@@ -11,8 +11,6 @@ export default function MenuGenerator() {
     const [menuContent, setMenuContent] = useState(null);
     const [loading, setLoading] = useState(false); // Added loading state for better UX
 
-    console.log(userProfile._id);
-
     const checkDbForMenu = async (userId) => {
         try {
             setLoading(true); // Set loading to true when the request is made
@@ -100,14 +98,14 @@ export default function MenuGenerator() {
             {loading ? (
                 <p>Loading...</p> // Show loading state while waiting for API response
             ) : (
-                <>
+                <div className='flex flex-col items-center'>
                     {menuContent ? (
                         <Menu content={menuContent} />
                     ) : (
                         <p className="mb-4">Generate a menu to start a day!</p>
                     )}
                     <Button onClick={handleGenerateMenu}>Generate Menu</Button>
-                </>
+                </div>
             )}
         </>
     );
