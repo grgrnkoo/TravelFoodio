@@ -98,7 +98,7 @@ export default function MenuGenerator() {
             {loading ? (
                 <p>Loading...</p> // Show loading state while waiting for API response
             ) : (
-                <div classname='flex flex-col items-center'>
+                <div className='flex flex-col items-center'>
                     {menuContent ? (
                         <Menu content={menuContent} />
                     ) : (
