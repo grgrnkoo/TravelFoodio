@@ -14,9 +14,9 @@ export default function UserPreferenceEdit(props) {
     return (
         <>
             {!inputState ? (
-                <span className="w-[90%]">
+                <p className="flex justify-stretch items-center max-w-[90%]">
                     {userData}
-                </span>
+                </p>
             ) : (
                 <div className="flex justify-stretch items-center">
                     <Input
