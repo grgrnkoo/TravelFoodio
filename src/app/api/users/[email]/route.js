@@ -61,3 +61,52 @@ export async function PUT(request) {
         );
     }
 }
+
+
+
+// Update any given field with new data
+export async function PATCH(req, { params }) {
+    await dbConnect();
+
+    try {
+        const body = await req.json();
+        const { key, value } = body;
+        const { email } = params;
+
+        console.log('Params: ', key, value, email);
+
+        if (!email || !key || value === undefined) {
+            return NextResponse.json({ message: "E-mail, key, and value are required" }, { status: 400 });
+        }
+
+        // Construct dynamic update object
+        const update = { [key]: value };
+
+        // Update the specific field in the user's preferences
+        const updatedUser = await User.findOneAndUpdate(
+            { email: email },
+            { $set: update },
+            { new: true }
+        );
+        console.log('Updated user: ', updatedUser);
+
+        if (!updatedUser) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+
+        return NextResponse.json(updatedUser, { status: 200, headers: { "Access-Control-Allow-Origin": "*" } });
+    } catch (error) {
+        return NextResponse.json({ message: "Error updating user preference", error }, { status: 500 });
+    }
+}
+
+export async function OPTIONS() {
+    return NextResponse.json({}, {
+        status: 200,
+        headers: {
+            "Access-Control-Allow-Origin": "*", // Allow all origins (not safe for production)
+            "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"
+        }
+    });
+}

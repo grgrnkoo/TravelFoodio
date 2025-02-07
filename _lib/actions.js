@@ -10,7 +10,7 @@ export async function addUsername(user) {
 
     const baseUrl = process.env.NEXTAUTH_URL;
 
-    fetch(`${baseUrl}/api/users/${email}`, {
+    await fetch(`${baseUrl}/api/users/${email}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
