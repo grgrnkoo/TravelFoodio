@@ -9,7 +9,7 @@ import { updateUserByEmail } from '../../_lib/usersActions';
 // One line of data at user profile
 export default function UserProfileLine(props) {
     const { userProfile } = useContext(UserContext);
-    const { userData, styleProp, nameOfLine, editable, oneEditingFieldBoolean, setOneEditingFieldBoolean, id } = props;
+    const { userData, styleProp, nameOfLine, editable, oneEditingFieldBoolean, setOneEditingFieldBoolean, id, setIsPopupOpen } = props;
 
     const [hovered, setHovered] = useState(false);
     const [inputState, setInputState] = useState(false);
@@ -23,6 +23,7 @@ export default function UserProfileLine(props) {
     const onCheckClick = (value) => {
         if (value !== userData) {
             setOptimisticUserData(value);
+            setIsPopupOpen(true);
             updateUserByEmail(userProfile.email, id, value);
         }
         setInputState(false);
