@@ -15,12 +15,12 @@ const userSchema = new mongoose.Schema({
         required: false
     },
     age: {
-        type: Number,
+        type: String,
         required: false,
         default: 0
     },
-    weight: {
-        type: Number,
+    location: {
+        type: String,
         required: false,
         default: 0
     },
@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
         required: false,
         default: ""
     },
-    additionalInfo: {
+    dietaryRestrictions: {
         type: String,
         required: false,
         default: ""

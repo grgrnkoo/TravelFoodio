@@ -1,0 +1,37 @@
+{
+    "0": [
+        "Hello! I'm your personal assistant, here to help you with your goals. May I know your name?",
+        "Welcome! I'm here to support you along the way. Let's get started by knowing your name.",
+        "Hi there! I'm excited to help you out. Could you tell me your name so we can begin?",
+        "Greetings! I'm here to assist you with anything you need. What's your name so we can get started?",
+        "Hi! I'm your guide, ready to assist with whatever you need. What's your name so we can begin?"
+    ],
+    "1": [
+        "${userName}! Glad to have you here! How old are you?",
+        "${userName}! It's great to meet you! Can I know your age?",
+        "${userName}! Excited to get started with you. What's your age?",
+        "${userName}! I'm here to support you. Could you tell me your age?",
+        "${userName}! Looking forward to working together. What's your age?"
+    ],
+    "2": [
+        "Got it! To help you better, I need to know where you're from. Could you share your city and country so I can recommend meals that are easily available for you?",
+        "Great! To make the best recommendations, I’d love to know where you're located. Can you tell me your city and country so I can suggest meals that suit your region?",
+        "Great! Can you let me know where you live? Your city and country will help me suggest meals that are simple to get based on your location.",
+        "Awesome! To offer the best suggestions, I need to know where you're located. Please share your city and country so I can suggest meals you can easily find.",
+        "Perfect! Let me know where you're from. Your city and country will allow me to suggest meals that are accessible and suited to your region."
+    ],
+    "3": [
+        "Awesome! Now that I have all the basics, let's talk about your goals. What brought you here? Are you looking to lose some weight, gain muscle, or just maintain your current shape? Or maybe you'd like a plan based on your favorite celebrity or influencer. Feel free to express yourself however you'd like—there’s no specific format here, just tell me your goals in as much detail as you want!",
+        "Great! Now that I know the basics, let’s dive into your goals. What are you aiming for? Want to lose some extra pounds, build more muscle, or simply maintain your current physique? Or maybe you’re inspired by a celebrity or influencer and want a plan like theirs. Don’t worry about format—just tell me what’s on your mind, however you like!",
+        "Perfect! With the basics covered, now I’d love to know your goals. Are you here to shed a few pounds, gain some mass, or simply stay in shape? Maybe you'd like a plan inspired by your favorite celebrity. There’s no right or wrong way to tell me—just share your goals however feels best for you!",
+        "Fantastic! Now that I have all the essentials, tell me what you want to achieve. Are you hoping to lose weight, build muscle, or maintain your current fitness level? Maybe you admire a celebrity's physique and want a plan like theirs. Feel free to describe your goals in as much detail as you like—there’s no need for any specific format!",
+        "Great! Now that I know the basics, let’s get to your goals. Are you looking to lose weight, gain muscle, or simply maintain your current fitness? Or perhaps you’d like a plan inspired by a celebrity or influencer you admire. No need to worry about structure—just tell me your goals however you’d like, the more detail the better!"
+    ],
+    "4": [
+        "Your goals are safe with me! We’ll keep everything private until you're ready to share your success. Now, let me know if there are any personal preferences or medical restrictions I should consider when crafting your plan.",
+        "No need to worry, your goals stay between us for now. Now, before we get started, tell me if there are any personal preferences or medical conditions I should know about to make your plan just right for you.",
+        "Perfect! We’ll keep this between us until you’re ready to share the results. Now, before we finish, let me know if there are any personal preferences or medical conditions I should be aware of. I can adapt everything to fit your needs.",
+        "Fantastic! Your goals remain our secret until you’re ready to share them. Now, to ensure everything goes smoothly, please tell me about any personal preferences or medical conditions. We can avoid anything that might not work for you.",
+        "Wonderful! Your goals are just between us, and you can reveal them when you're ready. Now, to finalize things, please share any personal preferences or medical restrictions you might have. I’ll make sure your plan fits perfectly!"
+    ]
+}
