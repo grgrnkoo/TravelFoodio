@@ -3,7 +3,7 @@ import { Input } from "./ui/input";
 import { Check, X } from 'lucide-react';
 
 export default function UserPreferenceEdit(props) {
-    const { userData, inputState, onXClick, onCheckClick } = props;
+    const { userData, inputState, onXClick, onCheckClick, handleKeyDown } = props;
     const [inputValue, setInputValue] = useState(userData);
 
     // Sync inputValue when userData changes externally
@@ -11,6 +11,12 @@ export default function UserPreferenceEdit(props) {
         setInputValue(userData);
     }, [userData]);
 
+    useEffect(() => {
+        if (inputState) {
+            setInputValue(userData); // Reset when opening the input field
+        }
+    }, [inputState]);
+    
     return (
         <>
             {!inputState ? (
@@ -24,6 +30,7 @@ export default function UserPreferenceEdit(props) {
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         className="w-[70%] flex-1 mr-2"
+                        onKeyDown={(e) => handleKeyDown(e, inputValue)}
                     />
                     <Check
                         className="mr-1 hover:cursor-pointer"
@@ -34,6 +41,7 @@ export default function UserPreferenceEdit(props) {
                         onClick={() => {
                             setInputValue(userData);
                             onXClick();
+                            console.log()
                         }}
                     />
                 </div>
