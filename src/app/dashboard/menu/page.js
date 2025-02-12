@@ -11,10 +11,12 @@ export default function MenuGenerator() {
     const [menuContent, setMenuContent] = useState(null);
     const [loading, setLoading] = useState(false); // Added loading state for better UX
 
+    const baseUrl = NEXTAUTH_URL;
+
     const checkDbForMenu = async (userId) => {
         try {
             setLoading(true); // Set loading to true when the request is made
-            const res = await fetch(`../api/menu?userId=${userId}`, {
+            const res = await fetch(`${baseUrl}/api/menu?userId=${userId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
