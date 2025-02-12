@@ -51,13 +51,19 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
             body: JSON.stringify({ goals, location, age, dietaryRestrictions }),
         });
 
-        const data = await res.json();
+        let data;
+        try {
+            data = await res.json(); // This fails if response is not JSON
+        } catch (err) {
+            console.error('Non-JSON response:', await res.text()); // Log raw response
+            throw new Error('Received non-JSON response from server');
+        }
 
         if (res.ok) {
             console.log('Generated menu:', data.message);
             await postMenuToDb(userProfile._id, data.message, setMenuContent);
         } else {
-            console.error('Error generating menu:', data.error);
+            throw new Error(data.error || 'Failed to generate menu');
         }
     } catch (error) {
         console.error('Error sending request:', error);
