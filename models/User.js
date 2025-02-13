@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
     },
     username: {
         type: String,
-        required: false
+        required: false,
+        unique: true
     },
     name: {
         type: String,
@@ -17,12 +18,12 @@ const userSchema = new mongoose.Schema({
     age: {
         type: String,
         required: false,
-        default: 0
+        default: "0"
     },
     location: {
         type: String,
         required: false,
-        default: 0
+        default: ""
     },
     goals: {
         type: String,
@@ -33,6 +34,26 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: ""
+    }, 
+    favoriteMeals: {
+        type: mongoose.Schema.Types.Mixed,
+        required: false, 
+        default: []
+    },
+    rejectedMeals: {
+        type: Array,
+        required: false, 
+        default: []
+    },
+    recentMeals: {
+        type: Array,
+        required: false, 
+        default: []
+    },
+    dislikedIngredients: {
+        type: [String],
+        required: false,
+        default: []
     }
 })
 

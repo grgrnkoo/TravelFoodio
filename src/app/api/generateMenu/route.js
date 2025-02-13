@@ -19,6 +19,7 @@ Return a structured JSON array of meal objects **without additional keys**. Each
   {
     "meal": "Dish Name",
     "ingredients": ["Ingredient 1", "Ingredient 2", "Ingredient 3"],
+    "cuisine": "Mediterranean"
     "fats": "~10g",
     "carbs": "~40g",
     "protein": "~15g",
@@ -27,6 +28,7 @@ Return a structured JSON array of meal objects **without additional keys**. Each
   {
     "meal": "Another Dish Name",
     "ingredients": ["Ingredient A", "Ingredient B"],
+    "cuisine": "Vietnamese"
     "fats": "~5g",
     "carbs": "~10g",
     "protein": "~20g",
