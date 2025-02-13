@@ -32,7 +32,7 @@ export async function checkDbForMenu(userId, setMenuContent, setLoading) {
 
         console.log('Fetched menu:', parsedMenu);
         setMenuContent(parsedMenu);
-        
+
     } catch (error) {
         console.error('Error fetching menu:', error);
         setMenuContent(null);
@@ -80,6 +80,7 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
                 }
                 const chunk = decoder.decode(value, { stream: true })
                 result += chunk;
+                console.log('result: ', result)
                 tempResult += chunk;
 
                 let oneMeal = extractObjectFromLine(tempResult);
@@ -99,21 +100,25 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
             }
         }
 
-
-        // Final processing
         try {
-            const finalData = JSON.parse(tempResult); // Attempt to parse any remaining data
-            if (finalData) setMenuContent((prevData) => [...prevData, finalData]);
-        } catch (finalParseError) {
-            console.error("Final JSON parsing error:", finalParseError, "Data:", tempResult);
-        }
+            const parsedResult = JSON.parse(result)
+            if (res.ok) {
+                console.log('type: ', typeof parsedResult === "object");
+                console.log('parsedResult: ', parsedResult);
 
-        if (res.ok) {
-            console.log('Generated menu:', result);
-            await postMenuToDb(userProfile._id, result);
-        } else {
-            throw new Error(data.error || 'Failed to generate menu');
+                if (parsedResult && typeof parsedResult === "object") {
+                    console.log('Generated menu:', parsedResult);
+                    await postMenuToDb(userProfile._id, result);
+                } else {
+                    throw new Error('Invalid JSON structure');
+                }
+            } else {
+                throw new Error('Failed to generate menu');
+            }
+        } catch (error) {
+            console.error('Error generating menu:', error);
         }
+        
     } catch (error) {
         console.error('Error sending request:', error);
     } finally {
