@@ -15,14 +15,24 @@ export async function checkDbForMenu(userId, setMenuContent, setLoading) {
             headers: { 'Content-Type': 'application/json' },
         });
 
-        if (res.status === 404) {
-            console.log('Menu does not exist');
-            setMenuContent(null);
-        } else {
-            const data = await res.json();
-            console.log('Fetched menu:', data);
-            setMenuContent(data);
+        if (!res.ok) {
+            if (res.status === 404) {
+                console.log('Menu does not exist');
+                setMenuContent(null);
+            } else {
+                console.error(`Server error: ${res.status} ${res.statusText}`);
+            }
+            return; // Stop execution if there's an error
         }
+
+        const data = await res.json();
+
+        // Ensure proper parsing
+        const parsedMenu = typeof data.menu === "string" ? JSON.parse(data.menu) : data.menu;
+
+        console.log('Fetched menu:', parsedMenu);
+        setMenuContent(parsedMenu);
+        
     } catch (error) {
         console.error('Error fetching menu:', error);
         setMenuContent(null);
@@ -30,6 +40,7 @@ export async function checkDbForMenu(userId, setMenuContent, setLoading) {
         setLoading(false); // End loading state
     }
 }
+
 
 /**
  * Generates a new menu and saves it to the database.
@@ -51,17 +62,55 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
             body: JSON.stringify({ goals, location, age, dietaryRestrictions }),
         });
 
-        let data;
+        if (!res.body) throw new Error('No response body');
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let streaming = true;
+
+        let result = '';
+        let tempResult = '';
+        setMenuContent([]);
+
+        while (streaming) {
+            try {
+                const { value, done } = await reader.read();
+                if (done) {
+                    streaming = false;
+                }
+                const chunk = decoder.decode(value, { stream: true })
+                result += chunk;
+                tempResult += chunk;
+
+                let oneMeal = extractObjectFromLine(tempResult);
+                if (oneMeal) {
+                    try {
+                        const jsonMenu = JSON.parse(oneMeal);
+                        console.log(jsonMenu);
+                        setMenuContent((prevData) => [...prevData, jsonMenu]);
+                        tempResult = '';
+                    } catch (error) {
+                        console.error("Invalid JSON:", error);
+                    }
+                }
+            } catch (streamError) {
+                console.error("Error while reading stream:", streamError);
+                streaming = false;
+            }
+        }
+
+
+        // Final processing
         try {
-            data = await res.json(); // This fails if response is not JSON
-        } catch (err) {
-            console.error('Non-JSON response:', await res.text()); // Log raw response
-            throw new Error('Received non-JSON response from server');
+            const finalData = JSON.parse(tempResult); // Attempt to parse any remaining data
+            if (finalData) setMenuContent((prevData) => [...prevData, finalData]);
+        } catch (finalParseError) {
+            console.error("Final JSON parsing error:", finalParseError, "Data:", tempResult);
         }
 
         if (res.ok) {
-            console.log('Generated menu:', data.message);
-            await postMenuToDb(userProfile._id, data.message, setMenuContent);
+            console.log('Generated menu:', result);
+            await postMenuToDb(userProfile._id, result);
         } else {
             throw new Error(data.error || 'Failed to generate menu');
         }
@@ -76,9 +125,8 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
  * Saves a menu to the database.
  * @param {string} userId - The user's ID.
  * @param {object} menu - The menu data.
- * @param {function} setMenuContent - Function to update the menu state.
  */
-export async function postMenuToDb(userId, menu, setMenuContent) {
+export async function postMenuToDb(userId, menu) {
     try {
         const res = await fetch(`${baseUrl}/api/menu?userId=${userId}`, {
             method: 'POST',
@@ -90,11 +138,17 @@ export async function postMenuToDb(userId, menu, setMenuContent) {
 
         if (res.ok) {
             console.log('Menu saved to DB:', data);
-            setMenuContent(data);
         } else {
             console.error('Error saving menu:', data.error);
         }
     } catch (error) {
         console.error('Error pushing menu to DB:', error);
     }
+}
+
+function extractObjectFromLine(line) {
+    if (line.includes('{') && line.includes('}')) {
+        return line.substring(line.indexOf('{'), line.lastIndexOf('}') + 1);
+    }
+    return null;
 }
