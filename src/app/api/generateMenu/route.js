@@ -17,7 +17,7 @@ Return a structured JSON array of meal objects **without additional keys**. Each
 \`\`\`json
 [
   {
-    "meal": "Meal Name",
+    "meal": "Dish Name",
     "ingredients": ["Ingredient 1", "Ingredient 2", "Ingredient 3"],
     "fats": "~10g",
     "carbs": "~40g",
@@ -25,7 +25,7 @@ Return a structured JSON array of meal objects **without additional keys**. Each
     "calories": "350 kcal"
   },
   {
-    "meal": "Another Meal",
+    "meal": "Another Dish Name",
     "ingredients": ["Ingredient A", "Ingredient B"],
     "fats": "~5g",
     "carbs": "~10g",
@@ -34,18 +34,20 @@ Return a structured JSON array of meal objects **without additional keys**. Each
   }
 ]
 \`\`\`
-Ensure **no extra text** or keys are present in the response, just a **pure JSON array**.`;
+Ensure **no extra text** or keys are present in the response, just a **pure JSON array**.
 
-        
+⚠️ **Important:** The "meal" field should contain only the **dish name** (e.g., "Chickenburger with cheese" or "Vietnamese Pho"). **Do not include meal categories** like "Breakfast," "Lunch," or "Dinner."`;
+
+
 
         if (!goals || !location || !age) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4",
+            model: "gpt-3.5-turbo",
             messages: [{ role: "system", content: prompt }],
-            temperature: 0.7, 
+            temperature: 0.7,
             stream: true
         });
 
@@ -54,7 +56,7 @@ Ensure **no extra text** or keys are present in the response, just a **pure JSON
             async start(controller) {
                 for await (const chunk of response) {
                     controller.enqueue(encoder.encode(chunk.choices[0]?.delta?.content || ''));
-                } 
+                }
                 controller.close();
             }
         })
