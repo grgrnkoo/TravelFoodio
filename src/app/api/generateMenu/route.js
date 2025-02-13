@@ -43,7 +43,7 @@ Ensure **no extra text** or keys are present in the response, just a **pure JSON
         }
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4",
+            model: "gpt-3.5-turbo",
             messages: [{ role: "system", content: prompt }],
             temperature: 0.7, 
             stream: true
