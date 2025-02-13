@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button"
 export function YesNoPopUp({ isOpen, onClose, onChoice, title = "Are you sure?", content, yesLabel = "Yes", noLabel = "No" }) {
     const [localOpen, setLocalOpen] = useState(isOpen) // Local state to track changes
 
-    console.log("Popup title:", title);
-
     useEffect(() => {
         setLocalOpen(isOpen)
     }, [isOpen]) // Sync state when `isOpen` changes

@@ -24,21 +24,32 @@ export default function MenuGenerator() {
 
     return (
         <div className="flex flex-col items-center">
-            {loading ? (
-                <p>Loading...</p> // Show loading state while waiting for API response
-            ) : menuContent ? (
-                <Menu content={menuContent} /> // Display menu if it exists
+            {!menuContent ? (
+                <p className="mb-4">Generate a menu to start a day!</p>
+            ) : loading ? (
+                <>
+                    <Menu content={menuContent} />
+                    <p>Loading...</p>
+                </>
             ) : (
-                <p className="mb-4">Generate a menu to start a day!</p> // Default message
+                <Menu content={menuContent} />
             )}
+
 
             {/* Button to generate a new menu */}
             <Button
                 onClick={() =>
                     handleGenerateMenu(setLoading, setMenuContent, goals, location, age, dietaryRestrictions, userProfile)
                 }
+                disabled={loading}
             >
-                Generate Menu
+                {
+                    !loading ? (
+                        'Generate Menu '
+                    ) : (
+                        'Loading...'
+                    )
+                }
             </Button>
         </div>
     );

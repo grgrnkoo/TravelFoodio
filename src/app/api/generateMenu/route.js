@@ -42,16 +42,24 @@ Ensure **no extra text** or keys are present in the response, just a **pure JSON
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const completion = await openai.chat.completions.create({
+        const response = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "system", content: prompt }],
-            temperature: 0.7
+            temperature: 0.7, 
+            stream: true
         });
 
-        const message = completion.choices[0].message.content;
-        console.log(message);
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream({
+            async start(controller) {
+                for await (const chunk of response) {
+                    controller.enqueue(encoder.encode(chunk.choices[0]?.delta?.content || ''));
+                } 
+                controller.close();
+            }
+        })
 
-        return new Response(JSON.stringify({ message }), { status: 200 });
+        return new Response(stream, { status: 200 });
     } catch (error) {
         console.error('OpenAI API Error:', error.response?.data || error.message);
         return new Response(
