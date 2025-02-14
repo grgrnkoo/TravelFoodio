@@ -1,4 +1,5 @@
 import { OpenAI } from 'openai';
+import { NextResponse } from 'next/server';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API,
@@ -17,26 +18,20 @@ Return a structured JSON array of meal objects **without additional keys**. Each
 \`\`\`json
 [
   {
-    "meal": "Dish Name",
+    "name": "Dish Name",
     "ingredients": ["Ingredient 1", "Ingredient 2", "Ingredient 3"],
-    "fats": "~10g",
-    "carbs": "~40g",
-    "protein": "~15g",
-    "calories": "350 kcal"
+    "cuisine": "Mediterranean"
+    "fats": 10,
+    "carbs": 40,
+    "protein": 15,
+    "calories": 350
   },
-  {
-    "meal": "Another Dish Name",
-    "ingredients": ["Ingredient A", "Ingredient B"],
-    "fats": "~5g",
-    "carbs": "~10g",
-    "protein": "~20g",
-    "calories": "500 kcal"
-  }
 ]
 \`\`\`
 Ensure **no extra text** or keys are present in the response, just a **pure JSON array**.
 
-⚠️ **Important:** The "meal" field should contain only the **dish name** (e.g., "Chickenburger with cheese" or "Vietnamese Pho"). **Do not include meal categories** like "Breakfast," "Lunch," or "Dinner."`;
+⚠️ **Important:** The "meal" field should contain only the **dish name** (e.g., "Chickenburger with cheese" or "Vietnamese Pho"). **Do not include meal categories** like "Breakfast," "Lunch," or "Dinner."
+Generate a different menu each time with unique meals. Do not repeat previous meals. Ensure variety in cuisines, ingredients, and nutrition.`;
 
 
 

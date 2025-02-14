@@ -1,3 +1,6 @@
+import MealClass from "@/classes/MealClass";
+import MenuClass from "@/classes/MenuClass";
+
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 /**
@@ -6,9 +9,10 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
  * @param {function} setMenuContent - Function to update the menu state.
  * @param {function} setLoading - Function to toggle the loading state.
  */
-export async function checkDbForMenu(userId, setMenuContent, setLoading) {
+
+export async function checkDbForMenu(userId, setLoading) {
     try {
-        setLoading(true); // Start loading state
+        setLoading(true);
 
         const res = await fetch(`${baseUrl}/api/menu?userId=${userId}`, {
             method: 'GET',
@@ -18,26 +22,39 @@ export async function checkDbForMenu(userId, setMenuContent, setLoading) {
         if (!res.ok) {
             if (res.status === 404) {
                 console.log('Menu does not exist');
-                setMenuContent(null);
-            } else {
-                console.error(`Server error: ${res.status} ${res.statusText}`);
+                return { menu: new MenuClass([]), status: 404, message: `Menu doesn't exist` };
             }
-            return; // Stop execution if there's an error
+            console.error(`Server error: ${res.status} ${res.statusText}`);
+            return { menu: new MenuClass([]), status: res.status, message: `Error fetching menu` };
         }
 
         const data = await res.json();
+        const menuData = typeof data.menu === "string" ? JSON.parse(data.menu) : data.menu;
 
-        // Ensure proper parsing
-        const parsedMenu = typeof data.menu === "string" ? JSON.parse(data.menu) : data.menu;
+        console.log('Fetched menu:', menuData);
 
-        console.log('Fetched menu:', parsedMenu);
-        setMenuContent(parsedMenu);
+        // Ensure each meal is wrapped in MealClass
+        const convertedMeals = menuData.map(meal => new MealClass(
+            meal.name,
+            meal.calories,
+            meal.cuisine,
+            meal.weight,
+            meal.protein,
+            meal.fats,
+            meal.carbs,
+            meal.ingredients,
+            meal.like,
+            meal.dislike
+        ));
+
+        return { menu: new MenuClass(convertedMeals), status: res.status, message: 'Menu parsed successfully' };
+
 
     } catch (error) {
         console.error('Error fetching menu:', error);
-        setMenuContent(null);
+        return { menu: new MenuClass([]), status: 500, message: `Error fetching menu: ${error}` };
     } finally {
-        setLoading(false); // End loading state
+        setLoading(false);
     }
 }
 
@@ -55,6 +72,7 @@ export async function checkDbForMenu(userId, setMenuContent, setLoading) {
 export async function handleGenerateMenu(setLoading, setMenuContent, goals, location, age, dietaryRestrictions, userProfile) {
     try {
         setLoading(true);
+        const menu = new MenuClass([]);
 
         const res = await fetch(`${baseUrl}/api/generateMenu`, {
             method: 'POST',
@@ -67,32 +85,44 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let streaming = true;
-
         let result = '';
         let tempResult = '';
-        setMenuContent([]);
 
         while (streaming) {
             try {
                 const { value, done } = await reader.read();
-                if (done) {
-                    streaming = false;
-                }
-                const chunk = decoder.decode(value, { stream: true })
+                if (done) streaming = false;
+                const chunk = decoder.decode(value, { stream: true });
+
                 result += chunk;
-                console.log('result: ', result)
                 tempResult += chunk;
 
-                let oneMeal = extractObjectFromLine(tempResult);
-                if (oneMeal) {
+                let extraction = extractObjectFromLine(tempResult);
+
+                while (extraction.extracted) { // Process all JSON objects in tempResult
                     try {
-                        const jsonMenu = JSON.parse(oneMeal);
-                        console.log(jsonMenu);
-                        setMenuContent((prevData) => [...prevData, jsonMenu]);
-                        tempResult = '';
+                        const rawMealData = JSON.parse(extraction.extracted);
+                        const streamedMeal = new MealClass(
+                            rawMealData.name,
+                            rawMealData.calories,
+                            rawMealData.cuisine,
+                            rawMealData.weight,
+                            rawMealData.protein,
+                            rawMealData.fats,
+                            rawMealData.carbs,
+                            rawMealData.ingredients,
+                            rawMealData.like,
+                            rawMealData.dislike,
+                        );
+                        menu.addMeal(streamedMeal);
+                        setMenuContent(prevMeals => [...prevMeals, streamedMeal]);
                     } catch (error) {
                         console.error("Invalid JSON:", error);
                     }
+
+                    // Update tempResult for the next iteration
+                    tempResult = extraction.remaining;
+                    extraction = extractObjectFromLine(tempResult);
                 }
             } catch (streamError) {
                 console.error("Error while reading stream:", streamError);
@@ -100,31 +130,30 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
             }
         }
 
-        try {
-            const parsedResult = JSON.parse(result)
-            if (res.ok) {
-                console.log('type: ', typeof parsedResult === "object");
-                console.log('parsedResult: ', parsedResult);
-
-                if (parsedResult && typeof parsedResult === "object") {
-                    console.log('Generated menu:', parsedResult);
-                    await postMenuToDb(userProfile._id, result);
-                } else {
-                    throw new Error('Invalid JSON structure');
-                }
-            } else {
-                throw new Error('Failed to generate menu');
-            }
-        } catch (error) {
-            console.error('Error generating menu:', error);
+        if (!res.ok) {
+            console.error('Failed to generate menu');
+            return { menu, status: res.status, message: "Failed to generate menu" };
         }
-        
+
+        let parsedResult;
+        try {
+            parsedResult = JSON.parse(result);
+        } catch (error) {
+            console.error("Invalid JSON streamed:", error);
+            return { menu, status: 400, message: "Invalid JSON streamed" };
+        }
+
+        await postMenuToDb(userProfile._id, JSON.stringify(parsedResult));
+        return { menu, status: 200, message: "Menu generated successfully!" };
+
     } catch (error) {
         console.error('Error sending request:', error);
+        return { menu, status: 400, message: `Error sending request: ${error.message}` };
     } finally {
         setLoading(false);
     }
 }
+
 
 /**
  * Saves a menu to the database.
@@ -152,8 +181,22 @@ export async function postMenuToDb(userId, menu) {
 }
 
 function extractObjectFromLine(line) {
-    if (line.includes('{') && line.includes('}')) {
-        return line.substring(line.indexOf('{'), line.lastIndexOf('}') + 1);
+    const start = line.indexOf('{');
+    const end = line.indexOf('}', start); // Ensure we get the first valid JSON object
+
+    if (start !== -1 && end !== -1) {
+        const extracted = line.substring(start, end + 1);
+        const remaining = line.substring(end + 1).trim(); // Remove processed object
+        return { extracted, remaining };
     }
-    return null;
+
+    return { extracted: null, remaining: line };
+}
+
+
+export function createMenuFromJson(jsonData) {
+    const meals = jsonData.meals.map(meal =>
+        new MealClass(meal.name, meal.calories, meal.ingredients)
+    );
+    return new MenuClass(meals);
 }

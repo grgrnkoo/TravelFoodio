@@ -15,7 +15,8 @@ const menuSchema = new mongoose.Schema({
         default: Date.now
     },
     expiresAt: {
-        type: Date
+        type: Date,
+        default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Auto-sets to 7 days from now
     }
 })
 
