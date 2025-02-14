@@ -7,7 +7,7 @@ const menuSchema = new mongoose.Schema({
         required: true
     },
     menu: {
-        type: [Object],
+        type: mongoose.Schema.Types.Mixed,
         required: true
     },
     createdAt: {
