@@ -4,6 +4,7 @@ import { ThumbsUp } from 'lucide-react';
 import { ThumbsDown } from 'lucide-react';
 import { useState } from 'react';
 import { updateIngredientsDb, updateMealDb } from '../../_lib/usersActions';
+import { handlePreferenceClick } from '../../_lib/mealsActions';
 
 const isMealLiked = (mealName, userFavoriteMeals) => {
     return userFavoriteMeals.some(meal => meal.name === mealName);
@@ -43,61 +44,61 @@ export default function MenuDish(props) {
         }
     }
 
-    const handlePreferenceClick = (action, e) => {
-        console.log('Action: ', action, 'Ingredients: ', meal.ingredients, 'Event: ', e.target, 'Liked: ', meal.like, 'Disliked: ', meal.dislike, 'Meal: ', meal, 'Liked meals: ', userLikedMeals, 'Disliked meals: ', userDislikedMeals);
-        addNewIngredientsToArray(meal.ingredients);
+    // const handlePreferenceClick = (action, e) => {
+    //     console.log('Action: ', action, 'Ingredients: ', meal.ingredients, 'Event: ', e.target, 'Liked: ', meal.like, 'Disliked: ', meal.dislike, 'Meal: ', meal, 'Liked meals: ', userLikedMeals, 'Disliked meals: ', userDislikedMeals);
+    //     addNewIngredientsToArray(meal.ingredients);
 
-        // Update the meal state
-        setMeal((prevMeal) => {
-            const updatedMeal = {
-                ...prevMeal,
-                like: action === "like" ? !prevMeal.like : false,
-                dislike: action === "dislike" ? !prevMeal.dislike : false
-            };
+    //     // Update the meal state
+    //     setMeal((prevMeal) => {
+    //         const updatedMeal = {
+    //             ...prevMeal,
+    //             like: action === "like" ? !prevMeal.like : false,
+    //             dislike: action === "dislike" ? !prevMeal.dislike : false
+    //         };
     
-            // Update the liked meals list
-            setUserLikedMeals((prevLiked) => {
-                let updatedLikedMeals = [...prevLiked];
+    //         // Update the liked meals list
+    //         setUserLikedMeals((prevLiked) => {
+    //             let updatedLikedMeals = [...prevLiked];
     
-                if (updatedMeal.like) {
-                    updatedLikedMeals = updatedLikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
-                    updatedLikedMeals.push(updatedMeal);
-                } else {
-                    updatedLikedMeals = updatedLikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
-                }
+    //             if (updatedMeal.like) {
+    //                 updatedLikedMeals = updatedLikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
+    //                 updatedLikedMeals.push(updatedMeal);
+    //             } else {
+    //                 updatedLikedMeals = updatedLikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
+    //             }
     
-                return updatedLikedMeals;
-            });
+    //             return updatedLikedMeals;
+    //         });
     
-            // Update the disliked meals list
-            setUserDislikedMeals((prevDisliked) => {
-                let updatedDislikedMeals = [...prevDisliked];
+    //         // Update the disliked meals list
+    //         setUserDislikedMeals((prevDisliked) => {
+    //             let updatedDislikedMeals = [...prevDisliked];
     
-                if (updatedMeal.dislike) {
-                    updatedDislikedMeals = updatedDislikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
-                    updatedDislikedMeals.push(updatedMeal);
-                } else {
-                    updatedDislikedMeals = updatedDislikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
-                }
+    //             if (updatedMeal.dislike) {
+    //                 updatedDislikedMeals = updatedDislikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
+    //                 updatedDislikedMeals.push(updatedMeal);
+    //             } else {
+    //                 updatedDislikedMeals = updatedDislikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
+    //             }
     
-                return updatedDislikedMeals;
-            });
+    //             return updatedDislikedMeals;
+    //         });
     
-            return updatedMeal;
-        });
-    }
+    //         return updatedMeal;
+    //     });
+    // }
     
-    const addNewIngredientsToArray = (mealIngredients) => {
-    setUserIngredients((prevIngredients) => {
-        // Add new ingredients to the array as objects with default rating of 0
-        const newIngredients = mealIngredients
-            .filter((ingredient) => !prevIngredients.some(item => item.name === ingredient))
-            .map((ingredient) => ({ name: ingredient, rating: 0 }));
+//     const addNewIngredientsToArray = (mealIngredients) => {
+//     setUserIngredients((prevIngredients) => {
+//         // Add new ingredients to the array as objects with default rating of 0
+//         const newIngredients = mealIngredients
+//             .filter((ingredient) => !prevIngredients.some(item => item.name === ingredient))
+//             .map((ingredient) => ({ name: ingredient, rating: 0 }));
         
-        // Return the updated userIngredients with new ingredients added
-        return [...prevIngredients, ...newIngredients];
-    });
-};
+//         // Return the updated userIngredients with new ingredients added
+//         return [...prevIngredients, ...newIngredients];
+//     });
+// };
 
 
     console.log(userIngredients);
@@ -127,8 +128,8 @@ export default function MenuDish(props) {
                         meal.like ? 'green' : 'black'
                     }
                     fillOpacity={.5}
-                    onClick={(e) => {
-                        handlePreferenceClick('like', e);
+                    onClick={() => {
+                        handlePreferenceClick('like', meal, setUserLikedMeals, setUserDislikedMeals, setUserIngredients, setMeal);
                     }}
                 />
                 <ThumbsDown
@@ -142,7 +143,7 @@ export default function MenuDish(props) {
                     }
                     fillOpacity={.5}
                     onClick={(e) => {
-                        handlePreferenceClick('dislike', e);
+                        handlePreferenceClick('dislike', meal, setUserLikedMeals, setUserDislikedMeals, setUserIngredients, setMeal);
                     }}
                 />
             </div>
