@@ -37,6 +37,8 @@ export default function MenuGenerator() {
         console.log(await handleGenerateMenu(setLoading, setMenuContent, goals, location, age, dietaryRestrictions, userProfile));
     };
 
+    console.log(userProfile)
+
     return (
         <div className="flex flex-col items-center">
             {!menuContent ||
