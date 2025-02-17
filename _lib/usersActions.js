@@ -25,3 +25,11 @@ export async function updateUserByEmail(email, key, value) {
         return { success: false, error };
     }
 }
+
+// export async function updateIngredientsDb (email) {
+    
+// }
+
+// export async function updateMealDb () {
+
+// }

@@ -31,8 +31,6 @@ export async function checkDbForMenu(userId, setLoading) {
         const data = await res.json();
         const menuData = typeof data.menu === "string" ? JSON.parse(data.menu) : data.menu;
 
-        console.log('Fetched menu:', menuData);
-
         // Ensure each meal is wrapped in MealClass
         const convertedMeals = menuData.map(meal => new MealClass(
             meal.name,

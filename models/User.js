@@ -34,24 +34,35 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false,
         default: ""
-    }, 
+    },
     favoriteMeals: {
-        type: mongoose.Schema.Types.Mixed,
-        required: false, 
+        type: [{
+            name: { type: String, required: true },
+            // mealId: { type: mongoose.Schema.Types.ObjectId, required: true },
+            mealIngredients: { type: [String], default: [] },
+            dateAdded: { type: Date, default: Date.now }
+        }],
+        required: false,
         default: []
     },
-    rejectedMeals: {
-        type: Array,
-        required: false, 
+    dislikedMeals: {
+        type: [{
+            name: { type: String, required: true },
+            // mealId: { type: mongoose.Schema.Types.ObjectId, required: true },
+            mealIngredients: { type: [String], default: [] },
+            dateAdded: { type: Date, default: Date.now }
+        }],
+        required: false,
         default: []
     },
-    recentMeals: {
-        type: Array,
-        required: false, 
-        default: []
-    },
-    dislikedIngredients: {
-        type: [String],
+    ingredients: {
+        type: [{
+            name: { type: String, required: true },
+            // ingredientId: { type: mongoose.Schema.Types.ObjectId, required: true },
+            rating: { type: Number, default: 0 },
+            dateAdded: { type: Date, default: Date.now }
+
+        }],
         required: false,
         default: []
     }
