@@ -1,68 +1,97 @@
-export function handlePreferenceClick(action, meal, setUserLikedMeals, setUserDislikedMeals, setUserIngredients, setMeal) {
-    console.log('Action: ', action, 'Ingredients: ', meal.ingredients, 'Liked: ', meal.like, 'Disliked: ', meal.dislike, 'Meal: ', meal);
-    addNewIngredientsToArray(meal.ingredients, setUserIngredients);
+export async function handlePreferenceClick(
+    action,
+    meal,
+    setUserLikedMeals,
+    setUserDislikedMeals,
+    setUserIngredients,
+    setUserCuisines,
+    like,
+    dislike
+) {
+    console.log(
+        "Action: ", action,
+        "Ingredients: ", meal.ingredients,
+        "Liked: ", like,
+        "Disliked: ", dislike,
+        "Cuisine: ", meal.cuisine
+    );
 
-    // Update the meal state
-    setMeal((prevMeal) => {
-        const isCurrentlyLiked = prevMeal.like;
-        const isCurrentlyDisliked = prevMeal.dislike;
+    addNewElementsToArray(meal.ingredients, setUserIngredients);
+    addNewElementsToArray(meal.cuisine, setUserCuisines);
 
-        const updatedMeal = {
-            ...prevMeal,
-            like: action === "like" ? !prevMeal.like : false,
-            dislike: action === "dislike" ? !prevMeal.dislike : false
-        };
+    const isCurrentlyLiked = like;
+    const isCurrentlyDisliked = dislike;
 
-        // Update the liked meals list
-        setUserLikedMeals((prevLiked) => {
-            let updatedLikedMeals = [...prevLiked];
+    const updatedLike = action === "like" ? !isCurrentlyLiked : false;
+    const updatedDislike = action === "dislike" ? !isCurrentlyDisliked : false;
 
-            if (updatedMeal.like) {
-                updatedLikedMeals = updatedLikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
-                updatedLikedMeals.push(updatedMeal);
-            } else {
-                updatedLikedMeals = updatedLikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
-            }
+    const updatedMeal = {
+        ...meal,
+        like: action === "like" ? !meal.like : false,
+        dislike: action === "dislike" ? !meal.dislike : false,
+    };
 
-            return updatedLikedMeals;
-        });
+    // Update the liked meals list
+    setUserLikedMeals((prevLiked) => {
+        let updatedLikedMeals = [...prevLiked];
 
-        // Update the disliked meals list
-        setUserDislikedMeals((prevDisliked) => {
-            let updatedDislikedMeals = [...prevDisliked];
+        if (updatedLike) {
+            updatedLikedMeals = updatedLikedMeals.filter(m => m.name !== updatedMeal.name);
+            updatedLikedMeals.push(updatedMeal);
+        } else {
+            updatedLikedMeals = updatedLikedMeals.filter(m => m.name !== updatedMeal.name);
+        }
 
-            if (updatedMeal.dislike) {
-                updatedDislikedMeals = updatedDislikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
-                updatedDislikedMeals.push(updatedMeal);
-            } else {
-                updatedDislikedMeals = updatedDislikedMeals.filter(m => m.name !== updatedMeal.name); // Use name here
-            }
-
-            return updatedDislikedMeals;
-        });
-        updateIngredientRating(action, meal.ingredients, setUserIngredients, isCurrentlyLiked, isCurrentlyDisliked);
-        
-        return updatedMeal;
+        return updatedLikedMeals;
     });
+
+    // Update the disliked meals list
+    setUserDislikedMeals((prevDisliked) => {
+        let updatedDislikedMeals = [...prevDisliked];
+
+        if (updatedDislike) {
+            updatedDislikedMeals = updatedDislikedMeals.filter(m => m.name !== updatedMeal.name);
+            updatedDislikedMeals.push(updatedMeal);
+        } else {
+            updatedDislikedMeals = updatedDislikedMeals.filter(m => m.name !== updatedMeal.name);
+        }
+
+        return updatedDislikedMeals;
+    });
+
+    updateElementRating(action, meal.ingredients, setUserIngredients, isCurrentlyLiked, isCurrentlyDisliked);
+    updateElementRating(action, meal.cuisine, setUserCuisines, isCurrentlyLiked, isCurrentlyDisliked);
 }
 
-const addNewIngredientsToArray = (mealIngredients, setUserIngredients) => {
-    setUserIngredients((prevIngredients) => {
-        // Add new ingredients to the array as objects with default rating of 0
-        const newIngredients = mealIngredients
-            .filter((ingredient) => !prevIngredients.some(item => item.name === ingredient))
-            .map((ingredient) => ({ name: ingredient, rating: 0 }));
-        
-        // Return the updated userIngredients with new ingredients added
-        return [...prevIngredients, ...newIngredients];
+
+const addNewElementsToArray = (toBeSet, setFunction) => {
+    // Ensure toBeSet is always an array
+    const elementsArray = Array.isArray(toBeSet) ? toBeSet : [toBeSet];
+
+    setFunction((prevElements = []) => {
+        if (!Array.isArray(prevElements)) {
+            console.error('Error: prevElements is not an array', prevElements);
+            return prevElements;
+        }
+
+        const newElements = elementsArray
+            .filter((element) => !prevElements.some(item => item.name === element))
+            .map((element) => ({ name: element, rating: 0 }));
+
+        return [...prevElements, ...newElements];
     });
 };
 
-const updateIngredientRating = (action, mealIngredients, setUserIngredients, wasLiked, wasDisliked) => {
-    setUserIngredients((prevIngredients) => {
-        return prevIngredients.map((ingredient) => {
-            if (mealIngredients.includes(ingredient.name)) {
-                let newRating = ingredient.rating;
+
+const updateElementRating = (action, mealElements, setElements, wasLiked, wasDisliked) => {
+    const elementsArray = Array.isArray(mealElements) ? mealElements : [mealElements];
+
+    setElements((prevElements) => {  // Fix: use setElements, not setUserIngredients
+        console.log("Updating elements:", prevElements); // Check how often it runs
+
+        return prevElements.map((element) => {
+            if (elementsArray.includes(element.name)) { // Ensure mealElements is an array
+                let newRating = element.rating;
 
                 if (action === "like") {
                     if (wasLiked) newRating -= 1; // Unliking decreases rating
@@ -78,9 +107,9 @@ const updateIngredientRating = (action, mealIngredients, setUserIngredients, was
                     }
                 }
 
-                return { ...ingredient, rating: newRating };
+                return { ...element, rating: newRating };
             }
-            return ingredient;
+            return element;
         });
     });
 };

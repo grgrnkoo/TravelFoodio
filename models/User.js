@@ -65,6 +65,17 @@ const userSchema = new mongoose.Schema({
         }],
         required: false,
         default: []
+    },
+    cuisines: {
+        type: [{
+            name: { type: String, required: true },
+            // cuisineId: { type: mongoose.Schema.Types.ObjectId, required: true },
+            rating: { type: Number, default: 0 },
+            dateAdded: { type: Date, default: Date.now }
+
+        }],
+        required: false,
+        default: []
     }
 })
 

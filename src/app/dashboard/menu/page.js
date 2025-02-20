@@ -16,6 +16,7 @@ export default function MenuGenerator() {
 
     // Fetch the menu from the database when the user profile is available
     useEffect(() => {
+        console.log(userProfile)
         if (userProfile?._id) {
             fetchMenu();
         }
@@ -37,12 +38,11 @@ export default function MenuGenerator() {
         console.log(await handleGenerateMenu(setLoading, setMenuContent, goals, location, age, dietaryRestrictions, userProfile));
     };
 
-    console.log(userProfile)
-
     return (
         <div className="flex flex-col items-center">
             {!menuContent ||
-                menuContent.length === 0
+                menuContent.length === 0 ||
+                !userProfile
                 ? (
                     <p className="mb-4">Generate a menu to start a day!</p>
                 ) : loading ? (
