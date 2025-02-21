@@ -11,12 +11,11 @@ export default function MenuGenerator() {
     const { userProfile } = useContext(UserContext);
     const { goals, location, age, dietaryRestrictions } = userProfile;
     const [menuContent, setMenuContent] = useState([]);
-    const [menu, setMenu] = useState(null);
     const [loading, setLoading] = useState(false); // Controls the loading state
 
     // Fetch the menu from the database when the user profile is available
     useEffect(() => {
-        console.log(userProfile)
+        console.log('User profile: ', userProfile)
         if (userProfile?._id) {
             fetchMenu();
         }
@@ -27,7 +26,7 @@ export default function MenuGenerator() {
         if (fetchedMenu.status === 200) {
             if (fetchedMenu.menu?.meals?.length) {  
                 setMenuContent(fetchedMenu.menu.meals);
-                setMenu(fetchedMenu);
+                // setMenu(fetchedMenu);
             } else {
                 console.warn("Fetched menu is empty or undefined!");
             }
