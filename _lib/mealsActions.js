@@ -113,3 +113,20 @@ const updateElementRating = (action, mealElements, setElements, wasLiked, wasDis
         });
     });
 };
+
+export const updateUserPreferences = async (likedMeals, dislikedMeals, ingredients, cuisine) => {
+    try {
+        const response = await fetch('/api/preferenceUpdate', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ likedMeals, dislikedMeals, ingredients, cuisine })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to update preferences");
+
+        console.log("Preferences updated:", data);
+    } catch (error) {
+        console.error("Error updating preferences:", error);
+    }
+};

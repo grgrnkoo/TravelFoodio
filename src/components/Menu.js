@@ -1,17 +1,29 @@
 'use client'
 
-import { useEffect, useMemo, useState, useContext } from "react";
+import { useMemo, useState, useContext } from "react";
 import { UserContext } from "./UserProvider";
-import MenuDish from "./MenuDish";
-import { handlePreferenceClick } from '../../_lib/mealsActions';
+import { updateUserPreferences } from "../../_lib/mealsActions";
 
 export default function Menu(menuContent) {
     const time = useMemo(() => new Date().toISOString(), []);
     const userContext = useContext(UserContext);
-    const [userLikedMeals, setUserLikedMeals] = useState(userContext.userProfile?.favoriteMeals);
-    const [userDislikedMeals, setUserDislikedMeals] = useState(userContext.userProfile?.dislikedMeals);
-    const [userIngredients, setUserIngredients] = useState(userContext.userProfile?.ingredients);
-    const [userCuisines, setUserCuisines] = useState(userContext.userProfile?.cuisines);
+    const [userLikedMeals, setUserLikedMeals] = useState([]);
+    const [userDislikedMeals, setUserDislikedMeals] = useState([]);
+    const [userIngredients, setUserIngredients] = useState([]);
+    const [userCuisines, setUserCuisines] = useState([]);
+    const [updatedRecently, setUpdatedRecently] = useState(false);
+
+    useEffect(() => {
+        let timer;
+        if (updatedRecently) {
+            timer = setTimeout(() => {
+                setUpdatedRecently(false);
+                // Call the updateUserPreferences function here
+            }, 500);
+        }
+        return () => clearTimeout(timer);  // Cleanup the timeout when the component unmounts or before the next effect run
+    }, [updatedRecently]);  // Trigger effect when updatedRecently changes
+    
 
     console.log('Liked meals: ', userLikedMeals)
     console.log('Disiked meals: ', userDislikedMeals)
@@ -25,7 +37,6 @@ export default function Menu(menuContent) {
                 menuContent.content.map((menuDish, index) => (
                     <MenuDish
                         menuDish={menuDish}
-                        // handleLikeClick={handleClick}
                         userLikedMeals={userLikedMeals}
                         setUserLikedMeals={setUserLikedMeals}
                         userDislikedMeals={userDislikedMeals}
@@ -40,3 +51,4 @@ export default function Menu(menuContent) {
         </div>
     );
 }
+import MenuDish from "./MenuDish";
