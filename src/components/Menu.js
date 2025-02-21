@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useContext } from "react";
+import { useMemo, useState, useContext, useEffect } from "react";
 import { UserContext } from "./UserProvider";
 import { updateUserPreferences } from "../../_lib/mealsActions";
 
@@ -18,7 +18,7 @@ export default function Menu(menuContent) {
         if (updatedRecently) {
             timer = setTimeout(() => {
                 setUpdatedRecently(false);
-                // Call the updateUserPreferences function here
+                // updateUserPreferences()
             }, 500);
         }
         return () => clearTimeout(timer);  // Cleanup the timeout when the component unmounts or before the next effect run
