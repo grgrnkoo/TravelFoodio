@@ -114,12 +114,13 @@ const updateElementRating = (action, mealElements, setElements, wasLiked, wasDis
     });
 };
 
-export const updateUserPreferences = async (likedMeals, dislikedMeals, ingredients, cuisine) => {
+export const updateUserPreferences = async (userId, likedMeals, dislikedMeals, ingredients, cuisines) => {
     try {
+        console.log('Sending to backend:', { userId, likedMeals, dislikedMeals, ingredients, cuisines });
         const response = await fetch('/api/preferenceUpdate', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ likedMeals, dislikedMeals, ingredients, cuisine })
+            body: JSON.stringify({ userId, likedMeals, dislikedMeals, ingredients, cuisines })
         });
 
         const data = await response.json();
