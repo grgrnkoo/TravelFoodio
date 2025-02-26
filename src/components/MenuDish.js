@@ -2,23 +2,41 @@
 
 import { ThumbsUp } from 'lucide-react';
 import { ThumbsDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { UserContext } from "./UserProvider";
 import { handlePreferenceClick } from '../../_lib/mealsActions';
 
 const checkLikeDislike = (mealName, array) => {
+    console.log('Meal name: ', mealName);
     return array.some(meal => meal.name === mealName);
 };
 
 export default function MenuDish(props) {
-    const { menuDish, userLikedMeals, setUserLikedMeals, userDislikedMeals, setUserDislikedMeals, userIngredients, setUserIngredients, userCuisines, setUserCuisines, handleLikeClick } = props;
-    const [like, setLike] = useState(checkLikeDislike(menuDish, userLikedMeals));
-    const [dislike, setDislike] = useState(checkLikeDislike(menuDish, userLikedMeals));
+    const { 
+        menuDish, 
+        userLikedMeals, 
+        userDislikedMeals,
+        setUserLikedMeals, 
+        setUserDislikedMeals, 
+        userIngredients, 
+        setUserIngredients, 
+        userCuisines, 
+        setUserCuisines, 
+        setUpdatedRecently 
+    } = props;
+
+    const { userProfile } = useContext(UserContext);
+
+    const [like, setLike] = useState(checkLikeDislike(menuDish.name, userProfile.favoriteMeals));
+    const [dislike, setDislike] = useState(checkLikeDislike(menuDish.name, userProfile.dislikedMeals));
 
     const handleClick = async (action) => {
         setLike(action === "like" ? !like : false);
         setDislike(action === "dislike" ? !dislike : false);
 
         await handlePreferenceClick(action, menuDish, setUserLikedMeals, setUserDislikedMeals, setUserIngredients, setUserCuisines, like, dislike);
+
+        setUpdatedRecently(true);
     };
 
     return (

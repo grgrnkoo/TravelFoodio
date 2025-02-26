@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
         type: [{
             name: { type: String, required: true },
             // mealId: { type: mongoose.Schema.Types.ObjectId, required: true },
-            mealIngredients: { type: [String], default: [] },
+            // mealIngredients: { type: [String], default: [] },
             dateAdded: { type: Date, default: Date.now }
         }],
         required: false,
@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
         type: [{
             name: { type: String, required: true },
             // mealId: { type: mongoose.Schema.Types.ObjectId, required: true },
-            mealIngredients: { type: [String], default: [] },
+            // mealIngredients: { type: [String], default: [] },
             dateAdded: { type: Date, default: Date.now }
         }],
         required: false,
