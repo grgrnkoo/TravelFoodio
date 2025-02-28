@@ -1,85 +1,79 @@
-'use client'
+'use client';
+import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { useContext } from 'react';
+import { UserContext } from './UserProvider';
 
-import { ThumbsUp } from 'lucide-react';
-import { ThumbsDown } from 'lucide-react';
-import { useState, useContext } from 'react';
-import { UserContext } from "./UserProvider";
-import { handlePreferenceClick } from '../../_lib/mealsActions';
+export default function MenuDish({ menuDish }) {
+  const { userProfile } = useContext(UserContext);
+  const [like, setLike] = useState(false);
+  const [dislike, setDislike] = useState(false);
 
-const checkLikeDislike = (mealName, array) => {
-    console.log('Meal name: ', mealName);
-    return array.some(meal => meal.name === mealName);
-};
+  // Fetch initial state on load
+  useEffect(() => {
+    if (userProfile?._id) {
+      setLike(userProfile.favoriteMeals.some(m => m.name === menuDish.name));
+      setDislike(userProfile.dislikedMeals.some(m => m.name === menuDish.name));
+    }
+  }, [userProfile, menuDish.name]);
 
-export default function MenuDish(props) {
-    const { 
-        menuDish, 
-        userLikedMeals, 
-        userDislikedMeals,
-        setUserLikedMeals, 
-        setUserDislikedMeals, 
-        userIngredients, 
-        setUserIngredients, 
-        userCuisines, 
-        setUserCuisines, 
-        setUpdatedRecently 
-    } = props;
-
-    const { userProfile } = useContext(UserContext);
-
-    const [like, setLike] = useState(checkLikeDislike(menuDish.name, userProfile.favoriteMeals));
-    const [dislike, setDislike] = useState(checkLikeDislike(menuDish.name, userProfile.dislikedMeals));
-
-    const handleClick = async (action) => {
-        setLike(action === "like" ? !like : false);
-        setDislike(action === "dislike" ? !dislike : false);
-
-        await handlePreferenceClick(action, menuDish, setUserLikedMeals, setUserDislikedMeals, setUserIngredients, setUserCuisines, like, dislike);
-
-        setUpdatedRecently(true);
+  // Simple debounce function
+  const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
     };
+  };
 
-    return (
-        <div
-            key={menuDish.name}
-            className="w-full border border-black rounded-md my-4 p-2"
-        >
+  const updatePreference = useCallback(
+    debounce(async (action) => {
+      try {
+        const response = await fetch('/api/preferenceUpdate', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userProfile._id, meal: menuDish, action }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setLike(action === 'like' ? !like : false);
+          setDislike(action === 'dislike' ? !dislike : false);
+        } else {
+          console.error('Update failed:', data.error);
+        }
+      } catch (error) {
+        console.error('Request error:', error);
+      }
+    }, 500),
+    [menuDish, like, dislike, userProfile?._id]
+  );
 
-            <p><strong>Meal:</strong> {menuDish?.name}</p>
-            <p><strong>Cuisine:</strong> {menuDish?.cuisine}</p>
-            <p><strong>Approximate Calories:</strong> {menuDish?.calories}kcal</p>
-            <p><strong>Carbs:</strong> {menuDish?.carbs}g</p>
-            <p><strong>Fats:</strong> {menuDish?.fats}g</p>
-            <p><strong>Protein:</strong> {menuDish?.protein}g</p>
-            <p><strong>Ingredients:</strong> {menuDish?.ingredients?.join(", ")}</p>
-            <p><strong>Ingredient Rating:</strong> {userIngredients.map((ingredient) => ingredient.rating)}</p>
-            <p><strong>Cuisine Rating:</strong> {userCuisines.map((cuisine) => cuisine.rating)}</p>
-            <div className='flex justify-end p-2 '>
-                <ThumbsUp
-                    className='hover:cursor-pointer'
-                    strokeWidth={1}
-                    fill={
-                        like ? 'green' : 'none'
-                    }
-                    stroke={
-                        like ? 'green' : 'black'
-                    }
-                    fillOpacity={.5}
-                    onClick={() => handleClick('like')}
-                />
-                <ThumbsDown
-                    className='ml-2 hover:cursor-pointer'
-                    strokeWidth={1}
-                    fill={
-                        dislike ? 'red' : 'none'
-                    }
-                    stroke={
-                        dislike ? 'red' : 'black'
-                    }
-                    fillOpacity={.5}
-                    onClick={() => handleClick('dislike')}
-                />
-            </div>
-        </div>
-    )
+  const handleClick = (action) => {
+    updatePreference(action);
+  };
+
+  return (
+    <div className="w-full border border-black rounded-md my-4 p-2">
+      <p><strong>Meal:</strong> {menuDish?.name}</p>
+      <p><strong>Cuisine:</strong> {menuDish?.cuisine}</p>
+      <p><strong>Calories:</strong> {menuDish?.calories}kcal</p>
+      <p><strong>Ingredients:</strong> {menuDish?.ingredients?.join(', ')}</p>
+      <div className="flex justify-end p-2">
+        <ThumbsUp
+          className="hover:cursor-pointer"
+          fill={like ? 'green' : 'none'}
+          stroke={like ? 'green' : 'black'}
+          fillOpacity={0.5}
+          onClick={() => handleClick('like')}
+        />
+        <ThumbsDown
+          className="ml-2 hover:cursor-pointer"
+          fill={dislike ? 'red' : 'none'}
+          stroke={dislike ? 'red' : 'black'}
+          fillOpacity={0.5}
+          onClick={() => handleClick('dislike')}
+        />
+      </div>
+    </div>
+  );
 }

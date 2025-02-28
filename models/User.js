@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
             name: { type: String, required: true },
             // mealId: { type: mongoose.Schema.Types.ObjectId, required: true },
             // mealIngredients: { type: [String], default: [] },
-            dateAdded: { type: Date, default: Date.now }
+            dateLastUpdated: { type: Date, default: Date.now }
         }],
         required: false,
         default: []
@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
             name: { type: String, required: true },
             // mealId: { type: mongoose.Schema.Types.ObjectId, required: true },
             // mealIngredients: { type: [String], default: [] },
-            dateAdded: { type: Date, default: Date.now }
+            dateLastUpdated: { type: Date, default: Date.now }
         }],
         required: false,
         default: []
@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
             name: { type: String, required: true },
             // ingredientId: { type: mongoose.Schema.Types.ObjectId, required: true },
             rating: { type: Number, default: 0 },
-            dateAdded: { type: Date, default: Date.now }
+            dateLastUpdated: { type: Date, default: Date.now }
 
         }],
         required: false,
@@ -71,11 +71,16 @@ const userSchema = new mongoose.Schema({
             name: { type: String, required: true },
             // cuisineId: { type: mongoose.Schema.Types.ObjectId, required: true },
             rating: { type: Number, default: 0 },
-            dateAdded: { type: Date, default: Date.now }
+            dateLastUpdated: { type: Date, default: Date.now }
 
         }],
         required: false,
         default: []
+    },
+    updatesRemaining: {
+        type: Number,
+        required: true,
+        default: 1, // Free users get 1 menu update
     }
 })
 
