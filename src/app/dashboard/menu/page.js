@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import Menu from "@/components/Menu";
 import { useEffect, useState, useContext } from "react";
 import { UserContext } from "@/components/UserProvider";
-import { checkDbForMenu, handleGenerateMenu, createMenuFromJson } from "../../../../_lib/menuActions";
-import MenuClass from "@/classes/MenuClass";
+import { checkDbForMenu, handleGenerateMenu } from "../../../../_lib/menuActions";
 import { decreaseUpdates, resetUpdates } from "../../../../_lib/usersActions";
 
 export default function MenuGenerator() {
@@ -49,8 +48,11 @@ export default function MenuGenerator() {
                 return;
             }
 
+            setMenuContent([]);
+
             const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, goals, location, age, dietaryRestrictions, userProfile);
 
+            console.log('Menu creation: ', menuCreation)
             if (menuCreation?.status >= 200 && menuCreation?.status < 300) {
                 try {
                     const decreaseResult = await decreaseUpdates(userProfile._id, updatesRemaining);
@@ -71,22 +73,6 @@ export default function MenuGenerator() {
             console.error('Unexpected error in onGenerateButtonClick:', error);
         }
     };
-
-    // const onButtonClick = async () => {
-    //     if (updatesRemaining <= 0) {
-    //         console.log('No updates remaining');
-    //         return;
-    //     }
-    //     setLoading(true);
-    //     const result = await handleGenerateMenu(setLoading, setMenuContent, goals, location, age, dietaryRestrictions, userProfile);
-    //     if (result.status === 200) {
-    //         setHasMenuToday(true);
-    //         setUpdatesRemaining(result.updatesRemaining || updatesRemaining - 1); // Update from result or decrement
-    //     } else {
-    //         console.error('Menu generation failed:', result.message);
-    //     }
-    //     setLoading(false);
-    // };
 
     return (
         <div className="flex flex-col items-center">
@@ -109,11 +95,13 @@ export default function MenuGenerator() {
             <Button
                 // onClick={onButtonClick}
                 onClick={onGenerateButtonClick}
-                disabled={loading}
+                disabled={loading || updatesRemaining === 0}
             >
                 {
                     !loading ? (
-                        'Generate Menu '
+                        menuContent.length === 0 ?
+                            'Generate Menu ' :
+                            'Regenerate Menu'
                     ) : (
                         'Loading...'
                     )
