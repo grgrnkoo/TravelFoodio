@@ -81,6 +81,11 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 1, // Free users get 1 menu update
+    },
+    subscriptionType: {
+        type: String,
+        required: true,
+        default: 'free'
     }
 })
 

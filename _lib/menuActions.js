@@ -20,16 +20,16 @@ export async function checkDbForMenu(userId, setLoading) {
         });
 
         if (!res.ok) {
-            if (res.status === 404) {
-                console.log('Menu does not exist');
-                return { menu: new MenuClass([]), status: 404, message: `Menu doesn't exist` };
-            }
             console.error(`Server error: ${res.status} ${res.statusText}`);
             return { menu: new MenuClass([]), status: res.status, message: `Error fetching menu` };
         }
 
         const data = await res.json();
         const menuData = typeof data.menu === "string" ? JSON.parse(data.menu) : data.menu;
+
+        if (menuData.length === 0) {
+            return { menu: new MenuClass([]), status: res.status, message: 'No menu generated today' };
+        }
 
         // Ensure each meal is wrapped in MealClass
         const convertedMeals = menuData.map(meal => new MealClass(
@@ -44,7 +44,7 @@ export async function checkDbForMenu(userId, setLoading) {
             meal.like,
             meal.dislike
         ));
-
+        
         return { menu: new MenuClass(convertedMeals), status: res.status, message: 'Menu parsed successfully' };
 
 
@@ -67,7 +67,15 @@ export async function checkDbForMenu(userId, setLoading) {
  * @param {array} dietaryRestrictions - List of dietary restrictions.
  * @param {object} userProfile - User profile containing the ID.
  */
-export async function handleGenerateMenu(setLoading, setMenuContent, goals, location, age, dietaryRestrictions, userProfile) {
+export async function handleGenerateMenu(
+    setLoading, 
+    setMenuContent, 
+    goals, 
+    location, 
+    age, 
+    dietaryRestrictions, 
+    userProfile
+) {
     try {
         setLoading(true);
         const menu = new MenuClass([]);
@@ -114,6 +122,22 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
                         );
                         menu.addMeal(streamedMeal);
                         setMenuContent(prevMeals => [...prevMeals, streamedMeal]);
+
+                        try {
+                            await addMealToDb({
+                                name: streamedMeal.name,
+                                cuisine: streamedMeal.cuisine,
+                                ingredients: streamedMeal.ingredients,
+                                calories: streamedMeal.calories,
+                                weight: streamedMeal.weight,
+                                protein: streamedMeal.protein,
+                                fats: streamedMeal.fats,
+                                carbs: streamedMeal.carbs,
+                            });
+                        } catch (error) {
+                            console.error('Failed to add meal to DB, continuing anyway:', error);
+                        }
+
                     } catch (error) {
                         console.error("Invalid JSON:", error);
                     }
@@ -134,6 +158,8 @@ export async function handleGenerateMenu(setLoading, setMenuContent, goals, loca
         }
 
         let parsedResult;
+        console.log('parsedResult: ', JSON.parse(result))
+
         try {
             parsedResult = JSON.parse(result);
         } catch (error) {
@@ -197,4 +223,26 @@ export function createMenuFromJson(jsonData) {
         new MealClass(meal.name, meal.calories, meal.ingredients)
     );
     return new MenuClass(meals);
+}
+
+/**
+ * Adds a meal to the separate meals collection in the database.
+ * @param {object} meal - The meal object to add.
+ */
+export async function addMealToDb(meal) {
+    try {
+        const response = await fetch(`${baseUrl}/api/addMeal`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(meal),
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            console.error('Failed to add meal to DB:', data.error || response.statusText);
+        }
+        // No need to await response.json() if we don’t care about the result—silent operation
+    } catch (error) {
+        console.error('Error adding meal to DB:', error);
+    }
 }
