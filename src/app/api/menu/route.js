@@ -34,7 +34,7 @@ export async function GET(req) {
         console.log('Existing menu:', existingMenu)
 
         if (!existingMenu) {
-            return NextResponse.json({...blankMenu, message: 'No menu found today!'}, { status: 200 });
+            return NextResponse.json({ ...blankMenu, message: 'No menu found today!' }, { status: 200 });
         }
 
         return NextResponse.json(existingMenu, { status: 200 });
@@ -77,5 +77,28 @@ export async function POST(req) {
         return NextResponse.json(newMenu, { status: 201 });
     } catch (error) {
         return NextResponse.json({ message: "Error saving menu", error }, { status: 500 });
+    }
+}
+
+export async function DELETE(req) {
+    await dbConnect();
+
+    const { searchParams } = new URL(req.url);
+
+    const userId = searchParams.get('userId');
+    const todayStart = new Date().setHours(0, 0, 0, 0);
+
+    try {
+        const result = await Menu.deleteOne({
+            userId,
+            createdAt: { $gte: todayStart },
+        });
+        if (result.deletedCount === 0) {
+            return NextResponse.json({ message: 'No menu found to delete' }, { status: 200 });
+        }
+        return NextResponse.json({ message: 'Menu deleted' }, { status: 200 });
+    } catch (error) {
+        console.error('Error deleting menu:', error);
+        return NextResponse.json({ error: 'Failed to delete menu' }, { status: 500 });
     }
 }

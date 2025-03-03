@@ -154,25 +154,33 @@ export async function handleGenerateMenu(
 
         if (!res.ok) {
             console.error('Failed to generate menu');
-            return { menu, status: res.status, message: "Failed to generate menu" };
+            return { menu: [], status: res.status, message: "Failed to generate menu" };
         }
 
-        let parsedResult;
-        console.log('parsedResult: ', JSON.parse(result))
+        let parsedResult = '';
 
-        try {
-            parsedResult = JSON.parse(result);
-        } catch (error) {
-            console.error("Invalid JSON streamed:", error);
-            return { menu, status: 400, message: "Invalid JSON streamed" };
-        }
+        // try {
+        //     console.log('Full stream result:', result);
+        //     parsedResult = JSON.parse(result);
+        // } catch (error) {
+        //     console.error("Invalid JSON streamed:", error);
+        //     return { menu, status: 400, message: "Invalid JSON streamed" };
+        // }
 
-        await postMenuToDb(userProfile._id, JSON.stringify(parsedResult));
+        await fetch(`${baseUrl}/api/menu?userId=${userProfile._id}`, {
+            method: 'DELETE',
+          });
+
+        // await postMenuToDb(userProfile._id, JSON.stringify(parsedResult));
+        await postMenuToDb(userProfile._id, JSON.stringify(menu.meals)); // Use what works
+        parsedResult = '';
+        result = '';
+        tempResult = '';
         return { menu, status: 200, message: "Menu generated successfully!" };
 
     } catch (error) {
         console.error('Error sending request:', error);
-        return { menu, status: 400, message: `Error sending request: ${error.message}` };
+        return { menu: [], status: 400, message: `Error sending request: ${error.message}` };
     } finally {
         setLoading(false);
     }
