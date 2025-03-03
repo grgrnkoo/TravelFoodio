@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/ui/header";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import UserProvider from "@/components/UserProvider";
+import { PopUpProvider } from "@/components/providers/PopUpProvider";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { getUserByEmail } from "../../_lib/actions";
@@ -28,16 +29,18 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <SessionProviderWrapper>
-        <UserProvider value ={{session, userProfile}}>
-        <body
-          className={``}
-        >
-          <Header />
-          {children}
-        </body>
-        </UserProvider>
-      </SessionProviderWrapper>
-    </html>
+      <body
+        className={``}
+      >
+        <SessionProviderWrapper>
+          <UserProvider value={{ session, userProfile }}>
+            <PopUpProvider>
+              <Header />
+              {children}
+            </PopUpProvider>
+          </UserProvider>
+        </SessionProviderWrapper>
+      </body>
+    </html >
   );
 }

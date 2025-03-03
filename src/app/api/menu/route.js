@@ -11,6 +11,13 @@ export async function GET(req) {
     const dayStart = new Date(date.setHours(0, 0, 0, 0));
     const dayEnd = new Date(date.setHours(23, 59, 59, 999));
 
+    const blankMenu = {
+        userId: userId,
+        menu: [],
+        createdAt: null,
+        _id: 0,
+    }
+
 
     if (!userId) {
         return NextResponse.json({ message: "User ID is required" }, { status: 400 });
@@ -27,7 +34,7 @@ export async function GET(req) {
         console.log('Existing menu:', existingMenu)
 
         if (!existingMenu) {
-            return NextResponse.json({ message: "No menu found" }, { status: 404 });
+            return NextResponse.json({...blankMenu, message: 'No menu found today!'}, { status: 200 });
         }
 
         return NextResponse.json(existingMenu, { status: 200 });

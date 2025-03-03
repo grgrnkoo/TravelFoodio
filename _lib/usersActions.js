@@ -1,5 +1,6 @@
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export async function updateUserByEmail(email, key, value) {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     console.log(baseUrl);
 
     try {
@@ -13,23 +14,109 @@ export async function updateUserByEmail(email, key, value) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json(); // Extract error details
-            console.error("Error sending update request:", errorData);
+            const errorData = await response.json();
+            console.error('Error sending update request:', errorData);
             return { success: false, error: errorData };
         }
 
-        console.log("Request sent successfully");
+        console.log('Request sent successfully');
         return { success: true };
     } catch (error) {
-        console.error("Error in update user function:", error);
+        console.error('Error in update user function:', error);
         return { success: false, error };
     }
 }
 
-// export async function updateIngredientsDb (email) {
-    
-// }
+/**
+ * Decreases the user's updatesRemaining count by 1.
+ * @param {string} userId - The user's ID.
+ * @param {number} currentUpdates - Current updatesRemaining value.
+ * @returns {Promise<object>} - Response with success status and new updatesRemaining.
+ */
+export async function decreaseUpdates(userId, currentUpdates) {
+  // Validation
+  if (!userId || typeof userId !== 'string') {
+    console.error('Invalid userId:', userId);
+    return { success: false, updatesRemaining: currentUpdates || 0, error: 'Invalid userId' };
+  }
+  if (typeof currentUpdates !== 'number' || currentUpdates < 0) {
+    console.error('Invalid currentUpdates:', currentUpdates);
+    return { success: false, updatesRemaining: currentUpdates || 0, error: 'Invalid currentUpdates—must be a non-negative number' };
+  }
+  if (currentUpdates === 0) {
+    console.log('No updates remaining to decrease');
+    return { success: false, updatesRemaining: 0, error: 'No updates remaining' };
+  }
 
-// export async function updateMealDb () {
+  try {
+    const updates = currentUpdates - 1;
+    const response = await fetch(`${baseUrl}/api/newUpdates`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, updates }),
+    });
 
-// }
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('Failed to decrease updates:', data.error || response.statusText);
+      return { success: false, updatesRemaining: currentUpdates, error: data.error };
+    }
+
+    return { success: true, updatesRemaining: data.updatesRemaining };
+  } catch (error) {
+    console.error('Error decreasing updates:', error);
+    return { success: false, updatesRemaining: currentUpdates, error: error.message };
+  }
+}
+
+/**
+ * Resets the user's updatesRemaining based on subscription type.
+ * @param {string} userId - The user's ID.
+ * @param {string} subscriptionType - User's subscription type ('free', 'paid', 'premium').
+ * @returns {Promise<object>} - Response with success status and new updatesRemaining.
+ */
+export async function resetUpdates(userId, subscriptionType) {
+  // Validation
+  if (!userId || typeof userId !== 'string') {
+    console.error('Invalid userId:', userId);
+    return { success: false, updatesRemaining: 0, error: 'Invalid userId' };
+  }
+  if (!subscriptionType || typeof subscriptionType !== 'string') {
+    console.error('Invalid subscriptionType:', subscriptionType);
+    return { success: false, updatesRemaining: 0, error: 'Invalid subscriptionType—must be a string' };
+  }
+
+  const updatesMap = {
+    'free': 1,
+    'paid': 3,
+    'premium': 5,
+    'admin': 999
+  };
+
+  const validTypes = Object.keys(updatesMap);
+
+  if (!validTypes.includes(subscriptionType)) {
+    console.error('Unknown subscriptionType:', subscriptionType);
+    return { success: false, updatesRemaining: 0, error: `Unknown subscriptionType—must be one of ${validTypes.join(', ')}` };
+  }
+
+  const updates = updatesMap[subscriptionType];
+
+  try {
+    const response = await fetch(`${baseUrl}/api/newUpdates`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, updates }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('Failed to reset updates:', data.error || response.statusText);
+      return { success: false, updatesRemaining: 0, error: data.error };
+    }
+
+    return { success: true, updatesRemaining: data.updatesRemaining };
+  } catch (error) {
+    console.error('Error resetting updates:', error);
+    return { success: false, updatesRemaining: 0, error: error.message };
+  }
+}
