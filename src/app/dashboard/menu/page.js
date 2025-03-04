@@ -91,6 +91,19 @@ export default function MenuGenerator() {
                 )}
 
 
+
+            {
+                updatesRemaining === 0 &&
+                <div
+                    className="rounded-md bg-red-200 min-w-[50%] m-4 p-6 border-s-red-500"
+                >
+                    <h6 className="">You're out of refreshes!</h6>
+                    {
+                        userProfile.subscriptionType !== 'premium' &&
+                        <p>Upgrade your plan to get more refresh attempts!</p>
+                    }
+                </div>
+            }
             {/* Button to generate a new menu */}
             <Button
                 // onClick={onButtonClick}
