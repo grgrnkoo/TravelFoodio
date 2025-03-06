@@ -4,7 +4,8 @@ const menuSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        index: true
     },
     menu: {
         type: mongoose.Schema.Types.Mixed,
@@ -12,7 +13,8 @@ const menuSchema = new mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now, 
+        index: true
     },
     expiresAt: {
         type: Date,

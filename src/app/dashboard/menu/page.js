@@ -6,13 +6,17 @@ import { useEffect, useState, useContext } from "react";
 import { UserContext } from "@/components/UserProvider";
 import { checkDbForMenu, handleGenerateMenu } from "../../../../_lib/menuActions";
 import { decreaseUpdates, resetUpdates } from "../../../../_lib/usersActions";
+import { usePopup } from "@/components/providers/PopUpProvider"
 
 export default function MenuGenerator() {
+    const { showPopup } = usePopup();
+
     const { userProfile } = useContext(UserContext);
     const { goals, location, age, dietaryRestrictions } = userProfile;
     const [menuContent, setMenuContent] = useState([]);
     const [loading, setLoading] = useState(false); // Controls the loading state
     const [updatesRemaining, setUpdatesRemaining] = useState(userProfile?.updatesRemaining);
+
 
     // Fetch the menu from the database when the user profile is available
     useEffect(() => {
@@ -44,13 +48,14 @@ export default function MenuGenerator() {
     const onGenerateButtonClick = async () => {
         try {
             if (!userProfile?._id || updatesRemaining == null) {
+                showPopup('Missing user info—check your profile!', 'error');
                 console.error("Missing user ID or updatesRemaining value.");
                 return;
             }
 
             setMenuContent([]);
 
-            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, goals, location, age, dietaryRestrictions, userProfile);
+            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfile);
 
             console.log('Menu creation: ', menuCreation)
             if (menuCreation?.status >= 200 && menuCreation?.status < 300) {
@@ -67,9 +72,13 @@ export default function MenuGenerator() {
                     console.error('Error while decreasing updates:', updateError);
                 }
             } else {
+                setMenuContent([]);
+                showPopup('Menu generation failed—give it another shot!', 'error');
                 console.error('Error generating menu:', menuCreation);
             }
         } catch (error) {
+            setMenuContent([]);
+            showPopup('Something broke—retry or yell at support!', 'error');
             console.error('Unexpected error in onGenerateButtonClick:', error);
         }
     };
@@ -93,7 +102,8 @@ export default function MenuGenerator() {
 
 
             {
-                updatesRemaining === 0 &&
+                updatesRemaining === 0 && 
+                !loading && 
                 <div
                     className="rounded-md bg-red-200 min-w-[50%] m-4 p-6 border-s-red-500"
                 >
