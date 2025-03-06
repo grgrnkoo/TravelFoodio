@@ -94,23 +94,24 @@ export async function handleGenerateMenu(
 
                 result += chunk;
                 tempResult += chunk;
-                
                 let extraction = extractObjectFromLine(tempResult);
 
                 while (extraction.extracted) { // Process all JSON objects in tempResult
                     try {
                         const rawMealData = JSON.parse(extraction.extracted);
-                        const lowerIngredients = rawMealData.ingredients.map(i => i.toLowerCase());
-                        const lowerCuisine = rawMealData.cuisine.toLowerCase();
+                        // const lowerIngredients = rawMealData.ingredients.map(i => i.toLowerCase());
+                        // const lowerCuisine = rawMealData.cuisine.toLowerCase();
                         const streamedMeal = new MealClass(
                             rawMealData.name,
                             rawMealData.calories,
-                            lowerCuisine,
+                            rawMealData.cuisine,
+                            // lowerCuisine,
                             rawMealData.weight,
                             rawMealData.protein,
                             rawMealData.fats,
                             rawMealData.carbs,
-                            lowerIngredients,
+                            rawMealData.ingredients,
+                            // lowerIngredients,
                             rawMealData.like,
                             rawMealData.dislike,
                         );
