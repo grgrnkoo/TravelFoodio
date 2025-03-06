@@ -100,15 +100,17 @@ export async function handleGenerateMenu(
                 while (extraction.extracted) { // Process all JSON objects in tempResult
                     try {
                         const rawMealData = JSON.parse(extraction.extracted);
+                        const lowerIngredients = rawMealData.ingredients.map(i => i.toLowerCase());
+                        const lowerCuisine = rawMealData.cuisine.toLowerCase();
                         const streamedMeal = new MealClass(
                             rawMealData.name,
                             rawMealData.calories,
-                            rawMealData.cuisine,
+                            lowerCuisine,
                             rawMealData.weight,
                             rawMealData.protein,
                             rawMealData.fats,
                             rawMealData.carbs,
-                            rawMealData.ingredients,
+                            lowerIngredients,
                             rawMealData.like,
                             rawMealData.dislike,
                         );
