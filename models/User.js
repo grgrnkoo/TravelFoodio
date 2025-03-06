@@ -4,7 +4,8 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        index: true
     },
     username: {
         type: String,
@@ -40,7 +41,7 @@ const userSchema = new mongoose.Schema({
             name: { type: String, required: true },
             // mealId: { type: mongoose.Schema.Types.ObjectId, required: true },
             // mealIngredients: { type: [String], default: [] },
-            dateLastUpdated: { type: Date, default: Date.now }
+            dateLastUpdated: { type: Date, default: Date.now, index: true }
         }],
         required: false,
         default: []
@@ -50,7 +51,7 @@ const userSchema = new mongoose.Schema({
             name: { type: String, required: true },
             // mealId: { type: mongoose.Schema.Types.ObjectId, required: true },
             // mealIngredients: { type: [String], default: [] },
-            dateLastUpdated: { type: Date, default: Date.now }
+            dateLastUpdated: { type: Date, default: Date.now, index: true }
         }],
         required: false,
         default: []
@@ -59,7 +60,7 @@ const userSchema = new mongoose.Schema({
         type: [{
             name: { type: String, required: true },
             // ingredientId: { type: mongoose.Schema.Types.ObjectId, required: true },
-            rating: { type: Number, default: 0 },
+            rating: { type: Number, default: 0, index: true },
             dateLastUpdated: { type: Date, default: Date.now }
 
         }],
@@ -70,7 +71,7 @@ const userSchema = new mongoose.Schema({
         type: [{
             name: { type: String, required: true },
             // cuisineId: { type: mongoose.Schema.Types.ObjectId, required: true },
-            rating: { type: Number, default: 0 },
+            rating: { type: Number, default: 0, index: true },
             dateLastUpdated: { type: Date, default: Date.now }
 
         }],

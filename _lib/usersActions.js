@@ -121,6 +121,7 @@ export async function resetUpdates(userId, subscriptionType) {
     }
 }
 
+// check for route and 'User' import
 export async function updateSubscriptionType(userId, newPlan) {
     try {
         await dbConnect();
@@ -152,3 +153,45 @@ export async function upgradeUser(userId, newPlan) {
         console.error('Failed to update subscription type');
     }
 };
+
+export function getTopFavoriteMeals(userProfile) {
+  return userProfile.favoriteMeals
+    .sort((a, b) => new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+    .slice(0, 5)
+    .map(m => m.name);
+}
+
+export function getTopDislikedMeals(userProfile) {
+  return userProfile.dislikedMeals
+    .sort((a, b) => new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+    .slice(0, 5)
+    .map(m => m.name);
+}
+
+export function getTopIngredients(userProfile) {
+  return userProfile.ingredients
+    .sort((a, b) => b.rating - a.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated)) // Rating, then latest
+    .slice(0, 5)
+    .map(i => i.name);
+}
+
+export function getBottomIngredients(userProfile) {
+  return userProfile.ingredients
+    .sort((a, b) => a.rating - b.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated)) // Rating, then latest
+    .slice(0, 5)
+    .map(i => i.name);
+}
+
+export function getTopCuisines(userProfile) {
+  return userProfile.cuisines
+    .sort((a, b) => b.rating - a.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+    .slice(0, 5)
+    .map(c => c.name);
+}
+
+export function getBottomCuisines(userProfile) {
+  return userProfile.cuisines
+    .sort((a, b) => a.rating - b.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+    .slice(0, 5)
+    .map(c => c.name);
+}

@@ -44,7 +44,7 @@ export async function checkDbForMenu(userId, setLoading) {
             meal.like,
             meal.dislike
         ));
-        
+
         return { menu: new MenuClass(convertedMeals), status: res.status, message: 'Menu parsed successfully' };
 
 
@@ -61,19 +61,11 @@ export async function checkDbForMenu(userId, setLoading) {
  * Generates a new menu and saves it to the database.
  * @param {function} setLoading - Function to toggle the loading state.
  * @param {function} setMenuContent - Function to update the menu state.
- * @param {string} goals - User's dietary goals.
- * @param {string} location - User's location.
- * @param {number} age - User's age.
- * @param {array} dietaryRestrictions - List of dietary restrictions.
  * @param {object} userProfile - User profile containing the ID.
  */
 export async function handleGenerateMenu(
-    setLoading, 
-    setMenuContent, 
-    goals, 
-    location, 
-    age, 
-    dietaryRestrictions, 
+    setLoading,
+    setMenuContent,
     userProfile
 ) {
     try {
@@ -83,7 +75,7 @@ export async function handleGenerateMenu(
         const res = await fetch(`${baseUrl}/api/generateMenu`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ goals, location, age, dietaryRestrictions }),
+            body: JSON.stringify({ userProfile }),
         });
 
         if (!res.body) throw new Error('No response body');
@@ -169,10 +161,12 @@ export async function handleGenerateMenu(
 
         await fetch(`${baseUrl}/api/menu?userId=${userProfile._id}`, {
             method: 'DELETE',
-          });
+        });
 
         // await postMenuToDb(userProfile._id, JSON.stringify(parsedResult));
-        await postMenuToDb(userProfile._id, JSON.stringify(menu.meals)); // Use what works
+        if (menu.meals.length > 0) {
+            await postMenuToDb(userProfile._id, JSON.stringify(menu.meals)); // Use what works
+        }
         parsedResult = '';
         result = '';
         tempResult = '';
