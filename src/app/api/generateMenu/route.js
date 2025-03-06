@@ -115,7 +115,6 @@ Example output:
                         break;
                     }
                     const chunk = new TextDecoder().decode(value);
-                    // DeepSeek streams lines like: "data: {\"choices\": [{\"delta\": {\"content\": \"...\"}}]}"
                     const lines = chunk.split('\n').filter(line => line.startsWith('data:'));
                     for (const line of lines) {
                         try {
