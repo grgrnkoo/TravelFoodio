@@ -30,6 +30,7 @@ export async function POST(req) {
 - Avoided Cuisines (bottom 5): ${JSON.stringify(getBottomCuisines(userProfile)) || "None"}
 
 Return a JSON array of 3-5 meal objects—no extra keys or text. Use Favorite Meals, Preferred Ingredients, and Cuisines as inspiration—blend in ~50% unique meals not listed in favorites. Avoid Disliked Meals, Avoided Ingredients, and Cuisines completely. Ensure variety, no repeats.
+Only JSON output needed. No comments
 
 Example output:
 \`\`\`json

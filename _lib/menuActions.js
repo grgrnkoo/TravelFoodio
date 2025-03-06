@@ -94,7 +94,7 @@ export async function handleGenerateMenu(
 
                 result += chunk;
                 tempResult += chunk;
-
+                
                 let extraction = extractObjectFromLine(tempResult);
 
                 while (extraction.extracted) { // Process all JSON objects in tempResult
