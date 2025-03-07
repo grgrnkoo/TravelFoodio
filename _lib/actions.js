@@ -25,28 +25,34 @@ export async function addUsername(user) {
 }
 
 export async function getUserByEmail(email) {
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'; // Fallback to localhost if NEXTAUTH_URL is not set
-    const apiUrl = `${baseUrl}/api/users/${email}`;
-
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch: ', response.statusText);
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching user by email: ', error);
-        return null;
+    if (!email) {
+      console.log("No email provided to getUserByEmail");
+      return null; // Early return for no email
     }
-}
+  
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const apiUrl = `${baseUrl}/api/users/${email}`;
+  
+    try {
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        console.error(`Fetch failed with status: ${response.status}`);
+        return null; // Return null instead of throwing
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching user by email:", error);
+      return null;
+    }
+  }
 
 export async function addData(email, data) {
     console.log('add data triggered')

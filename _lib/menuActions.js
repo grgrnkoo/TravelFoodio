@@ -86,6 +86,9 @@ export async function handleGenerateMenu(
         let result = '';
         let tempResult = '';
 
+        const favoriteNames = new Set(userProfile.favoriteMeals.map(m => m.name.toLowerCase()));
+        const dislikedNames = new Set(userProfile.dislikedMeals.map(m => m.name.toLowerCase()));
+
         while (streaming) {
             try {
                 const { value, done } = await reader.read();
@@ -112,8 +115,8 @@ export async function handleGenerateMenu(
                             rawMealData.carbs,
                             rawMealData.ingredients,
                             // lowerIngredients,
-                            rawMealData.like,
-                            rawMealData.dislike,
+                            favoriteNames.has(userProfile.name),
+                            dislikedNames.has(userProfile.name),
                         );
                         menu.addMeal(streamedMeal);
                         setMenuContent(prevMeals => [...prevMeals, streamedMeal]);
