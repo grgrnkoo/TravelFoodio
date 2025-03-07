@@ -176,9 +176,9 @@ export async function POST(req) {
         ]
         \`\`\`
         Ensure **no extra text** or keys—just a **pure JSON array**. 
-        - Use Favorite Meals, Preferred Ingredients, and Preferred Cuisines as inspiration—include some, but **blend in variety** with unique meals not listed in favorites.
-        - Avoid Disliked Meals, Avoided Ingredients, and Avoided Cuisines completely.
-        - Generate 3-5 meals, ensuring variety in cuisines, ingredients, and nutrition—don’t repeat meals, even from previous runs.`;
+        - Use Favorite Meals, Preferred Ingredients, and Preferred Cuisines as inspiration—include some, but **blend in variety** with unique meals not only listed in favorites and disliked.
+        - Avoid Disliked Meals, Avoided Ingredients, and Avoided Cuisines but not completely.
+        - Generate meals, ensuring variety in cuisines, ingredients, and nutrition—don’t repeat meals, even from previous runs.`;
 
 
 

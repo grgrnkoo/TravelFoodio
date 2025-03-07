@@ -52,8 +52,11 @@ export default function MenuGenerator() {
                 console.error("Missing user ID or updatesRemaining value.");
                 return;
             }
-
-            setMenuContent([]);
+            
+            if(menuContent.length > 0) {
+                setMenuContent([]);
+            }
+            
 
             const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfile);
 
@@ -89,6 +92,7 @@ export default function MenuGenerator() {
                 menuContent.length === 0 ||
                 !userProfile
                 ? (
+                    !loading &&
                     <p className="mb-4">Generate a menu to start a day!</p>
                 ) : loading ? (
                     <>
