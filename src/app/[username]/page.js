@@ -3,16 +3,18 @@
 import { Button } from "@/components/ui/button";
 import Menu from "@/components/Menu";
 import { useEffect, useState, useContext } from "react";
+import { useParams } from "next/navigation";
 import { UserContext } from "@/components/UserProvider";
-import { checkDbForMenu, handleGenerateMenu } from "../../../../_lib/menuActions";
-import { decreaseUpdates, resetUpdates } from "../../../../_lib/usersActions";
+import { checkDbForMenu, handleGenerateMenu } from "../../../_lib/menuActions";
+import { decreaseUpdates, resetUpdates } from "../../../_lib/usersActions";
 import { usePopup } from "@/components/providers/PopUpProvider"
 
 export default function MenuGenerator() {
     const { showPopup } = usePopup();
+    const params = useParams();
+    const username = params?.username;
 
     const { userProfile } = useContext(UserContext);
-    const { goals, location, age, dietaryRestrictions } = userProfile;
     const [menuContent, setMenuContent] = useState([]);
     const [loading, setLoading] = useState(false); // Controls the loading state
     const [updatesRemaining, setUpdatesRemaining] = useState(userProfile?.updatesRemaining);
@@ -52,11 +54,11 @@ export default function MenuGenerator() {
                 console.error("Missing user ID or updatesRemaining value.");
                 return;
             }
-            
-            if(menuContent.length > 0) {
+
+            if (menuContent.length > 0) {
                 setMenuContent([]);
             }
-            
+
 
             const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfile);
 
@@ -106,8 +108,8 @@ export default function MenuGenerator() {
 
 
             {
-                updatesRemaining === 0 && 
-                !loading && 
+                updatesRemaining === 0 &&
+                !loading &&
                 <div
                     className="rounded-md bg-red-200 min-w-[50%] m-4 p-6 border-s-red-500"
                 >

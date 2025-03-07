@@ -7,8 +7,6 @@ export const UserContext = createContext({})
 export default function UserProvider({ value, children }) {
     const {session, userProfile} = value;
 
-    // console.log('Provider Log: ', value, session, userProfile)
-
     return (
         <UserContext.Provider value ={{session, userProfile}}>
             {children}
