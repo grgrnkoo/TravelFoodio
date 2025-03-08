@@ -92,7 +92,7 @@ export default function MenuGenerator() {
 
     return (
         <div className="flex flex-col items-center w-full">
-            <Menu content={menuContent} loading={loading} className='flex w-full' />
+            <Menu content={menuContent} loading={loading} className='flex-grow w-full' />
             {
                 (!menuContent || menuContent.length === 0 || !userProfile) && !loading && (
                     <p className="mb-4">Generate a menu to start a day!</p>
