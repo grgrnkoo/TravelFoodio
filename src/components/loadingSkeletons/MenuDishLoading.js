@@ -30,7 +30,7 @@ const MenuDishSkeleton = () => {
           zIndex: - 1,
         }}>
           <CardHeader className="bg-gradient-to-r from-white-50/50 to-slate-50/50 pb-2">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-2 px-[17px]">
             {/* Title skeleton */}
             <div className="h-7 w-40 rounded-md skeleton-item"></div>
             {/* Badge skeleton */}
