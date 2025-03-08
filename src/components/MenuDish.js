@@ -1,11 +1,24 @@
 'use client';
-import { ThumbsUp, ThumbsDown } from 'lucide-react';
-import { useState, useCallback, useEffect } from 'react';
+import { ThumbsUp, ThumbsDown, Utensils, Flame, Beef, Cookie, Wheat } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useContext } from 'react';
 import { UserContext } from './UserProvider';
 import { usePopup } from './providers/PopUpProvider';
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
-export default function MenuDish({ menuDish }) {
+// Simple debounce function
+const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+};
+
+// Assuming this is passed from parent to track order in stream
+export default function MenuDish({ menuDish, index = 0 }) {
     const { userProfile } = useContext(UserContext);
     const { showPopup } = usePopup();
     const [like, setLike] = useState(false);
@@ -17,16 +30,7 @@ export default function MenuDish({ menuDish }) {
             setLike(userProfile.favoriteMeals.some(m => m.name === menuDish.name));
             setDislike(userProfile.dislikedMeals.some(m => m.name === menuDish.name));
         }
-    }, [userProfile, menuDish.name]);
-
-    // Simple debounce function
-    const debounce = (func, wait) => {
-        let timeout;
-        return (...args) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), wait);
-        };
-    };
+    }, [userProfile, menuDish]);
 
     const updatePreference = useCallback(
         debounce(async (action) => {
@@ -47,7 +51,7 @@ export default function MenuDish({ menuDish }) {
                 }
             } catch (error) {
                 console.error('Request error:', error);
-                showPopup('Network error:', 'error');
+                showPopup('Network error: ' + error.message, 'error');
             }
         }, 500),
         [menuDish, like, dislike, userProfile?._id]
@@ -58,27 +62,128 @@ export default function MenuDish({ menuDish }) {
     };
 
     return (
-        <div className="w-full border border-black rounded-md my-4 p-2">
-            <p><strong>Meal:</strong> {menuDish?.name}</p>
-            <p><strong>Cuisine:</strong> {menuDish?.cuisine}</p>
-            <p><strong>Calories:</strong> {menuDish?.calories}kcal</p>
-            <p><strong>Ingredients:</strong> {menuDish?.ingredients?.join(', ')}</p>
-            <div className="flex justify-end p-2">
-                <ThumbsUp
-                    className="hover:cursor-pointer"
-                    fill={like ? 'green' : 'none'}
-                    stroke={like ? 'green' : 'black'}
-                    fillOpacity={0.5}
-                    onClick={() => handleClick('like')}
-                />
-                <ThumbsDown
-                    className="ml-2 hover:cursor-pointer"
-                    fill={dislike ? 'red' : 'none'}
-                    stroke={dislike ? 'red' : 'black'}
-                    fillOpacity={0.5}
-                    onClick={() => handleClick('dislike')}
-                />
-            </div>
-        </div>
+        <>
+            {/* Inline style for animation definition */}
+            <style>{`
+                @keyframes dropIn {
+                    from {
+                        transform: translateY(-25%);
+                        opacity: 0;  
+                    }
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                        z-index: 1;
+                    }
+                }
+                .animate-drop-in {
+                    animation: dropIn 1.5s ease-out forwards;
+                }
+            `}</style>
+
+            <Card
+                className={`
+                    w-full overflow-hidden border-none shadow-lg hover:shadow-xl 
+                    transition-all duration-300 my-4 animate-drop-in relative hover:cursor-default
+                `}
+                style={{
+                    animationDelay: `${index * 0.25}s`,
+                    transform: 'translateY(-25%)',
+                    opacity: 0,
+                    zIndex: -index - 1,
+                }}
+            >
+                <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 pb-2">
+                    <div className="flex items-center justify-between mb-2">
+                        <CardTitle className="text-xl font-bold pr-6">{menuDish.name}</CardTitle>
+                        <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200 px-[10px] py-[4px] mx-[2px] select-none">
+                            {menuDish.cuisine}
+                        </Badge>
+                    </div>
+                </CardHeader>
+
+                <CardContent className="pt-4 pb-2">
+                    <div className="flex items-center mb-4 text-muted-foreground">
+                        <Flame className="h-4 w-4 mr-1 text-orange-500" />
+                        <span className="font-medium">{menuDish.calories} kcal</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="bg-slate-50 rounded-lg p-3 text-center">
+                            <div className="flex justify-center mb-1">
+                                <Beef className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-1">Proteins</p>
+                            <p className="font-medium">{menuDish.protein}</p>
+                        </div>
+
+                        <div className="bg-slate-50 rounded-lg p-3 text-center">
+                            <div className="flex justify-center mb-1">
+                                <Cookie className="h-4 w-4 text-yellow-600" />
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-1">Fats</p>
+                            <p className="font-medium">{menuDish.fats}</p>
+                        </div>
+
+                        <div className="bg-slate-50 rounded-lg p-3 text-center">
+                            <div className="flex justify-center mb-1">
+                                <Wheat className="h-4 w-4 text-amber-600" />
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-1">Carbs</p>
+                            <p className="font-medium">{menuDish.carbs}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className="text-sm font-medium mb-2"><strong>Ingredients</strong></p>
+                        <div className="flex flex-wrap gap-1 mb-1">
+                            {menuDish.ingredients?.map((ingredient, index) => (
+                                <Badge key={index} variant="secondary" className="bg-slate-100 border-slate-300 text-slate-500 px-[8px] py-[4px] mx-[2px]">
+                                    {ingredient}
+                                </Badge>
+                            ))}
+                        </div>
+                    </div>
+                </CardContent>
+
+                <Separator />
+
+                <CardFooter className="flex justify-between pt-3 pb-3">
+                    <div className="flex items-center text-sm text-muted-foreground">
+                        <Utensils className="h-4 w-4 mr-1" />
+                        <span>Rate this dish</span>
+                    </div>
+                    <div className="flex space-x-2">
+                        <button
+                            className={`p-2 rounded-full transition-all`}
+                            onClick={() => handleClick("like")}
+                            aria-label="Like"
+                            aria-pressed={like}
+                        >
+                            <ThumbsUp
+                                className={`h-5 w-5 hover:cursor-pointer`}
+                                fill={like ? "green" : "none"}
+                                stroke={like ? "green" : "currentColor"}
+                                fillOpacity={0.5}
+                            />
+                        </button>
+
+                        <button
+                            className={`p-2 rounded-full transition-all`}
+                            onClick={() => handleClick("dislike")}
+                            aria-label="Dislike"
+                            aria-pressed={dislike}
+                        >
+                            <ThumbsDown
+                                className={`h-5 w-5 hover:cursor-pointer`}
+                                fill={dislike ? "red" : "none"}
+                                stroke={dislike ? "red" : "currentColor"}
+                                fillOpacity={0.5}
+                            />
+                        </button>
+                    </div>
+                </CardFooter>
+            </Card>
+        </>
     );
 }
