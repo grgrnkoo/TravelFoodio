@@ -4,7 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "../../../../../_lib/client";
 import { sendVerificationRequest } from "../../../../../_lib/sendVerificationRequest";
-import { addUsername } from "../../../../../_lib/actions";
 
 export const authOptions = {
     providers: [
@@ -32,6 +31,7 @@ export const authOptions = {
     ],
     callbacks: {
         async signIn({ user, account }) {
+            console.log("SignIn - Provider:", account.provider);
             let username = ''
             if (account.provider === "resend") {
                 const client = await clientPromise;

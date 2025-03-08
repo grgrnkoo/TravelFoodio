@@ -155,27 +155,13 @@ export async function handleGenerateMenu(
             return { menu: [], status: res.status, message: "Failed to generate menu" };
         }
 
-        let parsedResult = '';
-
-        // try {
-        //     console.log('Full stream result:', result);
-        //     parsedResult = JSON.parse(result);
-        // } catch (error) {
-        //     console.error("Invalid JSON streamed:", error);
-        //     return { menu, status: 400, message: "Invalid JSON streamed" };
-        // }
-
         await fetch(`${baseUrl}/api/menu?userId=${userProfile._id}`, {
             method: 'DELETE',
         });
 
-        // await postMenuToDb(userProfile._id, JSON.stringify(parsedResult));
         if (menu.meals.length > 0) {
             await postMenuToDb(userProfile._id, JSON.stringify(menu.meals)); // Use what works
         }
-        parsedResult = '';
-        result = '';
-        tempResult = '';
         return { menu, status: 200, message: "Menu generated successfully!" };
 
     } catch (error) {
