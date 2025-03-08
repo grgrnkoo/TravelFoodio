@@ -6,7 +6,7 @@ export default async function DashboardLayout({ children }) {
     return (
         <div className="flex">
             <UserProfile />
-            <div>
+            <div className="flex w-full mx-4">
                 {children}
             </div>
         </div>

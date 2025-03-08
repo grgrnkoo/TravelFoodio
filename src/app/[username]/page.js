@@ -9,6 +9,7 @@ import { checkDbForMenu, handleGenerateMenu } from "../../../_lib/menuActions";
 import { decreaseUpdates, resetUpdates } from "../../../_lib/usersActions";
 import { usePopup } from "@/components/providers/PopUpProvider"
 import { Alert } from "@/components/Alert";
+import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
 
 export default function MenuGenerator() {
     const { showPopup } = usePopup();
@@ -90,14 +91,19 @@ export default function MenuGenerator() {
     };
 
     return (
-        <div className="flex flex-col items-center">
-            <Menu content={menuContent} />
+        <div className="flex flex-col items-center w-full">
+            <Menu content={menuContent} loading={loading} className='flex w-full' />
             {
                 (!menuContent || menuContent.length === 0 || !userProfile) && !loading && (
                     <p className="mb-4">Generate a menu to start a day!</p>
                 )
             }
-            {loading && <p>Loading...</p>}
+
+            {loading &&
+                Array.from({ length: 3 - menuContent?.length > 0 ? 3 - menuContent?.length : 0 }).map((_, index) => (
+                    <MenuDishSkeleton key={index} className="flex-grow w-full" />
+                ))
+            }
 
             {updatesRemaining === 0 && !loading && (
                 <Alert variant="red" title="You're out of refreshes!">
