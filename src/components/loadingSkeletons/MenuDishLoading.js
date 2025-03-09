@@ -8,12 +8,12 @@ const MenuDishSkeleton = () => {
       @keyframes dropIn {
           from {
               transform: translateY(-25%);
-              opacity: 0;  
+              opacity: .5;  
           }
           to {
               transform: translateY(0);
               opacity: 1;
-              z-index: 1;
+              z-index: 0;
           }
       }
       .animate-drop-in {
@@ -26,7 +26,7 @@ const MenuDishSkeleton = () => {
   `}
         style={{
           transform: 'translateY(-25%)',
-          opacity: 0,
+          opacity: .5,
           zIndex: - 1,
         }}>
           <CardHeader className="bg-gradient-to-r from-white-50/50 to-slate-50/50 pb-2">

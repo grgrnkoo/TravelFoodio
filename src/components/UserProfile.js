@@ -65,13 +65,16 @@ export default function UserProfile() {
     return (
         <div className="flex flex-col items-center p-4 w-1/3">
             <UserProfileLine userData={userProfile.username} styleProp='font-bold' />
-            <Image
-                src={userProfile.image}
-                alt={`${userProfile.username} profile picture`}
-                width={100}
-                height={100}
-                className="rounded-full my-4"
-            />
+            {
+                userProfile.image &&
+                < Image
+                    src={userProfile.image}
+                    alt={`${userProfile.username} profile picture`}
+                    width={100}
+                    height={100}
+                    className="rounded-full my-4"
+                />
+            }
             <UserProfileLine
                 userData={userProfile.name}
                 id='name'

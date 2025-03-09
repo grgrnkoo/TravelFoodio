@@ -18,7 +18,7 @@ export default function MenuGenerator() {
 
     const { userProfile } = useContext(UserContext);
     const [menuContent, setMenuContent] = useState([]);
-    const [loading, setLoading] = useState(false); // Controls the loading state
+    const [loading, setLoading] = useState(true); // Controls the loading state
     const [updatesRemaining, setUpdatesRemaining] = useState(userProfile?.updatesRemaining);
 
 
@@ -91,15 +91,16 @@ export default function MenuGenerator() {
     };
 
     return (
-        <div className="flex flex-col items-center w-full">
-            <Menu content={menuContent} loading={loading} className='flex-grow w-full' />
+        <div className="flex-1 flex-col items-center w-full">
+            <Menu content={menuContent} className='flex-grow w-full' />
             {
                 (!menuContent || menuContent.length === 0 || !userProfile) && !loading && (
                     <p className="mb-4">Generate a menu to start a day!</p>
                 )
             }
 
-            {loading &&
+            {
+                loading &&
                 Array.from({ length: 3 - menuContent?.length > 0 ? 3 - menuContent?.length : 0 }).map((_, index) => (
                     <MenuDishSkeleton key={index} className="flex-grow w-full" />
                 ))
@@ -114,7 +115,6 @@ export default function MenuGenerator() {
             )}
             {/* Button to generate a new menu */}
             <Button
-                // onClick={onButtonClick}
                 onClick={onGenerateButtonClick}
                 disabled={loading || updatesRemaining === 0}
                 className="mb-8 mt-3"
