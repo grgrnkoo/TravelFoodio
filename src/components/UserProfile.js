@@ -2,10 +2,11 @@
 
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "./UserProvider";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import UserProfileLine from "./UserProfileLine";
 import { YesNoPopUp } from "./YesNoPopUp";
-import { Button } from "./ui/button";
+// import { Button } from "./ui/button";
 import { updateUserByEmail } from "../../_lib/usersActions";
 
 // User profile component contains all data about user with some of fields being editable.
@@ -16,6 +17,7 @@ export default function UserProfile() {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [pendingUpdate, setPendingUpdate] = useState(null); // Track the field being updated
     const [popUpContent, setPopUpContent] = useState('Basic popup');
+    const pathname = usePathname();
 
     useEffect(() => {
         setOneEditingFieldBoolean(false);
@@ -84,59 +86,82 @@ export default function UserProfile() {
                 confirmUpdate={confirmUpdate}
                 isPopupOpen={isPopupOpen}
             />
-            <UserProfileLine
-                userData={userProfile.age}
-                nameOfLine='Age'
-                id='age'
-                editable={true}
-                setOneEditingFieldBoolean={setOneEditingFieldBoolean}
-                oneEditingFieldBoolean={oneEditingFieldBoolean}
-                setIsPopupOpen={setIsPopupOpen}
-                confirmUpdate={confirmUpdate}
-                isPopupOpen={isPopupOpen}
-            />
-            <UserProfileLine
-                userData={userProfile.location}
-                nameOfLine='Location'
-                id='location'
-                editable={true}
-                setOneEditingFieldBoolean={setOneEditingFieldBoolean}
-                oneEditingFieldBoolean={oneEditingFieldBoolean}
-                setIsPopupOpen={setIsPopupOpen}
-                confirmUpdate={confirmUpdate}
-                isPopupOpen={isPopupOpen}
-            />
-            <UserProfileLine
-                userData={userProfile.goals}
-                nameOfLine='Goals'
-                id='goals'
-                editable={true}
-                setOneEditingFieldBoolean={setOneEditingFieldBoolean}
-                oneEditingFieldBoolean={oneEditingFieldBoolean} setIsPopupOpen={setIsPopupOpen}
-                confirmUpdate={confirmUpdate}
-                isPopupOpen={isPopupOpen}
-            />
-            <UserProfileLine
-                userData={userProfile.dietaryRestrictions}
-                nameOfLine='Preferences'
-                id='dietaryRestrictions'
-                editable={true}
-                setOneEditingFieldBoolean={setOneEditingFieldBoolean}
-                oneEditingFieldBoolean={oneEditingFieldBoolean}
-                setIsPopupOpen={setIsPopupOpen}
-                confirmUpdate={confirmUpdate}
-                isPopupOpen={isPopupOpen}
-            />
-            <YesNoPopUp
-                title="Confirm updates"
-                isOpen={isPopupOpen}
-                key={isPopupOpen ? "open" : "closed"}
-                onClose={() => setIsPopupOpen(false)}
-                onChoice={handleChoice}
-                content={popUpContent}
-                yesLabel="Confirm"
-                noLabel="Decline"
-            />
+            {
+                userProfile.age &&
+                userProfile.age !== '' &&
+                <UserProfileLine
+                    userData={userProfile.age}
+                    nameOfLine='Age'
+                    id='age'
+                    editable={true}
+                    setOneEditingFieldBoolean={setOneEditingFieldBoolean}
+                    oneEditingFieldBoolean={oneEditingFieldBoolean}
+                    setIsPopupOpen={setIsPopupOpen}
+                    confirmUpdate={confirmUpdate}
+                    isPopupOpen={isPopupOpen}
+                />
+            }
+            {
+                userProfile.location &&
+                userProfile.location !== '' &&
+                <UserProfileLine
+                    userData={userProfile.location}
+                    nameOfLine='Location'
+                    id='location'
+                    editable={true}
+                    setOneEditingFieldBoolean={setOneEditingFieldBoolean}
+                    oneEditingFieldBoolean={oneEditingFieldBoolean}
+                    setIsPopupOpen={setIsPopupOpen}
+                    confirmUpdate={confirmUpdate}
+                    isPopupOpen={isPopupOpen}
+                />
+            }
+            {
+                userProfile.goals &&
+                userProfile.goals !== '' &&
+                <UserProfileLine
+                    userData={userProfile.goals}
+                    nameOfLine='Goals'
+                    id='goals'
+                    editable={true}
+                    setOneEditingFieldBoolean={setOneEditingFieldBoolean}
+                    oneEditingFieldBoolean={oneEditingFieldBoolean} setIsPopupOpen={setIsPopupOpen}
+                    confirmUpdate={confirmUpdate}
+                    isPopupOpen={isPopupOpen}
+                />
+            }
+            {
+                userProfile.dietaryRestrictions &&
+                userProfile.dietaryRestrictions !== '' &&
+                <UserProfileLine
+                    userData={userProfile.dietaryRestrictions}
+                    nameOfLine='Preferences'
+                    id='dietaryRestrictions'
+                    editable={true}
+                    setOneEditingFieldBoolean={setOneEditingFieldBoolean}
+                    oneEditingFieldBoolean={oneEditingFieldBoolean}
+                    setIsPopupOpen={setIsPopupOpen}
+                    confirmUpdate={confirmUpdate}
+                    isPopupOpen={isPopupOpen}
+                />
+            }
+            {
+                pathname.includes('onboarding') && 
+                <p>Some onboarding image in the future</p>
+            }
+            {
+                isPopupOpen &&
+                <YesNoPopUp
+                    title="Confirm updates"
+                    isOpen={isPopupOpen}
+                    key={isPopupOpen ? "open" : "closed"}
+                    onClose={() => setIsPopupOpen(false)}
+                    onChoice={handleChoice}
+                    content={popUpContent}
+                    yesLabel="Confirm"
+                    noLabel="Decline"
+                />
+            }
         </div>
     );
 }
