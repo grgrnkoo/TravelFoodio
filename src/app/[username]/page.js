@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import Menu from "@/components/Menu";
 import { useEffect, useState, useContext } from "react";
-import { useParams } from "next/navigation";
 import { UserContext } from "@/components/UserProvider";
 import { checkDbForMenu, handleGenerateMenu } from "../../../_lib/menuActions";
 import { decreaseUpdates, resetUpdates } from "../../../_lib/usersActions";
@@ -13,8 +12,6 @@ import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
 
 export default function MenuGenerator() {
     const { showPopup } = usePopup();
-    const params = useParams();
-    const username = params?.username;
 
     const { userProfile } = useContext(UserContext);
     const [menuContent, setMenuContent] = useState([]);

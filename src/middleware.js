@@ -2,27 +2,54 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
 export async function middleware(request) {
-    // const token = await getToken({ req: request });
-    // const pathname = request.nextUrl.pathname;
-    // const searchParams = request.nextUrl.searchParams;
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const pathname = request.nextUrl.pathname;
 
-    // const publicRoutes = ["/login", "/"];
+  console.log("Middleware - Token:", token, "Pathname:", pathname);
 
-    // // Skip middleware for public pages
-    // if (publicRoutes.some(route => pathname.startsWith(route))) {
-    //     return NextResponse.next();
-    // }
-
-    // // Redirect if user is not authenticated
-    // if (!token) {
-    //     return NextResponse.redirect(new URL("/login", request.url));
-    // }
-
-    // console.log('Middleware pathname:', pathname, 'Middleware searchParams:', searchParams, 'Middleware requestUrl:', request.url);
-
+  // ✅ Public routes that don't require authentication
+  const publicRoutes = ["/login"];
+  if (publicRoutes.includes(pathname) || pathname === "/") {
+    console.log("Public route, allowing access.");
     return NextResponse.next();
+  }
+
+  // ✅ Redirect to login if no token
+  if (!token) {
+    console.log("No token, redirecting to /login.");
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // ✅ Extract username from pathname (e.g., /username/dashboard)
+  const usernameMatch = pathname.match(/^\/([^\/]+)/);
+  if (!usernameMatch) return NextResponse.next(); // No username in URL, just continue.
+
+  const urlUsername = usernameMatch[1];
+
+  // ✅ Ensure correct username in URL
+  if (token.username !== urlUsername) {
+    console.log("Incorrect URL, redirecting to correct username path.");
+    return NextResponse.redirect(new URL(`/${token.username}`, request.url));
+  }
+
+  // ✅ Redirect users who haven't finished onboarding
+  const isOnboardingPath = pathname.startsWith(`/${urlUsername}/onboarding`);
+
+  if (!token.onboardingCompleted && !isOnboardingPath) {
+    console.log("User not onboarded, redirecting to onboarding.");
+    return NextResponse.redirect(new URL(`/${token.username}/onboarding`, request.url));
+  }
+
+  // ✅ Redirect completed users away from onboarding
+  if (token.onboardingCompleted && isOnboardingPath) {
+    console.log("User already onboarded, redirecting to home.");
+    return NextResponse.redirect(new URL(`/${token.username}`, request.url));
+  }
+
+  return NextResponse.next();
 }
 
+// ✅ Ignore API, Next.js internals, and static files
 export const config = {
-    matcher: "/:path*",
+  matcher: ["/((?!api|_next|api/auth/session|favicon.ico).*)"],
 };
