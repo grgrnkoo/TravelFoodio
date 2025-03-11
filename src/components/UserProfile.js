@@ -147,6 +147,7 @@ export default function UserProfile() {
             }
             {
                 pathname.includes('onboarding') && 
+                !userProfile.username.includes('onboarding') &&
                 <p>Some onboarding image in the future</p>
             }
             {

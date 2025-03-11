@@ -9,6 +9,9 @@ import { decreaseUpdates, resetUpdates } from "../../../_lib/usersActions";
 import { usePopup } from "@/components/providers/PopUpProvider"
 import { Alert } from "@/components/Alert";
 import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
+import Image from "next/image";
+import { SpiritedAwaySvg } from "@/ui/images/SpiritedAwaySvg";
+import ThinkingSvg1 from "@/ui/images/avatar-thinking-9-svgrepo-com";
 
 export default function MenuGenerator() {
     const { showPopup } = usePopup();
@@ -88,11 +91,16 @@ export default function MenuGenerator() {
     };
 
     return (
-        <div className="flex-1 flex-col items-center w-full">
+        <div className="flex flex-col items-center w-full">
             <Menu content={menuContent} className='flex-grow w-full' />
             {
                 (!menuContent || menuContent.length === 0 || !userProfile) && !loading && (
-                    <p className="mb-4">Generate a menu to start a day!</p>
+                    <>
+                        {
+                            <ThinkingSvg1 />
+                        }
+                        <p className="my-4 text-center">Generate a menu to start a day!</p>
+                    </>
                 )
             }
 
@@ -114,7 +122,7 @@ export default function MenuGenerator() {
             <Button
                 onClick={onGenerateButtonClick}
                 disabled={loading || updatesRemaining === 0}
-                className="mb-8 mt-3"
+                className="mb-8 mt-3 cursor-pointer"
             >
                 {
                     !loading ? (

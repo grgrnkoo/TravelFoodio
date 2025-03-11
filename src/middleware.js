@@ -5,8 +5,6 @@ export async function middleware(request) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   const pathname = request.nextUrl.pathname;
 
-  console.log("Middleware - Token:", token, "Pathname:", pathname);
-
   // ✅ Public routes that don't require authentication
   const publicRoutes = ["/login"];
   if (publicRoutes.includes(pathname) || pathname === "/") {

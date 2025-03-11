@@ -14,8 +14,6 @@ export const initialMessage = {
 }
 
 export function Chat({ session }) {
-  // const { data: session } = useSession();
-  // console.log(session);
   const userName = session?.user?.name?.split(' ')[0];
 
   const [messages, setMessages] = useState([initialMessage])
@@ -37,13 +35,14 @@ export function Chat({ session }) {
     };
 
     // Generate the AI's reply immediately
-    const reply = await generateNewReply(userName, updatedReplies, setShowSubmitButtons);
-
+    
     // Update state in a single batch
     setUserReplies(updatedReplies);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setIsLoading(true);
-
+    
+    const reply = await generateNewReply(userName, updatedReplies, setShowSubmitButtons);
+    
     // Simulate AI typing after a random delay
     // const randomDelay = Math.random() * 2000;
     const randomDelay = 0;
@@ -112,7 +111,7 @@ export function Chat({ session }) {
       }
     } else {
       // Directly generate the AI reply here
-      const aiGeneratedReply = await generateOpenAiSummary(userReplies);
+      const aiGeneratedReply = await generateOpenAiSummary(userReplies, setIsLoading);
       reply = aiGeneratedReply; // Use AI reply as message content
       setAiReply(aiGeneratedReply);
       console.log('No more questions', JSON.parse(aiGeneratedReply));
@@ -123,9 +122,13 @@ export function Chat({ session }) {
   }
 
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto">
+    <div className="flex flex-col h-[90vh] max-w-2xl mx-auto">
       <div className="flex-1 overflow-y-scroll">
-        <MessageWindow messages={messages} typingMessage={typingMessage} isLoading={isLoading} />
+        <MessageWindow
+          messages={messages}
+          typingMessage={typingMessage}
+          isLoading={isLoading}
+        />
       </div>
       {!showSubmitButtons ?
         <ChatInput
@@ -134,7 +137,7 @@ export function Chat({ session }) {
           isLoading={isLoading}
         /> :
         <ChatSubmitButtons
-        // add error state and some text like 'check your ai summary and restart if you want to change anything'
+          // add error state and some text like 'check your ai summary and restart if you want to change anything'
           resetChat={resetChat}
           submitData={submitData}
         />
@@ -148,9 +151,10 @@ function getRandomNumber(number) {
   return Number((Math.random() * number).toFixed());
 }
 
-async function generateOpenAiSummary(userReplies) {
+async function generateOpenAiSummary(userReplies, setIsLoading) {
   let aiReply = '';
   const repliesSentToAi = userReplies?.slice(1);
+  setIsLoading(true);
 
   try {
     const res = await fetch('../api/generateResponse', {
@@ -165,11 +169,14 @@ async function generateOpenAiSummary(userReplies) {
     if (res.ok) {
       console.log(data.message);
       aiReply = data.message
+      setIsLoading(false);
       // setAiReply(data.message);
     } else {
+      setIsLoading(false);
       console.error(data.error);
     }
   } catch (error) {
+    setIsLoading(false);
     console.error('Error sending OpenAI request: ', error);
   }
   return aiReply;
