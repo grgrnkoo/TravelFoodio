@@ -150,10 +150,11 @@ export async function POST(req) {
     try {
         const { userProfile } = await req.json();
         const prompt = `Generate a personalized meal plan for 1 day based on:
-        - Goals: ${userProfile.goals}
-        - Location: ${userProfile.location}
-        - Age: ${userProfile.age}
-        - Dietary Restrictions: ${userProfile.dietaryRestrictions || "None"}
+        - Goals: ${userProfile?.goals}
+        - Average daily kcal amount: ${userProfile?.dailyCaloriesSuggested}
+        - Location: ${userProfile?.location}
+        - Age: ${userProfile?.age}
+        - Dietary Restrictions: ${userProfile?.dietaryRestrictions || "None"}
         - Favorite Meals (latest 5): ${JSON.stringify(getTopFavoriteMeals(userProfile)) || "None"}
         - Disliked Meals (latest 5): ${JSON.stringify(getTopDislikedMeals(userProfile)) || "None"}
         - Preferred Ingredients (top 5 rated): ${JSON.stringify(getTopIngredients(userProfile)) || "None"}

@@ -12,13 +12,15 @@ export function MessageWindow({ messages, typingMessage, isLoading }) {
   }, [messages, typingMessage, isLoading])
 
   return (
-    <ScrollArea className="flex-1 p-4 space-y-4" ref={scrollAreaRef}>
+    <div className="flex flex-col p-4 space-y-4 h-full justify-end" ref={scrollAreaRef}>
       {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} />
+        <MessageBubble 
+          key={message.id} 
+          message={message} />
       ))}
       {typingMessage && <MessageBubble message={typingMessage} />}
       {isLoading && <LoadingAnimation />}
-    </ScrollArea>
+    </div>
   )
 }
 

@@ -17,14 +17,19 @@ const userSchema = new mongoose.Schema({
         required: false
     },
     age: {
-        type: String,
+        type: Number,
         required: false,
-        default: "0"
+        default: 0
     },
     location: {
         type: String,
         required: false,
         default: ""
+    },
+    dailyCaloriesSuggested: {
+        type: Number,
+        required: false,
+        default: 0
     },
     goals: {
         type: String,
@@ -87,6 +92,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         default: 'free'
+    },
+    onboardingCompleted: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 })
 
