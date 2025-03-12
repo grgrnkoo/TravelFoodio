@@ -27,7 +27,7 @@ export function MessageWindow({ messages, typingMessage, isLoading }) {
 function MessageBubble({ message }) {
   return (
     <div
-      className={`mb-2 flex ${
+      className={`mb-2 py-2 flex ${
         message.role === 'user' ? 'justify-end' : 'justify-start'
       }`}
     >
@@ -50,7 +50,7 @@ function MessageBubble({ message }) {
 function LoadingAnimation() {
   return (
     <div className="flex justify-start">
-      <div className="bg-muted rounded-lg px-4 py-2 flex space-x-1">
+      <div className="bg-muted rounded-lg px-4 py-4 flex space-x-1">
         <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
         <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
         <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>

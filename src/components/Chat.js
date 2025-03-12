@@ -1,11 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { MessageWindow } from './MessageWindow'
 import { ChatInput } from './ChatInput'
 import questionsJson from '../lib/questions.json'
 import ChatSubmitButtons from './ChatSubmitButtons'
-import { addData } from '../../_lib/actions'
+import { addDataFromReply } from '../../_lib/actions'
+import { usePopup } from './providers/PopUpProvider'
+import { useRouter } from 'next/navigation'
 
 export const initialMessage = {
   id: 0,
@@ -22,6 +25,9 @@ export function Chat({ session }) {
   const [userReplies, setUserReplies] = useState([]);
   const [showSubmitButtons, setShowSubmitButtons] = useState(false);
   const [aiReply, setAiReply] = useState('');
+  const { update } = useSession();
+  const { showPopup } = usePopup()
+  const router = useRouter();
 
   const handleSendMessage = async (content) => {
     // Add the user's reply to a local array
@@ -35,14 +41,14 @@ export function Chat({ session }) {
     };
 
     // Generate the AI's reply immediately
-    
+
     // Update state in a single batch
     setUserReplies(updatedReplies);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setIsLoading(true);
-    
+
     const reply = await generateNewReply(userName, updatedReplies, setShowSubmitButtons);
-    
+
     // Simulate AI typing after a random delay
     // const randomDelay = Math.random() * 2000;
     const randomDelay = 0;
@@ -84,10 +90,10 @@ export function Chat({ session }) {
 
   const submitData = async () => {
     const email = session?.user?.email;
-    const arrayToPush = userReplies;
-    console.log('addData clicked. arrayToPush:', arrayToPush)
-    console.log('AI Summary:', aiReply);
-    await addData(email, aiReply);
+    const dataToPush = JSON.parse(aiReply);
+    // console.log('addData clicked. arrayToPush:', arrayToPush)
+    // console.log('AI Summary:', aiReply);
+    await addDataFromReply(email, dataToPush, showPopup, update, router);
   }
 
 
@@ -112,7 +118,7 @@ export function Chat({ session }) {
     } else {
       // Directly generate the AI reply here
       const aiGeneratedReply = await generateOpenAiSummary(userReplies, setIsLoading);
-      reply = aiGeneratedReply; // Use AI reply as message content
+      reply = formatAiReply(aiGeneratedReply);
       setAiReply(aiGeneratedReply);
       console.log('No more questions', JSON.parse(aiGeneratedReply));
       setShowSubmitButtons(true);
@@ -180,4 +186,40 @@ async function generateOpenAiSummary(userReplies, setIsLoading) {
     console.error('Error sending OpenAI request: ', error);
   }
   return aiReply;
+}
+
+const formatAiReply = (aiReply) => {
+  const returnKey = (key) => {
+    switch (key) {
+      case ('name'):
+        return <strong>Name</strong>;
+      case ('age'):
+        return <strong>Age</strong>;
+      case ('location'):
+        return <strong>Location</strong>;
+      case ('dailyCaloriesSuggested'):
+        return <strong>Est. kcal daily</strong>;
+      case ('goals'):
+        return <strong>Your goals</strong>;
+      case ('dietaryRestrictions'):
+        return <strong>Restrictions</strong>;
+      default:
+        return <strong>{key}</strong>;
+    }
+  }
+  return (
+    <>
+      AI summary of your answers:
+      <br />
+      <br />
+      {Object.entries(JSON.parse(aiReply)).map(([key, value]) => (
+        <span key={key}>
+          {returnKey(key)}: {value}
+          <br />
+        </span>
+      ))}
+      <br />
+      Don't worry, you'll be able to edit details later 😊
+    </>
+  )
 }

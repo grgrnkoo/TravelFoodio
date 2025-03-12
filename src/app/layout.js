@@ -7,6 +7,8 @@ import { PopUpProvider } from "@/components/providers/PopUpProvider";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { getUserByEmail } from "../../_lib/actions";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +27,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const session = await getServerSession(authOptions);
-  const userProfile = await getUserByEmail(session?.user?.email);
+  const userProfile = session?.user?.email ? await getUserByEmail(session?.user?.email) : null;
 
   return (
     <html lang="en">

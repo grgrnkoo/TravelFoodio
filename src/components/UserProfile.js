@@ -6,13 +6,12 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import UserProfileLine from "./UserProfileLine";
 import { YesNoPopUp } from "./YesNoPopUp";
-// import { Button } from "./ui/button";
 import { updateUserByEmail } from "../../_lib/usersActions";
 
 // User profile component contains all data about user with some of fields being editable.
 
 export default function UserProfile() {
-    const { userProfile } = useContext(UserContext);
+    const { userProfile, userProfileDynamic } = useContext(UserContext);
     const [oneEditingFieldBoolean, setOneEditingFieldBoolean] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [pendingUpdate, setPendingUpdate] = useState(null); // Track the field being updated
@@ -57,7 +56,7 @@ export default function UserProfile() {
     const generatePopUpContent = (id, value) => {
         return (
             <span>
-                You are changing value from "<strong>{userProfile[id]}</strong>" to "<strong>{value}</strong>"
+                You are changing value from "<strong>{userProfileDynamic[id]}</strong>" to "<strong>{value}</strong>"
             </span>
         )
     }
@@ -66,19 +65,19 @@ export default function UserProfile() {
 
     return (
         <div className="flex flex-col items-center p-4 w-1/3">
-            <UserProfileLine userData={userProfile.username} styleProp='font-bold' />
+            <UserProfileLine userData={userProfileDynamic.username} styleProp='font-bold' />
             {
-                userProfile.image &&
+                userProfileDynamic?.image &&
                 < Image
-                    src={userProfile.image}
-                    alt={`${userProfile.username} profile picture`}
+                    src={userProfileDynamic?.image}
+                    alt={`${userProfileDynamic?.username} profile picture`}
                     width={100}
                     height={100}
                     className="rounded-full my-4"
                 />
             }
             <UserProfileLine
-                userData={userProfile.name}
+                userData={userProfileDynamic?.name}
                 id='name'
                 styleProp='font-bold'
                 setOneEditingFieldBoolean={setOneEditingFieldBoolean}
@@ -87,10 +86,10 @@ export default function UserProfile() {
                 isPopupOpen={isPopupOpen}
             />
             {
-                userProfile.age &&
-                userProfile.age !== '' &&
+                userProfileDynamic?.age &&
+                userProfileDynamic?.age !== '' &&
                 <UserProfileLine
-                    userData={userProfile.age}
+                    userData={userProfileDynamic?.age}
                     nameOfLine='Age'
                     id='age'
                     editable={true}
@@ -102,10 +101,10 @@ export default function UserProfile() {
                 />
             }
             {
-                userProfile.location &&
-                userProfile.location !== '' &&
+                userProfileDynamic?.location &&
+                userProfileDynamic?.location !== '' &&
                 <UserProfileLine
-                    userData={userProfile.location}
+                    userData={userProfileDynamic?.location}
                     nameOfLine='Location'
                     id='location'
                     editable={true}
@@ -117,12 +116,12 @@ export default function UserProfile() {
                 />
             }
             {
-                userProfile.goals &&
-                userProfile.goals !== '' &&
+                userProfileDynamic?.dailyCaloriesSuggested &&
+                userProfileDynamic?.dailyCaloriesSuggested !== '' &&
                 <UserProfileLine
-                    userData={userProfile.goals}
-                    nameOfLine='Goals'
-                    id='goals'
+                    userData={userProfileDynamic?.dailyCaloriesSuggested}
+                    nameOfLine='Est. kcal daily'
+                    id='dailyCaloriesSuggested'
                     editable={true}
                     setOneEditingFieldBoolean={setOneEditingFieldBoolean}
                     oneEditingFieldBoolean={oneEditingFieldBoolean} setIsPopupOpen={setIsPopupOpen}
@@ -131,11 +130,25 @@ export default function UserProfile() {
                 />
             }
             {
-                userProfile.dietaryRestrictions &&
-                userProfile.dietaryRestrictions !== '' &&
+                userProfileDynamic?.goals &&
+                userProfileDynamic?.goals !== '' &&
                 <UserProfileLine
-                    userData={userProfile.dietaryRestrictions}
-                    nameOfLine='Preferences'
+                    userData={userProfileDynamic?.goals}
+                    nameOfLine='Est. kcal daily'
+                    id='dailyCaloriesSuggested'
+                    editable={true}
+                    setOneEditingFieldBoolean={setOneEditingFieldBoolean}
+                    oneEditingFieldBoolean={oneEditingFieldBoolean} setIsPopupOpen={setIsPopupOpen}
+                    confirmUpdate={confirmUpdate}
+                    isPopupOpen={isPopupOpen}
+                />
+            }
+            {
+                userProfileDynamic?.dietaryRestrictions &&
+                userProfileDynamic?.dietaryRestrictions !== '' &&
+                <UserProfileLine
+                userData={userProfileDynamic?.dietaryRestrictions}
+                nameOfLine='Preferences'
                     id='dietaryRestrictions'
                     editable={true}
                     setOneEditingFieldBoolean={setOneEditingFieldBoolean}
@@ -147,7 +160,7 @@ export default function UserProfile() {
             }
             {
                 pathname.includes('onboarding') && 
-                !userProfile.username.includes('onboarding') &&
+                !userProfileDynamic.username.includes('onboarding') &&
                 <p>Some onboarding image in the future</p>
             }
             {

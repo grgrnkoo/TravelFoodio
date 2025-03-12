@@ -42,7 +42,7 @@ export async function POST(req) {
     - Clean up the input as needed
     - Format it into a valid JSON object
     
-    Please return only the clean, valid JSON object and nothing else. Do not include any extra explanations, notes, or text, just the object. All fields should be filled with some data. No empty strings
+    Please return only the clean, valid JSON object and nothing else. Do not include any extra explanations, notes, or text, just the object. All fields should be filled with some data. No empty strings. No null or undefined values
     
     Example outputs:
     
@@ -62,7 +62,7 @@ export async function POST(req) {
     - location (String): City or country where the user lives (correct any typos or unclear locations, like "haifa israel" to "Haifa, Israel")
     - dailyCaloriesSuggested (Number): Suggest estimated calories intake for user based on all of his inputs. 
     - goals (String): A short description of the user's goals (correct and clean any grammar or typo issues)
-    - dietaryRestrictions (String or Null): Any dietary restrictions the user has (if not specified, return null or "None")
+    - dietaryRestrictions (String): Any dietary restrictions the user has (if not specified, return null or "None")
     
     Here is the raw user data: 
     ${sanitizedInput}
