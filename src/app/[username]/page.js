@@ -16,10 +16,10 @@ import ThinkingSvg1 from "@/ui/images/avatar-thinking-9-svgrepo-com";
 export default function MenuGenerator() {
     const { showPopup } = usePopup();
 
-    const { userProfile } = useContext(UserContext);
+    const { userProfile, userProfileDynamic } = useContext(UserContext);
     const [menuContent, setMenuContent] = useState([]);
     const [loading, setLoading] = useState(true); // Controls the loading state
-    const [updatesRemaining, setUpdatesRemaining] = useState(userProfile?.updatesRemaining);
+    const [updatesRemaining, setUpdatesRemaining] = useState(userProfileDynamic?.updatesRemaining);
 
 
     // Fetch the menu from the database when the user profile is available
@@ -62,7 +62,7 @@ export default function MenuGenerator() {
             }
 
 
-            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfile);
+            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfileDynamic);
 
             console.log('Menu creation: ', menuCreation)
             if (menuCreation?.status >= 200 && menuCreation?.status < 300) {

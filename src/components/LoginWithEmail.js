@@ -11,6 +11,7 @@ export default function LoginWithEmail() {
     <Button
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      className='w-full'
     >
       {hover ? <MailOpen  className="pb-px"/> : <Mail />} Login with Email
     </Button>
