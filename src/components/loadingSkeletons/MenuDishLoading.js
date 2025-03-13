@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
-const MenuDishSkeleton = () => {
+const MenuDishSkeleton = ({ showLike }) => {
   return (
     <>
       <style>{`
@@ -29,7 +29,7 @@ const MenuDishSkeleton = () => {
           opacity: .5,
           zIndex: - 1,
         }}>
-          <CardHeader className="bg-gradient-to-r from-white-50/50 to-slate-50/50 pb-2">
+        <CardHeader className="bg-gradient-to-r from-white-50/50 to-slate-50/50 pb-2">
           <div className="flex items-center justify-between mb-2 px-[17px]">
             {/* Title skeleton */}
             <div className="h-7 w-40 rounded-md skeleton-item"></div>
@@ -68,16 +68,20 @@ const MenuDishSkeleton = () => {
             </div>
           </div>
         </CardContent>
+        {
+          showLike &&
+          <>
+            <Separator />
 
-        <Separator />
-
-        <CardFooter className="flex justify-between pt-3 pb-3">
-          <div className="h-4 w-24 rounded-md skeleton-item"></div>
-          <div className="flex space-x-2">
-            <div className="h-9 w-9 rounded-full skeleton-item"></div>
-            <div className="h-9 w-9 rounded-full skeleton-item"></div>
-          </div>
-        </CardFooter>
+            <CardFooter className="flex justify-between pt-3 pb-3">
+              <div className="h-4 w-24 rounded-md skeleton-item"></div>
+              <div className="flex space-x-2">
+                <div className="h-9 w-9 rounded-full skeleton-item"></div>
+                <div className="h-9 w-9 rounded-full skeleton-item"></div>
+              </div>
+            </CardFooter>
+          </>
+        }
       </Card>
     </>
   )

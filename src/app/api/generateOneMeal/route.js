@@ -10,7 +10,8 @@ export async function POST(req) {
             return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
         }
 
-        const fullPrompt = `Generate a single meal with a detailed JSON output. The response must follow this format:
+        const fullPrompt = `Generate a single meal with a detailed JSON output for user. 
+        The response must follow this example format. You should use this as a reference but not copy it. If a prompt doesn't make any sense, just generate some random meal. Example:
     {
             "name": "Dish Name",
             "ingredients": ["Ingredient 1", "Ingredient 2"],
@@ -21,7 +22,7 @@ export async function POST(req) {
             "calories": 350
           }
     
-    Dish details:
+    User prompt input:
     ${promptValue}`;
 
         const response = await openai.chat.completions.create({

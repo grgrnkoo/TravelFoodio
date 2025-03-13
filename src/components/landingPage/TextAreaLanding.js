@@ -2,7 +2,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 
 export default function TextAreaLanding(props) {
-    const { placeholder, value, onChange } = props
+    const { placeholder, value, onChange, onKeyDown } = props
     return (
         <div className="py-4">
             <Textarea
@@ -10,7 +10,8 @@ export default function TextAreaLanding(props) {
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
-            />
+                onKeyDown={onKeyDown}
+            />  
         </div>
     )
 }

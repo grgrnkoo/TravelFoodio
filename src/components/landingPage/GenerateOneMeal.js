@@ -33,9 +33,12 @@ export default function GenerateOneMeal() {
         setPromptValue(e.target.value);
     }
 
-    useEffect(() => {
-        console.log('Is loading: ', isLoading);
-    }, [isLoading])
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !isLoading && promptValue.trim() !== '') {
+            e.preventDefault(); // Prevent new line
+            handleGenerateOneMeal();
+        }
+    };
 
     return (
         <div className="w-full">
@@ -45,10 +48,13 @@ export default function GenerateOneMeal() {
                         placeholder='Write any prompt to generate a custom meal!'
                         value={promptValue}
                         onChange={onChangePrompt}
+                        onKeyDown={handleKeyDown}
                     />
                     : screen === 'meal' ? (
                     isLoading ? 
-                    <MenuDishSkeleton /> :
+                    <MenuDishSkeleton 
+                        showLike={false}
+                    /> :
                     <MenuDish 
                         menuDish={generatedMeal}
                         showLike={false}
