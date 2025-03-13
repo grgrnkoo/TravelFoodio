@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { Mail, MailOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-// import { Label } from "@/components/ui/label"
+import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import LoginWithEmail from "@/components/LoginWithEmail";
@@ -120,8 +120,7 @@ export default function LoginPage() {
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="space-y-2">
-                                    {/* <Label htmlFor="email">Email</Label> */}
-                                    <label htmlFor="email">Email</label>
+                                    <Label htmlFor="email">Email</Label>
                                     <Input
                                         id="email"
                                         type="email"

@@ -18,7 +18,7 @@ const debounce = (func, wait) => {
 };
 
 // Assuming this is passed from parent to track order in stream
-export default function MenuDish({ menuDish, index = 0 }) {
+export default function MenuDish({ menuDish, index = 0, showLike }) {
     const { userProfile } = useContext(UserContext);
     const { showPopup } = usePopup();
     const [like, setLike] = useState(false);
@@ -27,8 +27,8 @@ export default function MenuDish({ menuDish, index = 0 }) {
     // Fetch initial state on load
     useEffect(() => {
         if (userProfile?._id) {
-            setLike(userProfile.favoriteMeals.some(m => m.name === menuDish.name));
-            setDislike(userProfile.dislikedMeals.some(m => m.name === menuDish.name));
+            setLike(userProfile.favoriteMeals.some(m => m.name === menuDish?.name));
+            setDislike(userProfile.dislikedMeals.some(m => m.name === menuDish?.name));
         }
     }, [userProfile, menuDish]);
 
@@ -95,9 +95,9 @@ export default function MenuDish({ menuDish, index = 0 }) {
             >
                 <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 pb-2">
                     <div className="flex items-center justify-between mb-2">
-                        <CardTitle className="text-xl font-bold pr-6">{menuDish.name}</CardTitle>
+                        <CardTitle className="text-xl font-bold pr-6">{menuDish?.name}</CardTitle>
                         <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200 px-[10px] py-[4px] mx-[2px] select-none">
-                            {menuDish.cuisine}
+                            {menuDish?.cuisine}
                         </Badge>
                     </div>
                 </CardHeader>
@@ -105,7 +105,7 @@ export default function MenuDish({ menuDish, index = 0 }) {
                 <CardContent className="pt-4 pb-2">
                     <div className="flex items-center mb-4 text-muted-foreground">
                         <Flame className="h-4 w-4 mr-1 text-orange-500" />
-                        <span className="font-medium">{menuDish.calories} kcal</span>
+                        <span className="font-medium">{menuDish?.calories} kcal</span>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 mb-4">
@@ -114,7 +114,7 @@ export default function MenuDish({ menuDish, index = 0 }) {
                                 <Beef className="h-4 w-4 text-blue-600" />
                             </div>
                             <p className="text-xs text-muted-foreground mb-1">Proteins</p>
-                            <p className="font-medium">{menuDish.protein}</p>
+                            <p className="font-medium">{menuDish?.protein}</p>
                         </div>
 
                         <div className="bg-slate-50 rounded-lg p-3 text-center">
@@ -122,7 +122,7 @@ export default function MenuDish({ menuDish, index = 0 }) {
                                 <Cookie className="h-4 w-4 text-yellow-600" />
                             </div>
                             <p className="text-xs text-muted-foreground mb-1">Fats</p>
-                            <p className="font-medium">{menuDish.fats}</p>
+                            <p className="font-medium">{menuDish?.fats}</p>
                         </div>
 
                         <div className="bg-slate-50 rounded-lg p-3 text-center">
@@ -130,14 +130,14 @@ export default function MenuDish({ menuDish, index = 0 }) {
                                 <Wheat className="h-4 w-4 text-amber-600" />
                             </div>
                             <p className="text-xs text-muted-foreground mb-1">Carbs</p>
-                            <p className="font-medium">{menuDish.carbs}</p>
+                            <p className="font-medium">{menuDish?.carbs}</p>
                         </div>
                     </div>
 
                     <div>
                         <p className="text-sm font-medium mb-2"><strong>Ingredients</strong></p>
                         <div className="flex flex-wrap gap-1 mb-1">
-                            {menuDish.ingredients?.map((ingredient, index) => (
+                            {menuDish?.ingredients?.map((ingredient, index) => (
                                 <Badge key={index} variant="secondary" className="bg-slate-100 border-slate-300 text-slate-500 px-[8px] py-[4px] mx-[2px]">
                                     {ingredient}
                                 </Badge>
@@ -148,41 +148,43 @@ export default function MenuDish({ menuDish, index = 0 }) {
 
                 <Separator />
 
-                <CardFooter className="flex justify-between pt-3 pb-3">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                        <Utensils className="h-4 w-4 mr-1" />
-                        <span>Rate this dish</span>
-                    </div>
-                    <div className="flex space-x-2">
-                        <button
-                            className={`p-2 rounded-full transition-all`}
-                            onClick={() => handleClick("like")}
-                            aria-label="Like"
-                            aria-pressed={like}
-                        >
-                            <ThumbsUp
-                                className={`h-5 w-5 hover:cursor-pointer`}
-                                fill={like ? "green" : "none"}
-                                stroke={like ? "green" : "currentColor"}
-                                fillOpacity={0.5}
-                            />
-                        </button>
+                {showLike &&
+                    <CardFooter className="flex justify-between pt-3 pb-3">
+                        <div className="flex items-center text-sm text-muted-foreground">
+                            <Utensils className="h-4 w-4 mr-1" />
+                            <span>Rate this dish</span>
+                        </div>
+                        <div className="flex space-x-2">
+                            <button
+                                className={`p-2 rounded-full transition-all`}
+                                onClick={() => handleClick("like")}
+                                aria-label="Like"
+                                aria-pressed={like}
+                            >
+                                <ThumbsUp
+                                    className={`h-5 w-5 hover:cursor-pointer`}
+                                    fill={like ? "green" : "none"}
+                                    stroke={like ? "green" : "currentColor"}
+                                    fillOpacity={0.5}
+                                />
+                            </button>
 
-                        <button
-                            className={`p-2 rounded-full transition-all`}
-                            onClick={() => handleClick("dislike")}
-                            aria-label="Dislike"
-                            aria-pressed={dislike}
-                        >
-                            <ThumbsDown
-                                className={`h-5 w-5 hover:cursor-pointer`}
-                                fill={dislike ? "red" : "none"}
-                                stroke={dislike ? "red" : "currentColor"}
-                                fillOpacity={0.5}
-                            />
-                        </button>
-                    </div>
-                </CardFooter>
+                            <button
+                                className={`p-2 rounded-full transition-all`}
+                                onClick={() => handleClick("dislike")}
+                                aria-label="Dislike"
+                                aria-pressed={dislike}
+                            >
+                                <ThumbsDown
+                                    className={`h-5 w-5 hover:cursor-pointer`}
+                                    fill={dislike ? "red" : "none"}
+                                    stroke={dislike ? "red" : "currentColor"}
+                                    fillOpacity={0.5}
+                                />
+                            </button>
+                        </div>
+                    </CardFooter>
+                }
             </Card>
         </>
     );
