@@ -86,8 +86,7 @@ export default function UserProfile() {
                 isPopupOpen={isPopupOpen}
             />
             {
-                userProfileDynamic?.age &&
-                userProfileDynamic?.age !== '' &&
+                userProfileDynamic?.age > 0 &&
                 <UserProfileLine
                     userData={userProfileDynamic?.age}
                     nameOfLine='Age'
@@ -116,8 +115,7 @@ export default function UserProfile() {
                 />
             }
             {
-                userProfileDynamic?.dailyCaloriesSuggested &&
-                userProfileDynamic?.dailyCaloriesSuggested !== '' &&
+                userProfileDynamic?.dailyCaloriesSuggested > 0 &&
                 <UserProfileLine
                     userData={userProfileDynamic?.dailyCaloriesSuggested}
                     nameOfLine='Est. kcal daily'
@@ -134,8 +132,8 @@ export default function UserProfile() {
                 userProfileDynamic?.goals !== '' &&
                 <UserProfileLine
                     userData={userProfileDynamic?.goals}
-                    nameOfLine='Est. kcal daily'
-                    id='dailyCaloriesSuggested'
+                    nameOfLine='Goals'
+                    id='goals'
                     editable={true}
                     setOneEditingFieldBoolean={setOneEditingFieldBoolean}
                     oneEditingFieldBoolean={oneEditingFieldBoolean} setIsPopupOpen={setIsPopupOpen}

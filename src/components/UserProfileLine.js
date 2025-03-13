@@ -7,7 +7,7 @@ import { UserContext } from './UserProvider';
 
 // One line of data at user profile
 export default function UserProfileLine(props) {
-    const { userProfile } = useContext(UserContext);
+    const { userProfile, userProfileDynamic } = useContext(UserContext);
     const { userData, styleProp, nameOfLine, editable, oneEditingFieldBoolean, setOneEditingFieldBoolean, id, setIsPopupOpen, confirmUpdate, isPopupOpen } = props;
 
     const [hovered, setHovered] = useState(false);

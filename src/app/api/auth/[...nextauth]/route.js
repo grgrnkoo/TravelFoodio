@@ -55,10 +55,10 @@ export const authOptions = {
 
                     if (!existingUser.onboardingCompleted) {
                         const booleanOnboarding = !!(
-                            existingUser.goals &&
-                            existingUser.dietaryRestrictions &&
-                            existingUser.age &&
-                            existingUser.location &&
+                            existingUser.goals ||
+                            existingUser.dietaryRestrictions ||
+                            existingUser.age ||
+                            existingUser.location ||
                             existingUser.dailyCaloriesSuggested
                         );
 

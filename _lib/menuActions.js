@@ -240,3 +240,26 @@ export async function addMealToDb(meal) {
         console.error('Error adding meal to DB:', error);
     }
 }
+
+export async function generateMeal(promptValue, setIsLoading) {
+    try {
+      const response = await fetch("/api/generateOneMeal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ promptValue }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to generate meal");
+      }
+  
+      setIsLoading(false);
+      return await response.json();
+    } catch (error) {
+      console.error("Error generating meal:", error);
+      return null;
+    }
+  }
+  
