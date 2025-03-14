@@ -10,14 +10,14 @@ export default function Home() {
       <div id='heroSection' className='flex justify-center h-80vh w-full p-8'>
         <div className="flex flex-col flex-1 items-start justify-center">
           <h1 className="mb-8 h-fit">Delegate Your Meal Planning to AI</h1>
-          <Button>
-            <Link
-              href='/login'
-              className="startbutton h-fit"
-            >
+          <Link
+            href='/login'
+            className="startbutton h-fit"
+          >
+            <Button>
               Get started
-            </Link>
-          </Button>
+            </Button>
+          </Link>
           <div>
 
             {/*  Some extra text about how cool my app is */}

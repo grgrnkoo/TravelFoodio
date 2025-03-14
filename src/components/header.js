@@ -27,13 +27,17 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden sm:flex gap-6 items-center">
-                <Button variant="outline">
-                    <Link href={`/feedback${userProfile ? `?sender=${userProfile.username}` : ''}`}>
+                <Link href={`/feedback${userProfile ? `?sender=${userProfile.username}` : ''}`}>
+                    <Button variant="outline" className='hover:cursor-pointer'>
                         Send Feedback
-                    </Link>
-                </Button>
+                    </Button>
+                </Link>
                 {!session.data ? (
-                    <Button><Link href='/login'>Sign In</Link></Button>
+                    <Link href='/login'>
+                        <Button className='hover:cursor-pointer'>
+                            Sign In
+                        </Button>
+                    </Link>
                 ) : (
                     <>
                         {userProfile && !props.username && <Button variant="outline"><Link href="/dashboard">Dashboard</Link></Button>}

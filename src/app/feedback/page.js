@@ -155,7 +155,7 @@ export default function FeedbackPage() {
                         )}
 
                         <div className="mt-4 text-center text-sm text-muted-foreground">
-                            Showing {publicFeedback.length} of {totalFeedbackCount} feedback items
+                            Showing {publicFeedback.length} of {totalFeedbackCount} messages
                         </div>
                     </>
                 ) : (
