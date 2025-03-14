@@ -26,8 +26,11 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const session = await getServerSession(authOptions);
-  const userProfile = session?.user?.email ? await getUserByEmail(session?.user?.email) : null;
+  const sessionPromise = getServerSession(authOptions);
+  const headersList = headers(); // Avoid multiple `headers()` calls
+  const session = await sessionPromise;
+  const userProfilePromise = session?.user?.email ? getUserByEmail(session?.user?.email) : null;
+  const userProfile = await userProfilePromise; // Fetch in parallel
 
   return (
     <html lang="en">

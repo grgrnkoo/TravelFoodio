@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import LoginWithEmail from "@/components/LoginWithEmail";
+import MenuDishBackground from "@/components/MenuDishAnimation";
 
 export default function LoginPage() {
     const { data: session, status } = useSession();
@@ -66,7 +67,7 @@ export default function LoginPage() {
         status === 'unauthenticated' && (
             <div className="flex min-h-screen flex-col md:flex-row">
                 {/* Animated left side */}
-                <div className="relative hidden w-full bg-primary/10 md:flex md:items-center md:justify-center">
+                {/* <div className="relative hidden w-full bg-primary/10 md:flex md:items-center md:justify-center">
                     <AnimatedBackground />
                     <div className="z-10 text-center">
                         <h1
@@ -80,7 +81,8 @@ export default function LoginPage() {
                             Sign in to access your account and continue your journey with us.
                         </p>
                     </div>
-                </div>
+                </div> */}
+
 
                 {/* Login form right side */}
                 <div className="flex w-full items-center justify-center p-4 md:p-8">
@@ -173,15 +175,16 @@ export default function LoginPage() {
                             {/* <p className="text-sm text-muted-foreground">
                                 By signing in, you agree to our{" "}
                                 <a href="#" className="underline underline-offset-4 hover:text-primary">
-                                    Terms of Service
+                                Terms of Service
                                 </a>{" "}
                                 and{" "}
                                 <a href="#" className="underline underline-offset-4 hover:text-primary">
-                                    Privacy Policy
+                                Privacy Policy
                                 </a>
-                            </p> */}
+                                </p> */}
                         </CardFooter>
                     </Card>
+                    <AnimatedBackground />
                 </div>
             </div>
         )
@@ -190,8 +193,8 @@ export default function LoginPage() {
 
 function AnimatedBackground() {
     return (
-        <div className="absolute inset-0 overflow-hidden">
-
+        <div className="absolute inset-0 overflow-hidden -z-10">
+            <MenuDishBackground />
         </div>
     )
 }

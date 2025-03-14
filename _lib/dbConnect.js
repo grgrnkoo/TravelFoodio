@@ -1,19 +1,29 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const dbConnect = async () => {
-    if(mongoose.connections[0].readyState) {
+    if (mongoose.connection.readyState) {
+        console.log("Using existing database connection");
         return true;
     }
 
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log('Database connected');
-        
-        return true;
+        await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 30000, // Increase timeout
+        });
+        console.log("✅ Database connected");
 
+        mongoose.connection.on("disconnected", () => {
+            console.log("⚠️ MongoDB disconnected. Reconnecting...");
+            dbConnect();
+        });
+
+        return true;
     } catch (error) {
-        console.log(error)
+        console.error("❌ MongoDB Connection Error:", error);
+        return false;
     }
-}
+};
 
 export default dbConnect;
