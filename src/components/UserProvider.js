@@ -18,6 +18,8 @@ export default function UserProvider({ value, children }) {
     const session = clientSession || serverSession;
 
     useEffect(() => {
+        if (!session?.user?.email || userProfileDynamic) return;
+
         async function fetchProfile() {
             if (session?.user?.email) {
                 try {
