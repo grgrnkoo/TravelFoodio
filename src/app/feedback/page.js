@@ -72,7 +72,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="container max-w-3xl mx-auto px-4 py-8">
+    <div className="container max-w-3xl mx-auto px-4 py-8 mt-[66px]">
       <Card className="p-6 shadow-md">
         <h1 className="text-2xl font-bold mb-4">Share Your Feedback</h1>
         <div className="space-y-4">
