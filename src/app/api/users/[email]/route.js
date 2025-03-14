@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 // Function to search users by email (unique value)
 export async function GET(request, { params }) {
-    const { email } = params; // Extract email properly
+    const { email } = await params; // Extract email properly
     console.log("Email: ", email);
 
     if (!email) {

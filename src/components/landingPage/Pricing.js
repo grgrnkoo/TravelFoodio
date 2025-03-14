@@ -1,4 +1,7 @@
+'use client'
+
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const plans = [
   {
@@ -21,7 +24,8 @@ const plans = [
   },
 ];
 
-function Plan({ plan, index }) {
+function Plan({ plan, index, onClick }) {
+
   return (
     <div
       key={(index + 1) * 2}
@@ -44,6 +48,7 @@ function Plan({ plan, index }) {
       <Button
         className="w-full"
         disabled={!plan.available}
+        onClick={() => onClick(plan.name)}
       >{
           plan.available ?
             <span>Get Started</span> :
@@ -55,12 +60,19 @@ function Plan({ plan, index }) {
 }
 
 export default function Pricing() {
+  const router = useRouter();
+  
+  const handlePricingButtonClick = (plan) => {
+    const lowercasePlan = plan.toLowerCase();
+    router.push(`/login?plan=${lowercasePlan}`);
+  }
+
   return (
     <div className="flex flex-col items-center py-12 px-8">
       <h2 className="text-3xl font-bold mb-6">Choose Your Plan</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full h-full max-w-5xl">
         {plans.map((plan, index) => (
-          <Plan plan={plan} index={index} key={index} />
+          <Plan plan={plan} index={index} key={index} onClick={handlePricingButtonClick} />
         ))}
       </div>
     </div>

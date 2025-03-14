@@ -9,10 +9,9 @@ export const UserContext = createContext({})
 
 export default function UserProvider({ value, children }) {
     const { session: serverSession, userProfile } = value;
-    const pathname = usePathname();
     const { data: clientSession } = useSession();
     const [userProfileDynamic, setUserProfileDynamic] = useState(userProfile);
-    const allowedPaths = ['/login', '/api'];
+    // const allowedPaths = ['/login', '/api'];
     const [isProfileLoading, setIsProfileLoading] = useState(true);
 
     const session = clientSession || serverSession;
