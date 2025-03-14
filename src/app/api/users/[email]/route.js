@@ -97,7 +97,7 @@ export async function OPTIONS() {
     return NextResponse.json({}, {
         status: 200,
         headers: {
-            "Access-Control-Allow-Origin": process.env.NEXT_PUBLIC_FRONTEND_URL || "*", // Restrict CORS to your frontend
+            "Access-Control-Allow-Origin": process.env.NEXT_PUBLIC_API_URL || "*", // Restrict CORS to your frontend
             "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization"
         }
