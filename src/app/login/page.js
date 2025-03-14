@@ -83,7 +83,6 @@ export default function LoginPage() {
                     </div>
                 </div> */}
 
-                <AnimatedBackground />
 
                 {/* Login form right side */}
                 <div className="flex w-full items-center justify-center p-4 md:p-8">
@@ -176,15 +175,16 @@ export default function LoginPage() {
                             {/* <p className="text-sm text-muted-foreground">
                                 By signing in, you agree to our{" "}
                                 <a href="#" className="underline underline-offset-4 hover:text-primary">
-                                    Terms of Service
+                                Terms of Service
                                 </a>{" "}
                                 and{" "}
                                 <a href="#" className="underline underline-offset-4 hover:text-primary">
-                                    Privacy Policy
+                                Privacy Policy
                                 </a>
-                            </p> */}
+                                </p> */}
                         </CardFooter>
                     </Card>
+                    <AnimatedBackground />
                 </div>
             </div>
         )
@@ -193,7 +193,7 @@ export default function LoginPage() {
 
 function AnimatedBackground() {
     return (
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden -z-10">
             <MenuDishBackground />
         </div>
     )
