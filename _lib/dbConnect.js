@@ -7,11 +7,8 @@ const dbConnect = async () => {
     }
 
     try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 30000, // Increase timeout
-        });
+        await mongoose.connect(process.env.MONGODB_URI);
+
         console.log("✅ Database connected");
 
         mongoose.connection.on("disconnected", () => {

@@ -13,50 +13,9 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  font-family: Arial, Helvetica, sans-serif;
   height: 100vh;
   justify-content: flex-start;
   align-items: center;
-}
-
-.header {
-  position: absolute;
-  justify-content: space-between;
-  width: 100%;
-  display: flex;
-  padding: 1rem;
-  z-index: 10;
-  background-color: white;
-}
-
-.header> :first-child {
-  padding-left: 1rem;
-}
-
-.loginfield>* {
-  padding-right: 1rem;
-}
-
-form.welcome {
-  /* width: 50%; */
-  display: flex;
-  flex-direction: column;
-  border: 2px solid black;
-  /* align-items: center; */
-  padding: 1rem;
-  margin: 1rem;
-  border-radius: .5rem;
-  margin-top: 2rem;
-}
-
-form.welcome input,
-form.welcome textarea {
-  border: 1px solid gainsboro;
-  border-radius: .25rem;
-}
-
-form.welcome input:not(:last-child) {
-  margin-bottom: 1rem;
 }
 
 label {

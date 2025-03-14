@@ -1,5 +1,4 @@
 import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
 
 export default function TextAreaLanding(props) {
     const { placeholder, value, onChange, onKeyDown } = props
