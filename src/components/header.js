@@ -5,7 +5,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useContext, useState } from "react";
 import { UserContext } from "@/components/UserProvider";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react"; // Icons for hamburger menu
+import { Menu, X } from "lucide-react";
 import { useParams } from "next/navigation";
 
 export default function Header() {
@@ -19,15 +19,19 @@ export default function Header() {
     };
 
     return (
-        <header className="absolute flex items-center px-8 py-4 z-10 justify-between w-full bg-white shadow-md">
+        <header className="absolute flex items-center px-8 py-4 z-10 justify-between w-full bg-white">
             {/* Logo */}
             <div>
                 <Link href={userProfile ? `/${userProfile.username}` : '/'} className="text-xl font-bold">FoodSm.art</Link>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex gap-6 items-center">
-                <Button variant="outline"><Link href="/">Send Feedback</Link></Button>
+            <nav className="hidden sm:flex gap-6 items-center">
+                <Button variant="outline">
+                    <Link href={`/feedback${userProfile ? `?sender=${userProfile.username}` : ''}`}>
+                        Send Feedback
+                    </Link>
+                </Button>
                 {!session.data ? (
                     <Button><Link href='/login'>Sign In</Link></Button>
                 ) : (
@@ -40,7 +44,7 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <div
-                className="md:hidden flex cursor-pointer"
+                className="sm:hidden flex cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {isOpen ? <X size={28} /> : <Menu size={28} />}
@@ -50,7 +54,13 @@ export default function Header() {
             {/* Mobile Dropdown Menu */}
             {isOpen && (
                 <div className="absolute top-16 right-8 bg-white shadow-lg rounded-lg p-4 flex flex-col gap-4 md:hidden">
-                    <Link href="/" className="block" onClick={() => setIsOpen(false)}>Send Feedback</Link>
+                    <Link
+                        href={`/feedback${userProfile ? `?sender=${userProfile.username}` : ''}`}
+                        className="block"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        Send Feedback
+                    </Link>
                     {!session.data ? (
                         <Link href="/login" className="block" onClick={() => setIsOpen(false)}>Sign In</Link>
                     ) : (

@@ -7,7 +7,7 @@ export async function middleware(request) {
 
   console.log('Token middleware: ', token)
   // ✅ Public routes that don't require authentication
-  const publicRoutes = ["/login"];
+  const publicRoutes = ["/login", "/feedback"];
   if (publicRoutes.includes(pathname) || pathname === "/") {
     console.log("Public route, allowing access.");
     return NextResponse.next();

@@ -100,3 +100,31 @@ export async function addDataFromReply(email, data, showPopup, update, router) {
     return null;
   }
 }
+
+export const sendFeedback = async (feedbackText, sender, showPopup, setTextareaValue, isPublic) => {
+  const endpoint = isPublic ? '/api/sendFeedbackPublic' : '/api/sendFeedbackEmail';
+  const safeSender = sender ?? 'Not logged in'; 
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ feedback: feedbackText, sender: safeSender }),
+    });
+    
+    const data = await response.json();
+    if (!response.ok){
+      showPopup('Error sending feedback! Try again', 'error');
+      throw new Error(data.error);
+    } 
+    setTextareaValue('');
+    showPopup('Feedback sent! Thanks <3', 'success');
+    return { success: true, data };
+
+  } catch (error) {
+    showPopup(`${error}`, 'error');
+    console.error('Error:', error);
+    return { success: false, error };
+  }
+};
