@@ -65,7 +65,7 @@ export default function FeedbackPage() {
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter" && e.ctrlKey && !isLoading && textareaValue.trim() !== "") {
+    if (e.key === "Enter" && !isLoading && textareaValue.trim() !== "") {
       e.preventDefault() // Prevent new line
       handleSendFeedback()
     }
