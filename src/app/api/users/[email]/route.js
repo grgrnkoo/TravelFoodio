@@ -66,7 +66,7 @@ export async function PATCH(req, { params }) {
     try {
         const body = await req.json();
         const { key, value } = body;
-        const { email } = params;
+        const { email } = await params;
 
         if (!email || !key || value === undefined || value === null) {
             console.error("❌ Missing required fields:", { email, key, value });

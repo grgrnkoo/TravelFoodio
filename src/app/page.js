@@ -2,30 +2,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Pricing from "@/components/landingPage/Pricing";
 import GenerateOneMeal from "@/components/landingPage/GenerateOneMeal";
+import KeyAdvantages from "@/components/KeyAdvantages";
+import HowItWorks from "@/components/HowItWork";
+import CTASection from "@/components/CtaSection";
+import HeroAIMenu from "@/components/HeroAiMenu";
 
 export default function Home() {
 
   return (
-    <div className="mt-[60px] w-full">
-      <div id='heroSection' className='flex justify-center h-80vh w-full p-8'>
-        <div className="flex flex-col flex-1 items-start justify-center">
-          <h1 className="mb-8 h-fit">Delegate Your Meal Planning to AI</h1>
-          <Link
-            href='/login'
-            className="startbutton h-fit"
-          >
-            <Button>
-              Get started
-            </Button>
-          </Link>
-          <div>
-
-            {/*  Some extra text about how cool my app is */}
-
-          </div>
-        </div>
-      </div>
+    <div className="w-full">
+      <HeroAIMenu />
       <div id='keyAdvantages'>
+        <KeyAdvantages />
         <div>
           {/* some image */}
 
@@ -56,6 +44,7 @@ export default function Home() {
         <GenerateOneMeal className='flex flex-1 w-full' />
       </div>
       <div id='howItWorks'>
+        <HowItWorks />
         <h2>How it works</h2>
         <div>
           {/* some image */}
@@ -87,6 +76,7 @@ export default function Home() {
         <Pricing />
       </div>
       <div id='cta' className="flex flex-col items-center justify-center">
+        <CTASection />
         <span>Still thinking?</span>
         <span>Watch our demo video</span>
         {/* Some video */}

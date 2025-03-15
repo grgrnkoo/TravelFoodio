@@ -1,80 +1,181 @@
-'use client'
+"use client"
 
-import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
-import { useContext, useState } from "react";
-import { UserContext } from "@/components/UserProvider";
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import { useParams } from "next/navigation";
+import Link from "next/link"
+import { signOut, useSession } from "next-auth/react"
+import { useContext, useState, useEffect } from "react"
+import { UserContext } from "@/components/UserProvider"
+import { Button } from "@/components/ui/button"
+import { Menu, X } from "lucide-react"
+import { useParams } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { CardHeader } from "./ui/card"
+import { Badge } from "./ui/badge"
+import Image from "next/image"
 
 export default function Header() {
-    const session = useSession();
-    const props = useParams();
-    const { userProfile = null } = useContext(UserContext);
-    const [isOpen, setIsOpen] = useState(false); // Controls menu state
+    const session = useSession()
+    const params = useParams()
+    const { userProfile = null } = useContext(UserContext)
+    const [isOpen, setIsOpen] = useState(false)
+    const [scrollDirection, setScrollDirection] = useState("up")
+    const [lastScrollY, setLastScrollY] = useState(0)
+    const [isAtTop, setIsAtTop] = useState(true)
+
+    // Handle scroll direction detection
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY
+
+            // Determine if we're at the top of the page
+            setIsAtTop(currentScrollY < 10)
+
+            // Determine scroll direction
+            if (currentScrollY > lastScrollY + 10) {
+                setScrollDirection("down")
+            } else if (currentScrollY < lastScrollY - 10) {
+                setScrollDirection("up")
+            }
+
+            setLastScrollY(currentScrollY)
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true })
+        return () => window.removeEventListener("scroll", handleScroll)
+    }, [lastScrollY])
 
     const handleSignOut = () => {
-        signOut({ callbackUrl: "/" });
-    };
+        signOut({ callbackUrl: "/" })
+    }
 
     return (
-        <header className="absolute flex items-center px-8 py-4 z-10 justify-between w-full bg-white">
+        <header
+            className={cn(
+                "fixed flex items-center px-4 sm:px-6 py-3 z-50 justify-between w-full transition-all duration-300",
+                "left-0 right-0 mx-auto max-w-7xl",
+                isAtTop ? "top-4" : scrollDirection === "up" ? "top-2" : "-top-24",
+                isAtTop ? "bg-transparent" : "bg-white/90 backdrop-blur-md shadow-md sm:rounded-full",
+            )}
+        >
             {/* Logo */}
-            <div>
-                <Link href={userProfile ? `/${userProfile.username}` : '/'} className="text-xl font-bold">FoodSm.art</Link>
+            <div className="pl-2">
+                <Link
+                    href={userProfile ? `/${userProfile.username}` : "/"}
+                    className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
+                >
+                    FoodSm.art
+                </Link>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden sm:flex gap-6 items-center">
-                <Link href={`/feedback${userProfile ? `?sender=${userProfile.username}` : ''}`}>
-                    <Button variant="outline" className='hover:cursor-pointer'>
+            <nav className="hidden md:flex gap-4 items-center pr-2">
+                <Link href={`/feedback${userProfile ? `?sender=${userProfile.username}` : ""}`}>
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/10">
                         Send Feedback
                     </Button>
                 </Link>
                 {!session.data ? (
-                    <Link href='/login'>
-                        <Button className='hover:cursor-pointer'>
+                    <Link href="/login">
+                        <Button size="sm" className="hover:opacity-90">
                             Sign In
                         </Button>
                     </Link>
                 ) : (
                     <>
-                        {userProfile && !props.username && <Button variant="outline"><Link href="/dashboard">Dashboard</Link></Button>}
-                        <Button onClick={handleSignOut}>Sign Out</Button>
+                        {userProfile && !params.username && (
+                            <Button variant="ghost" size="sm" className="hover:bg-primary/10">
+                                <Link href="/dashboard">Dashboard</Link>
+                            </Button>
+                        )}
+                        <Button
+                            onClick={handleSignOut}
+                            variant="outline"
+                            size="sm"
+                            className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                        >
+                            Sign Out
+                        </Button>
                     </>
                 )}
             </nav>
 
             {/* Mobile Menu Button */}
-            <div
-                className="sm:hidden flex cursor-pointer"
-                onClick={() => setIsOpen(!isOpen)}
-            >
-                {isOpen ? <X size={28} /> : <Menu size={28} />}
+            <div className="md:hidden flex cursor-pointer p-2" onClick={() => setIsOpen(!isOpen)}>
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
             </div>
-
 
             {/* Mobile Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-16 right-8 bg-white shadow-lg rounded-lg p-4 flex flex-col gap-4 md:hidden">
-                    <Link
-                        href={`/feedback${userProfile ? `?sender=${userProfile.username}` : ''}`}
-                        className="block"
-                        onClick={() => setIsOpen(false)}
-                    >
-                        Send Feedback
-                    </Link>
-                    {!session.data ? (
-                        <Link href="/login" className="block" onClick={() => setIsOpen(false)}>Sign In</Link>
-                    ) : (
-                        <>
-                            {userProfile && <Link href="/dashboard" className="block" onClick={() => setIsOpen(false)}>Dashboard</Link>}
-                            <button onClick={handleSignOut} className="text-red-600 text-left">Sign Out</button>
-                        </>
-                    )}
+                <div className="absolute top-full left-0 right-0 mx-4 bg-white/95 backdrop-blur-md shadow-lg overflow-hidden rounded-xl flex flex-col gap-4 md:hidden border border-border/40">
+                    <CardHeader className="relative pb-0 pt-6">
+                        <div className="absolute inset-0 h-24 bg-gradient-to-r from-primary/20 to-primary/40" />
+                        <div className="relative z-10 flex flex-col items-center">
+                            <div className="relative mb-2">
+                                <div className="absolute inset-0 rounded-full bg-background/80 blur-sm -m-1" />
+                                <Image
+                                    src={userProfile?.image ?? "/placeholder.svg"}
+                                    alt={`${userProfile?.username} profile picture`}
+                                    width={100}
+                                    height={100}
+                                    priority
+                                    className="rounded-full border-4 border-background relative z-10"
+                                />
+                            </div>
+                            <Badge variant="outline" className="mb-2 font-semibold px-3 py-1">
+                                {userProfile?.username}
+                            </Badge>
+                        </div>
+                    </CardHeader>
+                    <div className="p-4 flex flex-col">
+                        <Link
+                            href={`/feedback${userProfile ? `?sender=${userProfile.username}` : ""}`}
+                            className="px-2 py-3 hover:bg-primary/10 rounded-md transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            Send Feedback
+                        </Link>
+                        {!session.data ? (
+                            <Link
+                                href="/login"
+                                className="px-2 py-3 bg-primary/10 text-primary font-medium rounded-md hover:bg-primary/20 transition-colors text-center"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Sign In
+                            </Link>
+                        ) : (
+                            <>
+                                {userProfile && (
+                                    <Link
+                                        href={`/${userProfile?.username}/editprofile`}
+                                        className="px-2 py-3 hover:bg-primary/10 rounded-md transition-colors"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Edit Profile
+                                    </Link>
+                                )}
+                                {userProfile && (
+                                    <Link
+                                        href="/dashboard"
+                                        className="px-2 py-3 hover:bg-primary/10 rounded-md transition-colors"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Dashboard
+                                    </Link>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        setIsOpen(false)
+                                        handleSignOut()
+                                    }}
+                                    className="px-2 py-3 text-destructive hover:bg-destructive/10 rounded-md transition-colors text-left"
+                                >
+                                    Sign Out
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </div>
             )}
         </header>
-    );
+    )
 }
+
