@@ -1,95 +1,133 @@
-'use client'
+"use client";
 
-import { Pencil } from 'lucide-react';
-import { useState, useContext, useEffect } from 'react';
-import UserPreferenceEdit from './UserPreferenceEdit';
-import { UserContext } from './UserProvider';
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { CheckIcon, XIcon, PencilIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Textarea } from "./ui/textarea";
 
-// One line of data at user profile
-export default function UserProfileLine(props) {
-    const { userProfile, userProfileDynamic } = useContext(UserContext);
-    const { userData, styleProp, nameOfLine, editable, oneEditingFieldBoolean, setOneEditingFieldBoolean, id, setIsPopupOpen, confirmUpdate, isPopupOpen } = props;
-
-    const [hovered, setHovered] = useState(false);
-    const [inputState, setInputState] = useState(false);
+export default function UserProfileLine({
+    userData,
+    nameOfLine,
+    id,
+    editable = false,
+    styleProp = "",
+    setOneEditingFieldBoolean,
+    oneEditingFieldBoolean,
+    confirmUpdate,
+    isPopupOpen,
+    setIsPopupOpen,
+    icon,
+}) {
+    const [isEditing, setIsEditing] = useState(false);
     const [optimisticUserData, setOptimisticUserData] = useState(() => userData);
+    const [inputValue, setInputValue] = useState(userData);
 
     useEffect(() => {
-        if (!isPopupOpen && inputState) {
-            onXClick();
+        if (userData !== optimisticUserData) {
+            setOptimisticUserData(userData);
+            setInputValue(userData);
         }
-    }, [isPopupOpen]);
+        if (!isPopupOpen && isEditing) {
+            console.log(`${id} Resetting edit mode`);
+            setIsEditing(false);
+            setOneEditingFieldBoolean(false);
+        }
+    }, []);
 
-    useEffect(() => {
-        setInputState(false);
-        setOptimisticUserData(userData);
-    }, [userData]);
-
-    const onXClick = () => {
-        setInputState(false);
-        setOneEditingFieldBoolean(false);
-        setOptimisticUserData(userData);
+    const toggleEditing = () => {
+        console.log(`${id} toggleEditing: isEditing=${isEditing}, oneEditingFieldBoolean=${oneEditingFieldBoolean}`);
+        if (!isEditing && oneEditingFieldBoolean) return;
+        setIsEditing(!isEditing);
+        setOneEditingFieldBoolean(!isEditing);
+        if (!isEditing) setInputValue(optimisticUserData);
     };
 
-    const onCheckClick = async (value) => {
-        if (value && value !== userData && value !== '') {
+    const handleSave = async () => {
+        console.log(`${id} handleSave: inputValue=${inputValue}, optimistic=${optimisticUserData}`);
+        if (inputValue !== optimisticUserData && inputValue !== "") {
             setIsPopupOpen(true);
-            const confirmed = await confirmUpdate(id, value); // Wait for confirmation
+            const confirmed = await confirmUpdate(id, inputValue);
+            console.log(`${id} Confirmed: ${confirmed}`);
             if (confirmed) {
-                setOptimisticUserData(value);
+                setOptimisticUserData(inputValue); // Update persists here
             } else {
-                onXClick();
+                setInputValue(optimisticUserData); // Revert to last confirmed value
             }
-        } else if (!value) {
-            console.error('No value to patch');
-            throw new Error('No value provided');
         }
-        setInputState(false);
+        setIsEditing(false);
         setOneEditingFieldBoolean(false);
     };
 
-    const onPencilClick = () => {
-        if (!oneEditingFieldBoolean) {
-            setInputState(true);
-            setOneEditingFieldBoolean(true);
-        }
-    }
-
-    const handleKeyDown = async (e, value) => {
-
-        console.log(value);
-        if (e.key === 'Enter') {
+    const handleKeyDown = async (e) => {
+        console.log(`${id} Key: ${e.key}`);
+        if (e.key === "Enter") {
             e.preventDefault();
-            e.stopPropagation();
-            await onCheckClick(value);
-        } else if (e.key === 'Escape') {
-            onXClick();
+            await handleSave();
+        } else if (e.key === "Escape") {
+            setIsEditing(false);
+            setOneEditingFieldBoolean(false);
+            setInputValue(optimisticUserData);
         }
-        console.log('Key: ');
-        console.log(e.key);
-    }
+    };
+
+    const inputWidth = isEditing
+        ? `${Math.max(inputValue.length * 10, String(optimisticUserData).length * 10, 150)}px` : undefined;
 
     return (
-        <div
-            className={`relative flex justify-stretch w-full items-center ${styleProp}`}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-        >
-            <div className="flex-1">
-                {nameOfLine && <p className="text-xs">{nameOfLine}:</p>}
-                <UserPreferenceEdit
-                    userData={optimisticUserData}
-                    inputState={inputState}
-                    onXClick={onXClick}
-                    onCheckClick={onCheckClick}
-                    handleKeyDown={handleKeyDown}
-                />
+        <div className="flex items-center py-2 justify-between group">
+            <div className="flex items-center gap-2 flex-1">
+                {icon && <span>{icon}</span>}
+                <div className="flex flex-col">
+                    {nameOfLine && <span className="text-xs text-muted-foreground">{nameOfLine}</span>}
+                    {isEditing ? (
+                        <Input
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            className="py-1"
+                            style={{ width: inputWidth }}
+                        />
+                    ) : (
+                        <span className={cn("transition-all py-2", styleProp)}>{optimisticUserData}</span>
+                    )}
+                </div>
             </div>
-            {hovered && editable && !inputState && !oneEditingFieldBoolean && (
-                <Pencil
-                    className={`h-[1rem] hover:cursor-pointer absolute right-0 rounded-full ${hovered && editable && !inputState ? "block" : "hidden"}`}
-                    onClick={onPencilClick}
-                />
+
+            {editable && (
+                <div className="flex items-center ml-2">
+                    {isEditing ? (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-green-500 hover:text-green-600 hover:bg-green-100"
+                                onClick={handleSave}
+                            >
+                                <CheckIcon className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-red-500 hover:text-red-600 hover:bg-red-100"
+                                onClick={toggleEditing}
+                            >
+                                <XIcon className="h-4 w-4" />
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={toggleEditing}
+                            disabled={oneEditingFieldBoolean}
+                        >
+                            <PencilIcon className="h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
             )}
         </div>
     );

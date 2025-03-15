@@ -24,7 +24,7 @@ export default function FeedbackPage() {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalFeedbackCount, setTotalFeedbackCount] = useState(0);
-    
+
     const ITEMS_PER_PAGE = 10;
     const searchParams = useSearchParams();
     const sender = searchParams.get("sender");
@@ -44,7 +44,7 @@ export default function FeedbackPage() {
         try {
             const res = await fetch(`/api/getPublicFeedback?page=${page}&limit=${ITEMS_PER_PAGE}`);
             if (!res.ok) throw new Error("Error fetching public feedback!");
-            
+
             const data = await res.json();
             const newFeedbacks = data.feedbacks || [];
             const totalPages = data.totalPages || 1;
@@ -155,7 +155,7 @@ export default function FeedbackPage() {
                         )}
 
                         <div className="mt-4 text-center text-sm text-muted-foreground">
-                            Showing {publicFeedback.length} of {totalFeedbackCount} feedback items
+                            Showing {publicFeedback.length} of {totalFeedbackCount} messages
                         </div>
                     </>
                 ) : (
@@ -165,7 +165,7 @@ export default function FeedbackPage() {
                     </div>
                 )}
 
-                {isLoadingMore && <FeedbackSkeleton count={2} />}
+                {isLoadingMore && <FeedbackSkeleton cards={totalFeedbackCount - publicFeedback.length} />}
             </div>
         </div>
     );

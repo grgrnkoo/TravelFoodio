@@ -1,10 +1,16 @@
 import { Card } from "./ui/card"
 import { Skeleton } from "./ui/skeleton"
 
-export default function FeedbackSkeleton() {
+export default function FeedbackSkeleton({ cards }) {
+    let n = 3;
+
+    if (cards < 3) {
+        n = cards;
+    }
+
     return (
         <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
+            {Array.from({ length: n }, (_, i) => (
                 <Card key={i} className="overflow-hidden">
                     <div className="p-4 pb-2 flex flex-row items-center gap-3">
                         <div className="space-y-2">
