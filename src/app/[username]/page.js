@@ -12,15 +12,18 @@ import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
 import Image from "next/image";
 import { SpiritedAwaySvg } from "../../ui/images/SpiritedAwaySvg";
 import ThinkingSvg1 from "../../ui/images/avatar-thinking-9-svgrepo-com";
+import MenuDish from "@/components/MenuDish";
+import MenuClass from "@/classes/MenuClass";
+import { Separator } from "@/components/ui/separator";
 
 export default function MenuGenerator() {
     const { showPopup } = usePopup();
 
     const { userProfile, userProfileDynamic } = useContext(UserContext);
     const [menuContent, setMenuContent] = useState([]);
+    const [totalNutrition, setTotalNutrition] = useState({});
     const [loading, setLoading] = useState(true); // Controls the loading state
     const [updatesRemaining, setUpdatesRemaining] = useState(userProfileDynamic?.updatesRemaining);
-
 
     // Fetch the menu from the database when the user profile is available
     useEffect(() => {
@@ -34,7 +37,10 @@ export default function MenuGenerator() {
         const fetchedMenu = await checkDbForMenu(userProfile._id, setLoading);
         if (fetchedMenu.status === 200) {
             if (fetchedMenu.menu?.meals?.length > 0) {
-                setMenuContent(fetchedMenu.menu.meals);
+                const newMenu = new MenuClass(fetchedMenu.menu.meals);
+                const totalNutrition = newMenu.calculateTotalNutrition()
+                setTotalNutrition(totalNutrition);
+                setMenuContent(newMenu.meals);
             } else {
                 const resetResult = await resetUpdates(userProfile?._id, userProfile?.subscriptionType);
                 console.log('Reset result: ', resetResult);
@@ -59,6 +65,7 @@ export default function MenuGenerator() {
 
             if (menuContent.length > 0) {
                 setMenuContent([]);
+                setTotalNutrition({});
             }
 
 
@@ -68,7 +75,8 @@ export default function MenuGenerator() {
             if (menuCreation?.status >= 200 && menuCreation?.status < 300) {
                 try {
                     const decreaseResult = await decreaseUpdates(userProfile._id, updatesRemaining);
-
+                    const totalNutrition = menuCreation.menu.calculateTotalNutrition();
+                    setTotalNutrition(totalNutrition);
                     if (decreaseResult.success) {
                         setUpdatesRemaining(decreaseResult.updatesRemaining);
                         console.log('Decrease result:', decreaseResult);
@@ -109,6 +117,18 @@ export default function MenuGenerator() {
                 Array.from({ length: 3 - menuContent?.length > 0 ? 3 - menuContent?.length : 0 }).map((_, index) => (
                     <MenuDishSkeleton key={index} className="flex-grow w-full" />
                 ))
+            }
+
+            {/* Calculating total nutrition */}
+            {
+                Object.keys(totalNutrition).length > 0 &&
+                <div className="w-full px-4">
+                    <Separator className="my-4 " />
+                    <MenuDish
+                        menuDish={totalNutrition}
+                        showLike={false}
+                    />
+                </div>
             }
 
             {updatesRemaining === 0 && !loading && (

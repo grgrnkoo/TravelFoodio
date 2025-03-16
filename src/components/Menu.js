@@ -3,6 +3,7 @@ import MenuDish from './MenuDish';
 import { memo } from 'react';
 
 function Menu({ content: menuContent }) {
+
   return (
     <div className="w-full px-4">
       {menuContent?.map((menuDish, index) => (
