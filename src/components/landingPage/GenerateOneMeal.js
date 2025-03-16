@@ -10,7 +10,7 @@ export default function GenerateOneMeal({
   generatedMeal, 
   promptValue, 
   onChangePrompt, 
-  onKeyDown 
+  onKeyDown
 }) {
   return (
     <div className="w-full flex flex-1 h-full">

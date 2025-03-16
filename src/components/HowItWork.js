@@ -1,20 +1,21 @@
 import { ClipboardCheck, Utensils, Settings } from "lucide-react";
+import Image from "next/image";
 
 const steps = [
   {
     icon: ClipboardCheck,
     title: "Complete onboarding",
-    description: "A quick, friendly chat — just 4-5 easy questions — to figure out what works best for you."
+    description: "A quick, friendly chat — just 4-5 easy questions — to figure out what works best for you.",
   },
   {
     icon: Utensils,
     title: "Start using FoodSm.art",
-    description: "Every liked or disliked meal fine-tunes your preferences, helping FoodSm.art suggest better meals just for you."
+    description: "Every liked or disliked meal fine-tunes your preferences, helping FoodSm.art suggest better meals just for you.",
   },
   {
     icon: Settings,
     title: "Plans changed? Just update your profile",
-    description: "Traveling or adjusting your goals? No waiting — edit your profile, and your next meal adapts instantly."
+    description: "Traveling or adjusting your goals? No waiting — edit your profile, and your next meal adapts instantly.",
   }
 ];
 
@@ -32,10 +33,6 @@ export default function HowItWorks() {
         <div className="grid md:grid-cols-3 gap-12">
           {steps.map((step, index) => (
             <div key={index} className="relative">
-              {index < steps.length - 1 && (
-                <div className="absolute -z-10 top-1/2 left-0 -translate-y-1/2 h-0.5 w-full bg-primary/20 hidden md:block"></div>
-              )}
-
               <div className="flex flex-col items-center text-center">
                 <div className="relative z-10 h-16 w-16 rounded-full bg-primary flex items-center justify-center text-white text-xl font-bold mb-6">
                   <step.icon className="h-8 w-8" />

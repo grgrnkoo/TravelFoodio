@@ -25,6 +25,7 @@ export async function addUsername(user) {
 }
 
 export async function getUserByEmail(email) {
+  console.log('db fetch triggered');
   if (!email) {
     console.log("No email provided to getUserByEmail");
     return null; // Early return for no email

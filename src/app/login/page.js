@@ -2,8 +2,7 @@
 
 import { signIn, useSession } from "next-auth/react"
 import React, { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
-import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { Mail, MailOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,46 +12,65 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator"
 import LoginWithEmail from "@/components/LoginWithEmail";
 import MenuDishBackground from "@/components/MenuDishAnimation";
+import { usePopup } from "@/components/providers/PopUpProvider";
 
 export default function LoginPage() {
     const { data: session, status } = useSession();
-    const [data, setData] = useState({});
     const [formEmail, setFormEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isEmailValid, setIsEmailValid] = useState(true);
     const [hover, setHover] = useState(false);
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { showPopup } = usePopup();
 
     const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
-    useEffect(() => {
-        if (status === "authenticated") {
-            axios.get(`/api/users/${session?.user?.email}`)
-                .then(response => setData(response.data))
-                .catch(error => console.error('Error fetching user data:', error));
-            router.push(`/${session?.user?.username}`);
-        }
-    }, [status]);
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
 
-    console.log(data);
+    useEffect(() => {
+        if (status === "authenticated" && session?.user?.username) {
+            router.push(`/${session.user.username}`);
+        }
+    }, [status, session]);
+
     console.log(session);
 
     const handleChange = (e) => {
         e.preventDefault();
-        setFormEmail(e.target.value);
-    }
+        const email = e.target.value;
+        setFormEmail(email);
+        setIsEmailValid(true);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true)
+        setIsLoading(true);
+        setIsEmailValid(validateEmail(e));
+
+        if (!validateEmail(formEmail)) {
+            console.log("Invalid email:", formEmail);
+            setIsEmailValid(false);
+            showPopup("Invalid email format. Please enter a valid email.", "error");
+            console.log("Invalid email format. Please enter a valid email.");
+            setIsLoading(false);
+            return;
+        }
+
         try {
             // Call NextAuth's email provider
+            if (!validateEmail(formEmail)) {
+                throw new Error("Invalid email format");
+            }
             const result = await signIn('resend', { email: formEmail, callbackUrl });
             console.log('Magic link result: ', result)
-            alert("Magic link sent! Please check your email.");
+            showPopup("Magic link sent! Please check your email.", "success");
         } catch (error) {
             console.error("Error sending Magic Link:", error);
-            alert("Failed to send magic link. Please try again later.");
+            showPopup("Failed to send magic link. Please try again later.", "error");
         } finally {
             setIsLoading(false);
         }
@@ -65,26 +83,7 @@ export default function LoginPage() {
 
     return (
         status === 'unauthenticated' && (
-            <div className="flex min-h-screen flex-col md:flex-row">
-                {/* Animated left side */}
-                {/* <div className="relative hidden w-full bg-primary/10 md:flex md:items-center md:justify-center">
-                    <AnimatedBackground />
-                    <div className="z-10 text-center">
-                        <h1
-                            className="text-4xl font-bold text-primary"
-                        >
-                            Welcome Back
-                        </h1>
-                        <p
-                            className="mt-4 max-w-md text-lg text-muted-foreground"
-                        >
-                            Sign in to access your account and continue your journey with us.
-                        </p>
-                    </div>
-                </div> */}
-
-
-                {/* Login form right side */}
+            <div className="flex min-h-screen flex-row">
                 <div className="flex w-full items-center justify-center p-4 md:p-8">
                     <Card className="mx-auto w-full max-w-md">
                         <CardHeader className="space-y-1">
@@ -125,12 +124,12 @@ export default function LoginPage() {
                                     <Label htmlFor="email">Email</Label>
                                     <Input
                                         id="email"
-                                        type="email"
+                                        type="text"
                                         placeholder="m@example.com"
                                         onChange={handleChange}
                                         value={formEmail}
-                                        required
                                     />
+                                    {!isEmailValid && <p className="text-red-500 text-xs">Invalid email format</p>}
                                 </div>
                                 <Button
                                     type="submit"
@@ -184,7 +183,9 @@ export default function LoginPage() {
                                 </p> */}
                         </CardFooter>
                     </Card>
-                    <AnimatedBackground />
+                    <div>
+                        <AnimatedBackground />
+                    </div>
                 </div>
             </div>
         )

@@ -10,8 +10,8 @@ import { usePopup } from "@/components/providers/PopUpProvider"
 import { Alert } from "@/components/Alert";
 import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
 import Image from "next/image";
-import { SpiritedAwaySvg } from "@/ui/images/SpiritedAwaySvg";
-import ThinkingSvg1 from "@/ui/images/avatar-thinking-9-svgrepo-com";
+import { SpiritedAwaySvg } from "../../ui/images/SpiritedAwaySvg";
+import ThinkingSvg1 from "../../ui/images/avatar-thinking-9-svgrepo-com";
 
 export default function MenuGenerator() {
     const { showPopup } = usePopup();
