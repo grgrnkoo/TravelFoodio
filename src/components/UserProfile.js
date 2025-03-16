@@ -8,7 +8,7 @@ import { YesNoPopUp } from "./YesNoPopUp";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { PencilIcon, UserIcon, MapPinIcon, TargetIcon, UtensilsIcon } from "lucide-react";
+import { PencilIcon, UserIcon, MapPinIcon, TargetIcon, UtensilsIcon, Cookie } from "lucide-react";
 import { updateUserByEmail } from "../../_lib/usersActions";
 
 const updateUser = async (email, field, value) => {
@@ -110,7 +110,7 @@ export default function UserProfile({ className, editable = false }) {
                         nameOfLine: "Est. kcal daily",
                         id: "dailyCaloriesSuggested",
                         editable,
-                        icon: <PencilIcon className="h-4 w-4 text-muted-foreground" />,
+                        icon: <Cookie className="h-4 w-4 text-muted-foreground" />,
                     },
                     {
                         userData: userProfileDynamic?.location,

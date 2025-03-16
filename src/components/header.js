@@ -106,26 +106,26 @@ export default function Header() {
             {/* Mobile Dropdown Menu */}
             {isOpen && (
                 <div className="absolute top-full left-0 right-0 mx-4 bg-white/95 backdrop-blur-md shadow-lg overflow-hidden rounded-xl flex flex-col gap-4 md:hidden border border-border/40">
-                   {session.data && (
-                    <CardHeader className="relative pb-0 pt-6">
-                        <div className="absolute inset-0 h-24 bg-gradient-to-r from-primary/20 to-primary/40" />
-                        <div className="relative z-10 flex flex-col items-center">
-                            <div className="relative mb-2">
-                                <div className="absolute inset-0 rounded-full bg-background/80 blur-sm -m-1" />
-                                <Image
-                                    src={userProfile?.image ?? "/placeholder.svg"}
-                                    alt={`${userProfile?.username} profile picture`}
-                                    width={100}
-                                    height={100}
-                                    priority
-                                    className="rounded-full border-4 border-background relative z-10"
-                                />
+                    {session.data && (
+                        <CardHeader className="relative pb-0 pt-6">
+                            <div className="absolute inset-0 h-24 bg-gradient-to-r from-primary/20 to-primary/40" />
+                            <div className="relative z-10 flex flex-col items-center">
+                                <div className="relative mb-2">
+                                    <div className="absolute inset-0 rounded-full bg-background/80 blur-sm -m-1" />
+                                    <Image
+                                        src={userProfile?.image ?? "/placeholder.svg"}
+                                        alt={`${userProfile?.username} profile picture`}
+                                        width={100}
+                                        height={100}
+                                        priority
+                                        className="rounded-full border-4 border-background relative z-10"
+                                    />
+                                </div>
+                                <Badge variant="outline" className="mb-2 font-semibold px-3 py-1">
+                                    {userProfile?.username}
+                                </Badge>
                             </div>
-                            <Badge variant="outline" className="mb-2 font-semibold px-3 py-1">
-                                {userProfile?.username}
-                            </Badge>
-                        </div>
-                    </CardHeader>
+                        </CardHeader>
                     )}
                     <div className="p-4 flex flex-col">
                         <Link
@@ -136,13 +136,36 @@ export default function Header() {
                             Send Feedback
                         </Link>
                         {!session.data ? (
-                            <Link
-                                href="/login"
-                                className="px-2 py-3 bg-primary/10 text-primary font-medium rounded-md hover:bg-primary/20 transition-colors text-center"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                Sign In
-                            </Link>
+                            <>
+                                <Link
+                                    href="#keyAdvantages"
+                                    className="px-2 py-3 hover:bg-primary/10 rounded-md transition-colors"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    Why Choose FoodSm.art?
+                                </Link>
+                                <Link
+                                    href="#howItWorks"
+                                    className="px-2 py-3 hover:bg-primary/10 rounded-md transition-colors"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    How It Works
+                                </Link>
+                                <Link
+                                    href="#plans"
+                                    className="px-2 py-3 hover:bg-primary/10 rounded-md transition-colors"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    Pricing
+                                </Link>
+                                <Link
+                                    href="/login"
+                                    className="px-2 py-3 mt-2 bg-primary/10 text-primary font-medium rounded-md hover:bg-primary/20 transition-colors text-center"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    Sign In
+                                </Link>
+                            </>
                         ) : (
                             <>
                                 {userProfile && (

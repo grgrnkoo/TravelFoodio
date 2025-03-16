@@ -21,6 +21,7 @@ export default class MenuClass {
     calculateTotalNutrition() {
         return this.meals.reduce(
             (totals, meal) => {
+                totals.name = 'Total Nutrition';
                 totals.calories += meal.calories || 0;
                 totals.protein += meal.protein || 0;
                 totals.fats += meal.fats || 0;

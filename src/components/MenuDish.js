@@ -93,12 +93,13 @@ export default function MenuDish({ menuDish, index = 0, showLike }) {
                     zIndex: -index - 1,
                 }}
             >
-                <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 pb-2">
+                <CardHeader className={`bg-gradient-to-r ${menuDish?.name === 'Total Nutrition' ? 'from-amber-200 to-red-300' : 'from-amber-50 to-orange-50'} pb-2`}>
                     <div className="flex items-center justify-between mb-2">
                         <CardTitle className="text-xl font-bold pr-6">{menuDish?.name}</CardTitle>
-                        <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200 px-[10px] py-[4px] mx-[2px] select-none">
-                            {menuDish?.cuisine}
-                        </Badge>
+                        {menuDish?.cuisine &&
+                            <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200 px-[10px] py-[4px] mx-[2px] select-none">
+                                {menuDish?.cuisine}
+                            </Badge>}
                     </div>
                 </CardHeader>
 
@@ -134,16 +135,17 @@ export default function MenuDish({ menuDish, index = 0, showLike }) {
                         </div>
                     </div>
 
-                    <div>
-                        <p className="text-sm font-medium mb-2"><strong>Ingredients</strong></p>
-                        <div className="flex flex-wrap gap-1 mb-1">
-                            {menuDish?.ingredients?.map((ingredient, index) => (
-                                <Badge key={index} variant="secondary" className="bg-slate-100 border-slate-300 text-slate-500 px-[8px] py-[4px] mx-[2px]">
-                                    {ingredient}
-                                </Badge>
-                            ))}
-                        </div>
-                    </div>
+                    {menuDish?.ingredients &&
+                        <div>
+                            <p className="text-sm font-medium mb-2"><strong>Ingredients</strong></p>
+                            <div className="flex flex-wrap gap-1 mb-1">
+                                {menuDish?.ingredients?.map((ingredient, index) => (
+                                    <Badge key={index} variant="secondary" className="bg-slate-100 border-slate-300 text-slate-500 px-[8px] py-[4px] mx-[2px]">
+                                        {ingredient}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>}
                 </CardContent>
 
                 <Separator />
