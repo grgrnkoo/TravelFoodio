@@ -77,23 +77,23 @@ export const authOptions = {
                 return false;
             }
         },
-        async jwt({ token, user, account, trigger }) {
+        async jwt({ token = {}, user, account, trigger }) {
             const currentTime = Math.floor(Date.now() / 1000);
             const bufferTime = 15 * 60; // 15 minutes
-
+        
             if (user && account) {
                 token.email = user.email;
                 token.username = user.username;
                 token.onboardingCompleted = user.onboardingCompleted ?? false;
-                token.exp = currentTime + 24 * 60 * 60;
+                token.exp = currentTime + 24 * 60 * 60 * 10;
                 return token;
             }
-
-            if (trigger === "update" && token.email) {
+        
+            if (trigger === "update" && token?.email) {  // Ensure token is defined
                 try {
                     const updatedUser = await getUserByEmail(token.email);
                     if (!updatedUser) throw new Error("User not found");
-
+        
                     token.username = updatedUser.username;
                     token.onboardingCompleted = updatedUser.onboardingCompleted;
                 } catch (error) {
@@ -102,23 +102,25 @@ export const authOptions = {
                 }
                 return token;
             }
-
-            if (token.exp && currentTime > token.exp - bufferTime) {
+        
+            if (token?.exp && currentTime > token.exp - bufferTime) {
                 try {
+                    if (!token.email) throw new Error("Token has no email");
+        
                     const updatedUser = await getUserByEmail(token.email);
                     if (!updatedUser) throw new Error("User not found");
-
+        
                     token.username = updatedUser.username;
                     token.onboardingCompleted = updatedUser.onboardingCompleted;
-                    token.exp = currentTime + 24 * 60 * 60;
+                    token.exp = currentTime + 24 * 60 * 60 * 10;
                 } catch (error) {
                     console.error("Token refresh error:", error);
                     return { ...token, error: "RefreshAccessTokenError" };
                 }
             }
-
+        
             return token;
-        },
+        },        
         async session({ session, token }) {
             if (token.error) {
                 session.error = token.error;

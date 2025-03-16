@@ -28,6 +28,7 @@ export default function LoginPage() {
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        setIsEmailValid(emailRegex);
         return emailRegex.test(email);
     };
 
@@ -49,11 +50,10 @@ export default function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        setIsEmailValid(validateEmail(e));
 
         if (!validateEmail(formEmail)) {
             console.log("Invalid email:", formEmail);
-            setIsEmailValid(false);
+            // setIsEmailValid(false);
             showPopup("Invalid email format. Please enter a valid email.", "error");
             console.log("Invalid email format. Please enter a valid email.");
             setIsLoading(false);
@@ -83,7 +83,7 @@ export default function LoginPage() {
 
     return (
         status === 'unauthenticated' && (
-            <div className="flex min-h-screen flex-row">
+            <div className="flex h-screen flex-row overflow-hidden">
                 <div className="flex w-full items-center justify-center p-4 md:p-8">
                     <Card className="mx-auto w-full max-w-md">
                         <CardHeader className="space-y-1">
