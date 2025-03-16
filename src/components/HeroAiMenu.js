@@ -10,11 +10,28 @@ import { usePopup } from "./providers/PopUpProvider"
 import Link from "next/link"
 
 export default function HeroAIMenu() {
-    const [isLoading, setIsLoading] = useState(false)
-    const [screen, setScreen] = useState('textarea')
-    const [promptValue, setPromptValue] = useState('')
-    const [generatedMeal, setGeneratedMeal] = useState({})
-    const { showPopup } = usePopup()
+    const [isLoading, setIsLoading] = useState(false);
+    const [screen, setScreen] = useState('textarea');
+    const [promptValue, setPromptValue] = useState('');
+    const [generatedMeal, setGeneratedMeal] = useState({});
+    const { showPopup } = usePopup();
+    const viralMealPrompts = [
+        "A meal that feels illegal to eat but is actually healthy.",
+        "Generate a meal that looks like junk food but is secretly packed with nutrients.",
+        "A dish that makes your gym bro question his entire diet.",
+        "The ultimate 3-ingredient meal for when you're broke but still want to eat like a king.",
+        "A meal so optimized it makes dietitians rethink their careers.",
+        "Generate a meal that looks Michelin-starred but costs less than $5 to make.",
+        "The one meal an AI thinks will make you live to 120.",
+        "Create a meal Gordon Ramsay would roast… until he actually tastes it.",
+        "A dish so balanced it makes MyFitnessPal jealous.",
+        "The weirdest but most delicious meal combo you’d never think of."
+    ];
+
+    const getRandomMealPrompt = () => {
+        return viralMealPrompts[Math.floor(Math.random() * viralMealPrompts.length)];
+    }
+
 
     const handleGenerateSampleMenu = async () => {
         setIsLoading(true)
