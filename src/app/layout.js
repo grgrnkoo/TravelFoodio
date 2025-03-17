@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 import { getUserByEmail } from "../../_lib/actions";
 import Script from "next/script";
 import Footer from "@/components/Footer";
+import { headers } from "next/headers";
 
 
 const geistSans = Geist({
