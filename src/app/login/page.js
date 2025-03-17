@@ -53,7 +53,6 @@ export default function LoginPage() {
 
         if (!validateEmail(formEmail)) {
             console.log("Invalid email:", formEmail);
-            // setIsEmailValid(false);
             showPopup("Invalid email format. Please enter a valid email.", "error");
             console.log("Invalid email format. Please enter a valid email.");
             setIsLoading(false);
