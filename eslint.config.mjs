@@ -1,6 +1,7 @@
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
+import babelParser from "@babel/eslint-parser"; // Add this import
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,11 +14,11 @@ export default [
   {
     files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
     languageOptions: {
-      parser: require("@babel/eslint-parser"), // Or "@typescript-eslint/parser" if using TS
+      parser: babelParser, // Use the imported parser
       parserOptions: {
         requireConfigFile: false,
         babelOptions: {
-          presets: ["next/babel"], // Matches Next.js Babel setup
+          presets: ["next/babel"],
         },
       },
     },
