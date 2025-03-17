@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { PencilIcon, UserIcon, MapPinIcon, TargetIcon, UtensilsIcon, Cookie } from "lucide-react";
 import { updateUserByEmail } from "../../_lib/usersActions";
+import BlankAvatarSvg from "@/ui/images/BlankAvatarSvg";
 
 const updateUser = async (email, field, value) => {
     await updateUserByEmail(email, field, value);
@@ -74,14 +75,18 @@ export default function UserProfile({ className, editable = false }) {
                 <div className="relative z-10 flex flex-col items-center">
                     <div className="relative mb-2">
                         <div className="absolute inset-0 rounded-full bg-background/80 blur-sm -m-1" />
-                        <Image
-                            src={userProfile?.image ?? "/placeholder.svg"}
-                            alt={`${userProfile?.username} profile picture`}
-                            width={100}
-                            height={100}
-                            priority
-                            className="rounded-full border-4 border-background relative z-10"
-                        />
+                            {
+                                userProfileDynamic?.image ?
+                                <Image
+                                src={userProfile?.image ?? <BlankAvatarSvg />}
+                                alt={`${userProfile?.username} profile picture`}
+                                width={100}
+                                height={100}
+                                priority
+                                className="rounded-full border-4 border-background relative z-10"
+                                /> :
+                                <BlankAvatarSvg />
+                            }
                     </div>
                     <Badge variant="outline" className="mb-2 font-semibold px-3 py-1">
                         {userProfile?.username}
@@ -152,17 +157,19 @@ export default function UserProfile({ className, editable = false }) {
                         </div>
                     ))}
             </CardContent>
-            {isPopupOpen && (
-                <YesNoPopUp
-                    title="Confirm updates"
-                    isOpen={isPopupOpen}
-                    onClose={() => setIsPopupOpen(false)}
-                    onChoice={handleChoice}
-                    content={popUpContent}
-                    yesLabel="Confirm"
-                    noLabel="Decline"
-                />
-            )}
-        </Card>
+            {
+                isPopupOpen && (
+                    <YesNoPopUp
+                        title="Confirm updates"
+                        isOpen={isPopupOpen}
+                        onClose={() => setIsPopupOpen(false)}
+                        onChoice={handleChoice}
+                        content={popUpContent}
+                        yesLabel="Confirm"
+                        noLabel="Decline"
+                    />
+                )
+            }
+        </Card >
     );
 }
