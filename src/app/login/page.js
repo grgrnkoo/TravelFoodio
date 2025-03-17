@@ -3,7 +3,6 @@
 import { signIn, useSession } from "next-auth/react"
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import { Mail, MailOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,11 +19,8 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [isEmailValid, setIsEmailValid] = useState(true);
     const [hover, setHover] = useState(false);
-    const searchParams = useSearchParams();
     const router = useRouter();
     const { showPopup } = usePopup();
-
-    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -9,8 +9,6 @@ import { decreaseUpdates, resetUpdates } from "../../../_lib/usersActions";
 import { usePopup } from "@/components/providers/PopUpProvider"
 import { Alert } from "@/components/Alert";
 import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
-import Image from "next/image";
-import { SpiritedAwaySvg } from "../../ui/images/SpiritedAwaySvg";
 import ThinkingSvg1 from "../../ui/images/avatar-thinking-9-svgrepo-com";
 import MenuDish from "@/components/MenuDish";
 import MenuClass from "@/classes/MenuClass";
