@@ -4,7 +4,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { sendFeedback } from "../../../_lib/actions"
-import { useSearchParams } from "next/navigation"
 import { usePopup } from "@/components/providers/PopUpProvider"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -13,8 +12,10 @@ import { Label } from "@/components/ui/label"
 import { Loader2, Send, MessageSquare } from "lucide-react"
 import FeedbackItem from "@/components/FeedbackItem"
 import FeedbackSkeleton from "@/components/FeedbackSkeleton"
+import { UserContext } from "@/components/UserProvider";
 
 export default function FeedbackPage() {
+    const { userProfile, userProfileDynamic } = useContext(UserContext);
     const [textareaValue, setTextareaValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isFeedbackLoading, setIsFeedbackLoading] = useState(true);
@@ -26,8 +27,7 @@ export default function FeedbackPage() {
     const [totalFeedbackCount, setTotalFeedbackCount] = useState(0);
 
     const ITEMS_PER_PAGE = 10;
-    const searchParams = useSearchParams();
-    const sender = searchParams.get("sender");
+    const sender = userProfileDynamic?.username;
     const { showPopup } = usePopup();
 
     useEffect(() => {
