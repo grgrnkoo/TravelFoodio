@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation'
 
 export const initialMessage = {
   id: 0,
-  content: `Welcome to FoodSm.art! Feel free to express yourself however you like—whether it’s plain text, numbers, or both. Our AI can process your answers, even in different languages. Just make sure to reply to each message in one single response. Send any message to start our journey!`,
+  content: `Welcome to FoodSm.art! Feel free to express yourself however you like—whether it’s plain text, numbers, or both. Our AI can process your answers, even in different languages. Just make sure to reply to each message in one single response. Send any message to start your journey!`,
   role: 'assistant'
 }
 

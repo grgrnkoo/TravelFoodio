@@ -108,7 +108,6 @@ export async function POST(req) {
 
 
 
-    // console.log('prompt:', prompt)
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: 'assistant', content: prompt }],

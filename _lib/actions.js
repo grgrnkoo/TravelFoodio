@@ -55,7 +55,6 @@ export async function getUserByEmail(email) {
 
 export async function addDataFromReply(email, data, showPopup, update, router) {
   console.log('add data triggered')
-  console.log(data);
   const username = email.split('@')[0];
   if (!email || !data) {
     console.error('Invalid email or data:', email, data);
@@ -69,8 +68,6 @@ export async function addDataFromReply(email, data, showPopup, update, router) {
     onboardingCompleted: true
   };
 
-  console.log('Updated data: ', updatedData)
-
   try {
     const response = await fetch(`/api/users/${email}`, {
       method: 'PUT',
@@ -81,7 +78,6 @@ export async function addDataFromReply(email, data, showPopup, update, router) {
     });
 
     const responseData = await response.json();
-    console.log('User updated: ', responseData, email);
 
     if (response.ok) {
       await update({
