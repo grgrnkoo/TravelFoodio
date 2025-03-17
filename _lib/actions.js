@@ -6,8 +6,6 @@ export async function addUsername(user) {
   const { email, name } = user;
   const username = email.split('@')[0];
 
-  console.log('Function email and username: ', email, username);
-
   const baseUrl = process.env.NEXTAUTH_URL;
 
   await fetch(`${baseUrl}/api/users/${email}`, {
@@ -20,7 +18,7 @@ export async function addUsername(user) {
       username: username
     })
   }).then((response) => response.json())
-    .then((data) => console.log('User updated: ', data))
+    .then((data) => console.log('User updated'))
     .catch((error) => console.error('Error: ', error));
 }
 

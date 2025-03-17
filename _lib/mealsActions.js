@@ -87,7 +87,6 @@ const updateElementRating = (action, mealElements, setElements, wasLiked, wasDis
     const elementsArray = Array.isArray(mealElements) ? mealElements : [mealElements];
 
     setElements((prevElements) => {  // Fix: use setElements, not setUserIngredients
-        console.log("Updating elements:", prevElements); // Check how often it runs
 
         return prevElements.map((element) => {
             if (elementsArray.includes(element.name)) { // Ensure mealElements is an array
@@ -116,7 +115,6 @@ const updateElementRating = (action, mealElements, setElements, wasLiked, wasDis
 
 export const updateUserPreferences = async (userId, likedMeals, dislikedMeals, ingredients, cuisines) => {
     try {
-        console.log('Sending to backend:', { userId, likedMeals, dislikedMeals, ingredients, cuisines });
         const response = await fetch('/api/preferenceUpdate', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
@@ -126,7 +124,6 @@ export const updateUserPreferences = async (userId, likedMeals, dislikedMeals, i
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Failed to update preferences");
 
-        console.log("Preferences updated:", data);
     } catch (error) {
         console.error("Error updating preferences:", error);
     }

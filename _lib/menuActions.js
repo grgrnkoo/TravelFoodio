@@ -204,7 +204,7 @@ export async function postMenuToDb(userId, menu) {
         const data = await res.json();
 
         if (res.ok) {
-            console.log('Menu saved to DB:', data);
+            console.log('Menu saved to DB');
         } else {
             console.error('Error saving menu:', data.error);
         }

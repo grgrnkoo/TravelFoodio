@@ -31,8 +31,6 @@ export async function GET(req) {
             createdAt: { $gte: dayStart, $lt: dayEnd },
         });
 
-        console.log('Existing menu:', existingMenu)
-
         if (!existingMenu) {
             return NextResponse.json({ ...blankMenu, message: 'No menu found today!' }, { status: 200 });
         }

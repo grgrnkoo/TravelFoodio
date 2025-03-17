@@ -41,7 +41,6 @@ export default function UserPreferenceEdit(props) {
                         onClick={() => {
                             setInputValue(userData);
                             onXClick();
-                            console.log()
                         }}
                     />
                 </div>

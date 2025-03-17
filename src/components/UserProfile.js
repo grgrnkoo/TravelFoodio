@@ -13,7 +13,6 @@ import { updateUserByEmail } from "../../_lib/usersActions";
 
 const updateUser = async (email, field, value) => {
     await updateUserByEmail(email, field, value);
-    console.log(`Updating user ${email}: ${field} = ${value}`);
     return true;
 };
 
@@ -45,7 +44,6 @@ export default function UserProfile({ className, editable = false }) {
     };
 
     const patchUserData = async (id, value) => {
-        console.log(`User updated: ${id} -> ${value}`);
         if (userProfile?.email) await updateUser(userProfile?.email, id, value);
     };
 

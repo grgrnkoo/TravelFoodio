@@ -38,8 +38,6 @@ export default function LoginPage() {
         }
     }, [status, session]);
 
-    console.log(session);
-
     const handleChange = (e) => {
         e.preventDefault();
         const email = e.target.value;
@@ -52,9 +50,8 @@ export default function LoginPage() {
         setIsLoading(true);
 
         if (!validateEmail(formEmail)) {
-            console.log("Invalid email:", formEmail);
             showPopup("Invalid email format. Please enter a valid email.", "error");
-            console.log("Invalid email format. Please enter a valid email.");
+            console.error("Invalid email format. Please enter a valid email.");
             setIsLoading(false);
             return;
         }
@@ -65,7 +62,6 @@ export default function LoginPage() {
                 throw new Error("Invalid email format");
             }
             const result = await signIn('resend', { email: formEmail, callbackUrl });
-            console.log('Magic link result: ', result)
             showPopup("Magic link sent! Please check your email.", "success");
         } catch (error) {
             console.error("Error sending Magic Link:", error);
