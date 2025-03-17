@@ -7,7 +7,7 @@ export default async function DashboardLayout({ children }) {
         <div className="flex w-full mt-[65px]">
             <UserProfile
                 className='hidden w-[450px] md:block'
-                editable={false}
+                editable={true}
             />
             <div className="flex w-full mx-4">
                 {children}

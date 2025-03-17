@@ -8,6 +8,7 @@ import { authOptions } from "./api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { getUserByEmail } from "../../_lib/actions";
 import Script from "next/script";
+import Footer from "@/components/Footer";
 
 
 const geistSans = Geist({
@@ -26,17 +27,25 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const sessionPromise = getServerSession(authOptions);
-  const session = await sessionPromise;
-  const userProfilePromise = session?.user?.email ? getUserByEmail(session?.user?.email) : null;
-  const userProfile = await userProfilePromise; // Fetch in parallel
+  let session = null;
+  let userProfile = null;
+
+  try {
+    session = await getServerSession(authOptions);
+    if (session?.user?.email) {
+      userProfile = await getUserByEmail(session.user.email);
+    }
+  } catch (error) {
+    console.error("Error fetching session or user:", error);
+  }
 
   return (
     <html lang="en">
       <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <Script
           strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=G-NFSYQN7KQE`}
+          src="https://www.googletagmanager.com/gtag/js?id=G-NFSYQN7KQE"
         />
         <Script
           id="google-analytics"
@@ -51,18 +60,17 @@ export default async function RootLayout({ children }) {
           }}
         />
       </head>
-      <body
-        className={``}
-      >
+      <body className="min-h-full">
         <SessionProviderWrapper>
           <UserProvider value={{ session, userProfile }}>
             <PopUpProvider>
               <Header />
               {children}
+              <Footer />
             </PopUpProvider>
           </UserProvider>
         </SessionProviderWrapper>
       </body>
-    </html >
+    </html>
   );
 }

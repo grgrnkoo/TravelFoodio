@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { MessageWindow } from './MessageWindow'
 import { ChatInput } from './ChatInput'
@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation'
 
 export const initialMessage = {
   id: 0,
-  content: `Welcome to FoodSm.art! Feel free to express yourself however you like—whether it’s plain text, numbers, or both. Our AI can process your answers, even in different languages. Just make sure to reply to each message in one single response.`,
+  content: `Welcome to FoodSm.art! Feel free to express yourself however you like—whether it’s plain text, numbers, or both. Our AI can process your answers, even in different languages. Just make sure to reply to each message in one single response. Send any message to start our journey!`,
   role: 'assistant'
 }
 
@@ -50,8 +50,7 @@ export function Chat({ session }) {
     const reply = await generateNewReply(userName, updatedReplies, setShowSubmitButtons);
 
     // Simulate AI typing after a random delay
-    // const randomDelay = Math.random() * 2000;
-    const randomDelay = 0;
+    const randomDelay = Math.random() * 1000;
     setTimeout(() => {
       setIsLoading(false);
 
@@ -74,7 +73,7 @@ export function Chat({ session }) {
           ]);
           setTypingMessage(null);
         }
-      }, 0); // Adjust typing speed here
+      }, 30); // Adjust typing speed here
     }, randomDelay);
   };
 
@@ -91,8 +90,6 @@ export function Chat({ session }) {
   const submitData = async () => {
     const email = session?.user?.email;
     const dataToPush = JSON.parse(aiReply);
-    // console.log('addData clicked. arrayToPush:', arrayToPush)
-    // console.log('AI Summary:', aiReply);
     await addDataFromReply(email, dataToPush, showPopup, update, router);
   }
 
@@ -178,10 +175,12 @@ async function generateOpenAiSummary(userReplies, setIsLoading) {
       setIsLoading(false);
       // setAiReply(data.message);
     } else {
+      showPopup('Error generating AI summary', 'error');
       setIsLoading(false);
       console.error(data.error);
     }
   } catch (error) {
+    showPopup('Error generating AI summary', 'error');
     setIsLoading(false);
     console.error('Error sending OpenAI request: ', error);
   }

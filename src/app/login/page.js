@@ -83,7 +83,7 @@ export default function LoginPage() {
 
     return (
         status === 'unauthenticated' && (
-            <div className="flex h-screen flex-row overflow-hidden">
+            <div className="flex min-h-screen flex-row">
                 <div className="flex w-full items-center justify-center p-4 md:p-8">
                     <Card className="mx-auto w-full max-w-md">
                         <CardHeader className="space-y-1">

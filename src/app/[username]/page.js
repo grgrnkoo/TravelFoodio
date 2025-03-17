@@ -34,7 +34,7 @@ export default function MenuGenerator() {
     }, [userProfile]);
 
     const fetchMenu = async () => {
-        const fetchedMenu = await checkDbForMenu(userProfile._id, setLoading);
+        const fetchedMenu = await checkDbForMenu(userProfile._id, setLoading, showPopup);
         if (fetchedMenu.status === 200) {
             if (fetchedMenu.menu?.meals?.length > 0) {
                 const newMenu = new MenuClass(fetchedMenu.menu.meals);
@@ -69,7 +69,7 @@ export default function MenuGenerator() {
             }
 
 
-            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfileDynamic);
+            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfileDynamic, showPopup);
 
             console.log('Menu creation: ', menuCreation)
             if (menuCreation?.status >= 200 && menuCreation?.status < 300) {
