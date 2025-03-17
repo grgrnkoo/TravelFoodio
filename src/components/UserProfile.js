@@ -76,16 +76,17 @@ export default function UserProfile({ className, editable = false }) {
                     <div className="relative mb-2">
                         <div className="absolute inset-0 rounded-full bg-background/80 blur-sm -m-1" />
                             {
-                                userProfileDynamic?.image ?
+                                userProfileDynamic?.image ? (
                                 <Image
-                                src={userProfile?.image ?? <BlankAvatarSvg />}
-                                alt={`${userProfile?.username} profile picture`}
+                                src={userProfileDynamic?.image}
+                                alt={`${userProfileDynamic?.username} profile picture`}
                                 width={100}
                                 height={100}
                                 priority
                                 className="rounded-full border-4 border-background relative z-10"
-                                /> :
+                                /> ) : (
                                 <BlankAvatarSvg />
+                                )
                             }
                     </div>
                     <Badge variant="outline" className="mb-2 font-semibold px-3 py-1">
