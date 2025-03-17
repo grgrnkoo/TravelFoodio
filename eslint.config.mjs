@@ -1,7 +1,7 @@
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
-import babelParser from "@babel/eslint-parser"; // Add this import
+import babelParser from "@babel/eslint-parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,7 +14,7 @@ export default [
   {
     files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
     languageOptions: {
-      parser: babelParser, // Use the imported parser
+      parser: babelParser,
       parserOptions: {
         requireConfigFile: false,
         babelOptions: {
@@ -22,6 +22,6 @@ export default [
         },
       },
     },
-    ...compat.extends("next/core-web-vitals"),
   },
+  ...compat.extends("next/core-web-vitals"), // Spread at the array level
 ];
