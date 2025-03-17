@@ -13,11 +13,9 @@ export async function sendVerificationRequest(params) {
         subject: `Login to ${host}`,
         text: text({ url, host }),
       };
-      console.log('Email payload: ', emailPayload);
 
     try {
         const data = await resend.emails.send(emailPayload)
-        console.log("Email sent successfully:", data);
     } catch (error) {
         console.error('Error sending email: ', error);
         throw new Error('Error sending email: ', error.message);

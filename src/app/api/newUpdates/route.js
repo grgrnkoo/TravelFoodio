@@ -6,7 +6,6 @@ export async function PATCH(req) {
   try {
     await dbConnect();
     const { userId, updates } = await req.json();
-    console.log('API route triggered, data passed: ', userId, updates);
 
     // Validate input
     if (!userId || typeof updates !== 'number' || updates < 0 || !Number.isInteger(updates)) {

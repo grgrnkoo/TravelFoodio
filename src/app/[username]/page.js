@@ -27,14 +27,13 @@ export default function MenuGenerator() {
 
     // Fetch the menu from the database when the user profile is available
     useEffect(() => {
-        console.log('User profile: ', userProfile)
         if (userProfile?._id) {
             fetchMenu();
         }
     }, [userProfile]);
 
     const fetchMenu = async () => {
-        const fetchedMenu = await checkDbForMenu(userProfile._id, setLoading);
+        const fetchedMenu = await checkDbForMenu(userProfile._id, setLoading, showPopup);
         if (fetchedMenu.status === 200) {
             if (fetchedMenu.menu?.meals?.length > 0) {
                 const newMenu = new MenuClass(fetchedMenu.menu.meals);
@@ -43,8 +42,6 @@ export default function MenuGenerator() {
                 setMenuContent(newMenu.meals);
             } else {
                 const resetResult = await resetUpdates(userProfile?._id, userProfile?.subscriptionType);
-                console.log('Reset result: ', resetResult);
-                console.log('data passed: ', userProfile._id, userProfile.subscriptionType);
                 if (resetResult.success) {
                     setUpdatesRemaining(resetResult.updatesRemaining);
                 }
@@ -69,9 +66,8 @@ export default function MenuGenerator() {
             }
 
 
-            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfileDynamic);
+            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfileDynamic, showPopup);
 
-            console.log('Menu creation: ', menuCreation)
             if (menuCreation?.status >= 200 && menuCreation?.status < 300) {
                 try {
                     const decreaseResult = await decreaseUpdates(userProfile._id, updatesRemaining);
@@ -79,7 +75,6 @@ export default function MenuGenerator() {
                     setTotalNutrition(totalNutrition);
                     if (decreaseResult.success) {
                         setUpdatesRemaining(decreaseResult.updatesRemaining);
-                        console.log('Decrease result:', decreaseResult);
                     } else {
                         console.error('Failed to update remaining number of updates:', decreaseResult.error);
                     }
@@ -105,7 +100,9 @@ export default function MenuGenerator() {
                 (!menuContent || menuContent.length === 0 || !userProfile) && !loading && (
                     <>
                         {
-                            <ThinkingSvg1 />
+                            <div className="my-12">
+                                <ThinkingSvg1 />
+                            </div>
                         }
                         <p className="my-4 text-center">Generate a menu to start a day!</p>
                     </>

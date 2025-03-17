@@ -13,7 +13,7 @@ export async function POST(request) {
 
         return NextResponse.json(newUser, { status: 201 });
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 }
 
@@ -21,7 +21,6 @@ export async function GET(request) {
     // Fetch the whole DB
     try {
         await dbConnect();
-        console.log('Request:', request);
         const users = await User.find();
         return NextResponse.json(users, { status: 200 });
     } catch (error) {

@@ -30,14 +30,12 @@ export default function UserProfileLine({
             setInputValue(userData);
         }
         if (!isPopupOpen && isEditing) {
-            console.log(`${id} Resetting edit mode`);
             setIsEditing(false);
             setOneEditingFieldBoolean(false);
         }
     }, []);
 
     const toggleEditing = () => {
-        console.log(`${id} toggleEditing: isEditing=${isEditing}, oneEditingFieldBoolean=${oneEditingFieldBoolean}`);
         if (!isEditing && oneEditingFieldBoolean) return;
         setIsEditing(!isEditing);
         setOneEditingFieldBoolean(!isEditing);
@@ -45,11 +43,9 @@ export default function UserProfileLine({
     };
 
     const handleSave = async () => {
-        console.log(`${id} handleSave: inputValue=${inputValue}, optimistic=${optimisticUserData}`);
         if (inputValue !== optimisticUserData && inputValue !== "") {
             setIsPopupOpen(true);
             const confirmed = await confirmUpdate(id, inputValue);
-            console.log(`${id} Confirmed: ${confirmed}`);
             if (confirmed) {
                 setOptimisticUserData(inputValue); // Update persists here
             } else {
@@ -61,7 +57,6 @@ export default function UserProfileLine({
     };
 
     const handleKeyDown = async (e) => {
-        console.log(`${id} Key: ${e.key}`);
         if (e.key === "Enter") {
             e.preventDefault();
             await handleSave();

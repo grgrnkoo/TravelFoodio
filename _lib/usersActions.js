@@ -1,10 +1,8 @@
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export async function updateUserByEmail(email, key, value) {
-    console.log(baseUrl);
 
     try {
-        console.log('function received data:', email, key, value);
         const response = await fetch(`${baseUrl}/api/users/${email}`, {
             method: 'PATCH',
             headers: {

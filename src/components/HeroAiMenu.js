@@ -27,7 +27,6 @@ export default function HeroAIMenu() {
         "The weirdest but most delicious meal combo you’d never think of."
     ];
     const getRandomMealPrompt = () => {
-        console.log('random called')
         return viralMealPrompts[Math.floor(Math.random() * viralMealPrompts.length)];
     }
     const [promptValue, setPromptValue] = useState(getRandomMealPrompt);
@@ -36,7 +35,6 @@ export default function HeroAIMenu() {
     const handleGenerateSampleMenu = async () => {
         setIsLoading(true)
         setScreen('meal')
-        console.log("Generating meal with prompt:", promptValue)
         const generatedMealFromPrompt = await generateMeal(promptValue, setIsLoading)
         if (generatedMealFromPrompt) {
             setGeneratedMeal(generatedMealFromPrompt)
@@ -44,7 +42,6 @@ export default function HeroAIMenu() {
             showPopup('Error generating meal', 'error')
             setScreen('textarea')
         }
-        console.log("Generated meal with prompt:", generatedMealFromPrompt)
         setPromptValue('')
     }
 

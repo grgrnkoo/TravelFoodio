@@ -38,8 +38,6 @@ export default function LoginPage() {
         }
     }, [status, session]);
 
-    console.log(session);
-
     const handleChange = (e) => {
         e.preventDefault();
         const email = e.target.value;
@@ -52,10 +50,8 @@ export default function LoginPage() {
         setIsLoading(true);
 
         if (!validateEmail(formEmail)) {
-            console.log("Invalid email:", formEmail);
-            // setIsEmailValid(false);
             showPopup("Invalid email format. Please enter a valid email.", "error");
-            console.log("Invalid email format. Please enter a valid email.");
+            console.error("Invalid email format. Please enter a valid email.");
             setIsLoading(false);
             return;
         }
@@ -66,7 +62,6 @@ export default function LoginPage() {
                 throw new Error("Invalid email format");
             }
             const result = await signIn('resend', { email: formEmail, callbackUrl });
-            console.log('Magic link result: ', result)
             showPopup("Magic link sent! Please check your email.", "success");
         } catch (error) {
             console.error("Error sending Magic Link:", error);
@@ -83,7 +78,7 @@ export default function LoginPage() {
 
     return (
         status === 'unauthenticated' && (
-            <div className="flex h-screen flex-row overflow-hidden">
+            <div className="flex min-h-screen flex-row">
                 <div className="flex w-full items-center justify-center p-4 md:p-8">
                     <Card className="mx-auto w-full max-w-md">
                         <CardHeader className="space-y-1">

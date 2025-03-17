@@ -13,7 +13,6 @@ import { updateUserByEmail } from "../../_lib/usersActions";
 
 const updateUser = async (email, field, value) => {
     await updateUserByEmail(email, field, value);
-    console.log(`Updating user ${email}: ${field} = ${value}`);
     return true;
 };
 
@@ -45,7 +44,6 @@ export default function UserProfile({ className, editable = false }) {
     };
 
     const patchUserData = async (id, value) => {
-        console.log(`User updated: ${id} -> ${value}`);
         if (userProfile?.email) await updateUser(userProfile?.email, id, value);
     };
 
@@ -70,7 +68,7 @@ export default function UserProfile({ className, editable = false }) {
     }
 
     return (
-        <Card className={`mx-auto shadow-lg border-0 overflow-hidden mt-4 ml-8 h-fit ${className}`}>
+        <Card className={`mx-auto mb-8 shadow-lg border-0 overflow-hidden mt-4 ml-8 h-fit ${className}`}>
             <CardHeader className="relative pb-0 pt-6">
                 <div className="absolute inset-0 h-24 bg-gradient-to-r from-primary/20 to-primary/40" />
                 <div className="relative z-10 flex flex-col items-center">

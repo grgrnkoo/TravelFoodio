@@ -18,7 +18,6 @@ export default function UserProvider({ value, children }) {
 
     useEffect(() => {
         if (!session?.user?.email || userProfileDynamic) return;
-        console.log('db fetch triggered. useeffect: ', session, userProfile)
         async function fetchProfile() {
             if (session?.user?.email) {
                 try {

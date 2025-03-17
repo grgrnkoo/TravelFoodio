@@ -8,9 +8,10 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
  * @param {string} userId - The user's ID.
  * @param {function} setMenuContent - Function to update the menu state.
  * @param {function} setLoading - Function to toggle the loading state.
- */
+ * @param {function} showPopup - Function to show popups on frontend error or success cases.
+*/
 
-export async function checkDbForMenu(userId, setLoading) {
+export async function checkDbForMenu(userId, setLoading, showPopup) {
     try {
         setLoading(true);
 
@@ -20,6 +21,7 @@ export async function checkDbForMenu(userId, setLoading) {
         });
 
         if (!res.ok) {
+            showPopup('Server error', 'error')
             console.error(`Server error: ${res.status} ${res.statusText}`);
             return { menu: new MenuClass([]), status: res.status, message: `Error fetching menu` };
         }
@@ -49,6 +51,7 @@ export async function checkDbForMenu(userId, setLoading) {
 
 
     } catch (error) {
+        showPopup('Server error', 'error');
         console.error('Error fetching menu:', error);
         return { menu: new MenuClass([]), status: 500, message: `Error fetching menu: ${error}` };
     } finally {
@@ -62,11 +65,14 @@ export async function checkDbForMenu(userId, setLoading) {
  * @param {function} setLoading - Function to toggle the loading state.
  * @param {function} setMenuContent - Function to update the menu state.
  * @param {object} userProfile - User profile containing the ID.
+ * @param {function} showPopup - Function to show popups on frontend error or success cases.
+
  */
 export async function handleGenerateMenu(
     setLoading,
     setMenuContent,
-    userProfile
+    userProfile,
+    showPopup
 ) {
     try {
         setLoading(true);
@@ -78,7 +84,11 @@ export async function handleGenerateMenu(
             body: JSON.stringify({ userProfile }),
         });
 
-        if (!res.body) throw new Error('No response body');
+        if (!res.body){
+            showPopup('Not enough data!', 'error');
+            throw new Error('No response body');
+        } 
+            
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -137,6 +147,7 @@ export async function handleGenerateMenu(
                         }
 
                     } catch (error) {
+                        showPopup('Invalid menu data format', 'error')
                         console.error("Invalid JSON:", error);
                     }
 
@@ -145,12 +156,14 @@ export async function handleGenerateMenu(
                     extraction = extractObjectFromLine(tempResult);
                 }
             } catch (streamError) {
+                showPopup('Error on live generation', 'error');
                 console.error("Error while reading stream:", streamError);
                 streaming = false;
             }
         }
 
         if (!res.ok) {
+            showPopup('Failed to generate menu', 'error');
             console.error('Failed to generate menu');
             return { menu: [], status: res.status, message: "Failed to generate menu" };
         }
@@ -165,6 +178,7 @@ export async function handleGenerateMenu(
         return { menu, status: 200, message: "Menu generated successfully!" };
 
     } catch (error) {
+        showPopup('Error sending request', 'error');
         console.error('Error sending request:', error);
         return { menu: [], status: 400, message: `Error sending request: ${error.message}` };
     } finally {
@@ -177,6 +191,7 @@ export async function handleGenerateMenu(
  * Saves a menu to the database.
  * @param {string} userId - The user's ID.
  * @param {object} menu - The menu data.
+
  */
 export async function postMenuToDb(userId, menu) {
     try {
@@ -189,7 +204,7 @@ export async function postMenuToDb(userId, menu) {
         const data = await res.json();
 
         if (res.ok) {
-            console.log('Menu saved to DB:', data);
+            console.log('Menu saved to DB');
         } else {
             console.error('Error saving menu:', data.error);
         }

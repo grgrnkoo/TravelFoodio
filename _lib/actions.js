@@ -6,8 +6,6 @@ export async function addUsername(user) {
   const { email, name } = user;
   const username = email.split('@')[0];
 
-  console.log('Function email and username: ', email, username);
-
   const baseUrl = process.env.NEXTAUTH_URL;
 
   await fetch(`${baseUrl}/api/users/${email}`, {
@@ -20,7 +18,7 @@ export async function addUsername(user) {
       username: username
     })
   }).then((response) => response.json())
-    .then((data) => console.log('User updated: ', data))
+    .then((data) => console.log('User updated'))
     .catch((error) => console.error('Error: ', error));
 }
 
@@ -57,7 +55,6 @@ export async function getUserByEmail(email) {
 
 export async function addDataFromReply(email, data, showPopup, update, router) {
   console.log('add data triggered')
-  console.log(data);
   const username = email.split('@')[0];
   if (!email || !data) {
     console.error('Invalid email or data:', email, data);
@@ -71,8 +68,6 @@ export async function addDataFromReply(email, data, showPopup, update, router) {
     onboardingCompleted: true
   };
 
-  console.log('Updated data: ', updatedData)
-
   try {
     const response = await fetch(`/api/users/${email}`, {
       method: 'PUT',
@@ -83,7 +78,6 @@ export async function addDataFromReply(email, data, showPopup, update, router) {
     });
 
     const responseData = await response.json();
-    console.log('User updated: ', responseData, email);
 
     if (response.ok) {
       await update({

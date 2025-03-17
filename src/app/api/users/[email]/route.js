@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 // Function to search users by email (unique value)
 export async function GET(request, { params }) {
     const { email } = await params; // Extract email properly
-    console.log("Email: ", email);
 
     if (!email) {
         return NextResponse.json({ message: "Email is required" }, { status: 400 });
@@ -72,8 +71,6 @@ export async function PATCH(req, { params }) {
             console.error("❌ Missing required fields:", { email, key, value });
             return NextResponse.json({ message: "E-mail, key, and value are required" }, { status: 400 });
         }
-
-        console.log("🔄 Updating:", { email, key, value });
 
         const updatedUser = await User.findOneAndUpdate(
             { email },
