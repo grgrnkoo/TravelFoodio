@@ -14,7 +14,7 @@ export default function ChatSubmitButtons({ resetChat, submitData }) {
                 onClick={submitData}
                 className="ml-4 px-8"
             >
-                Fine! Let's keep it
+                {`Fine! Let's keep it`}
             </Button>
         </div>
     )

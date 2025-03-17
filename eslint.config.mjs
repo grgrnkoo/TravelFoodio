@@ -23,5 +23,5 @@ export default [
       },
     },
   },
-  ...compat.extends("next/core-web-vitals"), // Spread at the array level
+  ...compat.extends("next/core-web-vitals"),
 ];

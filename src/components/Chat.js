@@ -218,7 +218,7 @@ const formatAiReply = (aiReply) => {
         </span>
       ))}
       <br />
-      Don't worry, you'll be able to edit details later 😊
+      {`Don't worry, you'll be able to edit details later 😊`}
     </>
   )
 }
