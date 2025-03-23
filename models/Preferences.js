@@ -1,50 +1,10 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        index: true
-    },
-    username: {
-        type: String,
-        required: false,
-        unique: true
-    },
-    image: { 
-        type: String, 
-        required: false, 
-        default: '' 
-    },
-    name: {
-        type: String,
-        required: false
-    },
-    age: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    location: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    dailyCaloriesSuggested: {
-        type: Number,
-        required: false,
-        default: 0
-    },
-    goals: {
-        type: String,
-        required: false,
-        default: ""
-    },
-    dietaryRestrictions: {
-        type: String,
-        required: false,
-        default: ""
+const preferencesSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     favoriteMeals: {
         type: [{
@@ -87,24 +47,9 @@ const userSchema = new mongoose.Schema({
         }],
         required: false,
         default: []
-    },
-    updatesRemaining: {
-        type: Number,
-        required: true,
-        default: 0,
-    },
-    subscriptionType: {
-        type: String,
-        required: true,
-        default: 'free'
-    },
-    onboardingCompleted: {
-        type: Boolean,
-        required: true,
-        default: false
     }
-})
+}, { timestamps: true })
 
-const User = mongoose.models.User || mongoose.model("User", userSchema);
+const Preferences = mongoose.models.Preferences || mongoose.model("Preferences", preferencesSchema);
 
-export default User;
+export default Preferences;

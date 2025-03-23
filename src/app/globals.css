@@ -10,14 +10,14 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
+/* body {
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100vh;
   justify-content: flex-start;
   align-items: center;
-}
+} */
 
 @layer base {
   :root {

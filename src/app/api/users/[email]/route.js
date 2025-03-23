@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
     try {
         await dbConnect();
-        const { email } = params; // Extract email properly
+        const { email } = await params; // Extract email properly
         const updateData = await request.json();
 
         if (!email || !updateData) {

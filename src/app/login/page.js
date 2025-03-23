@@ -57,6 +57,7 @@ export default function LoginPage() {
             if (!validateEmail(formEmail)) {
                 throw new Error("Invalid email format");
             }
+            const callbackUrl = '/dashboard';
             const result = await signIn('resend', { email: formEmail, callbackUrl });
             showPopup("Magic link sent! Please check your email.", "success");
         } catch (error) {
@@ -74,9 +75,9 @@ export default function LoginPage() {
 
     return (
         status === 'unauthenticated' && (
-            <div className="flex min-h-screen flex-row">
-                <div className="flex w-full items-center justify-center p-4 md:p-8">
-                    <Card className="mx-auto w-full max-w-md">
+            <div className="flex min-h-screen flex-row w-full">
+                <div className="flex w-full items-center justify-center p-4 md:p-8 relative">
+                    <Card className="mx-auto w-full max-w-sm z-10">
                         <CardHeader className="space-y-1">
                             <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
                             <CardDescription>Choose your preferred sign in method</CardDescription>
@@ -155,7 +156,7 @@ export default function LoginPage() {
                                         </span>
                                     ) : (
                                         <span className="flex justify-center align-middle w-full">
-                                            {hover ? <MailOpen className="pb-px" /> : <Mail className="" />} Login with Email
+                                            {hover ? <MailOpen className="pb-px mr-2 mt-[2px]" /> : <Mail className="mr-2 mt-[2px]" />} Login with Email
                                         </span>
                                     )}
                                 </Button>
@@ -174,7 +175,7 @@ export default function LoginPage() {
                                 </p> */}
                         </CardFooter>
                     </Card>
-                    <div>
+                    <div className="flex w-full h-full -z-1 absolute">
                         <AnimatedBackground />
                     </div>
                 </div>

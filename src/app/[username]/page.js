@@ -110,7 +110,7 @@ export default function MenuGenerator() {
             {
                 loading &&
                 Array.from({ length: 3 - menuContent?.length > 0 ? 3 - menuContent?.length : 0 }).map((_, index) => (
-                    <MenuDishSkeleton key={index} className="flex-grow w-full" />
+                    <MenuDishSkeleton key={index} showLike={true} className="flex-grow w-full" />
                 ))
             }
 

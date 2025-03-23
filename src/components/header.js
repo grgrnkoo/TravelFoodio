@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils"
 import { CardHeader } from "./ui/card"
 import { Badge } from "./ui/badge"
 import Image from "next/image"
+import BlankAvatarSvg from "@/ui/images/BlankAvatarSvg"
 
-export default function Header() {
-    const session = useSession()
+export default function Header({ session }) {
     const params = useParams()
     const { userProfile = null } = useContext(UserContext)
     const [isOpen, setIsOpen] = useState(false)
@@ -73,9 +73,9 @@ export default function Header() {
                         Send Feedback
                     </Button>
                 </Link>
-                {!session.data ? (
+                {!session ? (
                     <Link href="/login">
-                        <Button size="sm" className="hover:opacity-90">
+                        <Button size="sm" className="hover:opacity-90 cursor-pointer">
                             Sign In
                         </Button>
                     </Link>
@@ -90,7 +90,7 @@ export default function Header() {
                             onClick={handleSignOut}
                             variant="outline"
                             size="sm"
-                            className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                            className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 cursor-pointer"
                         >
                             Sign Out
                         </Button>
@@ -106,20 +106,23 @@ export default function Header() {
             {/* Mobile Dropdown Menu */}
             {isOpen && (
                 <div className="absolute top-full left-0 right-0 mx-8 bg-white/95 backdrop-blur-md shadow-lg overflow-hidden rounded-xl flex flex-col gap-4 md:hidden border border-border/40">
-                    {session.data && (
+                    {session && (
                         <CardHeader className="relative pb-0 pt-6">
                             <div className="absolute inset-0 h-24 bg-gradient-to-r from-primary/20 to-primary/40" />
                             <div className="relative z-10 flex flex-col items-center">
                                 <div className="relative mb-2">
                                     <div className="absolute inset-0 rounded-full bg-background/80 blur-sm -m-1" />
-                                    <Image
-                                        src={userProfile?.image ?? "/placeholder.svg"}
-                                        alt={`${userProfile?.username} profile picture`}
-                                        width={100}
-                                        height={100}
-                                        priority
-                                        className="rounded-full border-4 border-background relative z-10"
-                                    />
+                                    {
+                                        userProfile?.image ? <Image
+                                            src={userProfile?.image}
+                                            alt={`${userProfile?.username} profile picture`}
+                                            width={100}
+                                            height={100}
+                                            priority
+                                            className="rounded-full border-4 border-background relative z-10"
+                                        /> :
+                                            <BlankAvatarSvg />
+                                    }
                                 </div>
                                 <Badge variant="outline" className="mb-2 font-semibold px-3 py-1">
                                     {userProfile?.username}
@@ -135,7 +138,7 @@ export default function Header() {
                         >
                             Send Feedback
                         </Link>
-                        {!session.data ? (
+                        {!session ? (
                             <>
                                 <Link
                                     href="#keyAdvantages"
