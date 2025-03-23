@@ -19,14 +19,18 @@ export default function Error({ error, reset }) {
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tight">Server Error</h2>
           <p className="text-muted-foreground">Sorry, something went wrong on our end.</p>
-          <p className="text-sm font-medium text-primary">FoodSm.art</p>
+          <p className="text-sm font-medium text-primary">
+            <Link href="/" className="hover:underline">FoodSm.art</Link>
+          </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-          <Button onClick={() => reset()} variant="outline" size="lg" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Try Again
-          </Button>
+          {reset && (
+            <Button onClick={() => reset()} variant="outline" size="lg" className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Try Again
+            </Button>
+          )}
           <Button asChild size="lg">
             <Link href="/" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
