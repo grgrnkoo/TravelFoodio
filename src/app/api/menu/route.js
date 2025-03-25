@@ -7,32 +7,36 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
-    const date = new Date();
-    const dayStart = new Date(date.setHours(0, 0, 0, 0));
-    const dayEnd = new Date(date.setHours(23, 59, 59, 999));
-
-    const blankMenu = {
-        userId: userId,
-        menu: [],
-        createdAt: null,
-        _id: 0,
-    }
-
+    const dateParam = searchParams.get("date");
 
     if (!userId) {
         return NextResponse.json({ message: "User ID is required" }, { status: 400 });
     }
 
-    try {
-        // const menu = await Menu.findOne({ userId }).sort({ createdAt: -1 });
+    const baseDate = dateParam ? new Date(dateParam) : new Date();
 
+    if (isNaN(baseDate)) {
+        return NextResponse.json({ message: "Invalid date format" }, { status: 400 });
+    }
+
+    const dayStart = new Date(baseDate.setHours(0, 0, 0, 0));
+    const dayEnd = new Date(baseDate.setHours(23, 59, 59, 999));
+
+    const blankMenu = {
+        userId,
+        menu: [],
+        createdAt: null,
+        _id: 0,
+    };
+
+    try {
         const existingMenu = await Menu.findOne({
             userId,
             createdAt: { $gte: dayStart, $lt: dayEnd },
         });
 
         if (!existingMenu) {
-            return NextResponse.json({ ...blankMenu, message: 'No menu found today!' }, { status: 200 });
+            return NextResponse.json({ ...blankMenu, message: 'No menu found for that date!' }, { status: 200 });
         }
 
         return NextResponse.json(existingMenu, { status: 200 });
@@ -40,6 +44,7 @@ export async function GET(req) {
         return NextResponse.json({ message: "Error fetching menu", error }, { status: 500 });
     }
 }
+
 
 export async function POST(req) {
     await dbConnect();

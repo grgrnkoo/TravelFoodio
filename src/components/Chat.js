@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { MessageWindow } from './MessageWindow'
 import { ChatInput } from './ChatInput'
@@ -9,6 +9,8 @@ import ChatSubmitButtons from './ChatSubmitButtons'
 import { addDataFromReply } from '../../_lib/actions'
 import { usePopup } from './providers/PopUpProvider'
 import { useRouter } from 'next/navigation'
+import { UserContext } from "./UserProvider";
+import { fetchData } from '@/app/utils/utilsActions'
 
 export const initialMessage = {
   id: 0,
@@ -18,6 +20,8 @@ export const initialMessage = {
 
 export function Chat({ session }) {
   const userName = session?.user?.name?.split(' ')[0];
+
+  const { userProfile, userProfileDynamic, setUserProfileDynamic } = useContext(UserContext);
 
   const [messages, setMessages] = useState([initialMessage])
   const [typingMessage, setTypingMessage] = useState(null)
@@ -91,6 +95,8 @@ export function Chat({ session }) {
     const email = session?.user?.email;
     const dataToPush = JSON.parse(aiReply);
     await addDataFromReply(email, dataToPush, showPopup, update, router);
+    const updatedProfile = await fetch(`/api/users/${userProfile?.email}`).then(res => res.json())
+    setUserProfileDynamic(updatedProfile);
   }
 
 
@@ -98,7 +104,6 @@ export function Chat({ session }) {
   async function generateNewReply(userName, userReplies, setShowSubmitButtons) {
     let reply;
     const length = userReplies.length;
-    console.log(userReplies);
 
     if (userName && length < 5) {
       reply = questionsJson[length][getRandomNumber(4)];
@@ -117,7 +122,6 @@ export function Chat({ session }) {
       const aiGeneratedReply = await generateOpenAiSummary(userReplies, setIsLoading);
       reply = formatAiReply(aiGeneratedReply);
       setAiReply(aiGeneratedReply);
-      console.log('No more questions', JSON.parse(aiGeneratedReply));
       setShowSubmitButtons(true);
     }
 
@@ -170,7 +174,6 @@ async function generateOpenAiSummary(userReplies, setIsLoading) {
 
     const data = await res.json();
     if (res.ok) {
-      console.log(data.message);
       aiReply = data.message
       setIsLoading(false);
       // setAiReply(data.message);

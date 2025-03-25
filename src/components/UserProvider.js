@@ -1,8 +1,6 @@
 "use client"
 
 import React, { createContext, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 
 export const UserContext = createContext({})
@@ -42,7 +40,7 @@ export default function UserProvider({ value, children }) {
     }, [session, userProfileDynamic]);    
 
     return (
-        <UserContext.Provider value={{ session, userProfile, userProfileDynamic }}>
+        <UserContext.Provider value={{ session, userProfile, userProfileDynamic, setUserProfileDynamic }}>
             {children}
         </UserContext.Provider>
     )

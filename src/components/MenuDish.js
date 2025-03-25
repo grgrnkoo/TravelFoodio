@@ -19,7 +19,7 @@ const debounce = (func, wait) => {
 
 // Assuming this is passed from parent to track order in stream
 export default function MenuDish({ menuDish, index = 0, showLike }) {
-    const { userProfile } = useContext(UserContext);
+    const { userProfile, setUserProfileDynamic } = useContext(UserContext);
     const { showPopup } = usePopup();
     const [like, setLike] = useState(false);
     const [dislike, setDislike] = useState(false);
@@ -38,12 +38,14 @@ export default function MenuDish({ menuDish, index = 0, showLike }) {
                 const response = await fetch('/api/preferenceUpdate', {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userProfile._id, meal: menuDish, action }),
+                    body: JSON.stringify({ userId: userProfile._id, meal: menuDish, action, setUserProfileDynamic }),
                 });
                 const data = await response.json();
                 if (response.ok) {
                     setLike(action === 'like' ? !like : false);
                     setDislike(action === 'dislike' ? !dislike : false);
+                    const updatedProfile = await fetch(`/api/users/${userProfile?.email}`).then(res => res.json())
+                    setUserProfileDynamic(updatedProfile);
                     showPopup('Updated successfully!', 'success');
                 } else {
                     console.error('Update failed:', data.error);

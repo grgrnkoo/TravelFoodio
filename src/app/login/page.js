@@ -23,9 +23,9 @@ export default function LoginPage() {
     const { showPopup } = usePopup();
 
     const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        setIsEmailValid(emailRegex);
-        return emailRegex.test(email);
+        const isValid = emailRegex.test(email);
+        setIsEmailValid(isValid);
+        return isValid;
     };
 
     useEffect(() => {
@@ -53,10 +53,6 @@ export default function LoginPage() {
         }
 
         try {
-            // Call NextAuth's email provider
-            if (!validateEmail(formEmail)) {
-                throw new Error("Invalid email format");
-            }
             const callbackUrl = '/dashboard';
             const result = await signIn('resend', { email: formEmail, callbackUrl });
             showPopup("Magic link sent! Please check your email.", "success");
@@ -116,7 +112,7 @@ export default function LoginPage() {
                                     <Label htmlFor="email">Email</Label>
                                     <Input
                                         id="email"
-                                        type="text"
+                                        type="email"
                                         placeholder="m@example.com"
                                         onChange={handleChange}
                                         value={formEmail}
@@ -175,7 +171,7 @@ export default function LoginPage() {
                                 </p> */}
                         </CardFooter>
                     </Card>
-                    <div className="flex w-full h-full -z-1 absolute">
+                    <div className="flex h-full -z-1 absolute">
                         <AnimatedBackground />
                     </div>
                 </div>

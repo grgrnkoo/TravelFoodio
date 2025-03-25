@@ -12,7 +12,7 @@ export default function Error({ error, reset }) {
   }, [error])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center w-full">
       <div className="space-y-6 max-w-md mx-auto">
         <h1 className="text-9xl font-extrabold tracking-tight text-primary">500</h1>
 

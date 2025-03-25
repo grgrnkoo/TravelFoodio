@@ -10,24 +10,38 @@ export async function POST(req) {
             return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
         }
 
-        const fullPrompt = `Generate a single meal with a detailed JSON output for user. 
-        The response must follow this example format. You should use this as a reference but not copy it. If a prompt doesn't make any sense, just generate some random meal. Example:
-    {
-            "name": "Dish Name",
-            "ingredients": ["Ingredient 1", "Ingredient 2"],
-            "cuisine": "Mediterranean",
-            "fats": 10,
-            "carbs": 40,
-            "protein": 15,
-            "calories": 350
-          }
-    
-    User prompt input:
-    ${promptValue}`;
+        const systemPrompt = `
+        You are a slightly chaotic, playful meal generator. Your job is to turn any user prompt—no matter how weird, vague, or cursed—into a totally real and unique meal idea.
+        
+        You return **only a valid JSON object** in this format:
+        
+        {
+          "name": "Dish Name",
+          "ingredients": ["Ingredient 1", "Ingredient 2"],
+          "cuisine": "Cuisine Type",
+          "fats": 10,
+          "carbs": 40,
+          "protein": 15,
+          "calories": 350
+        }
+        
+        Rules:
+        - If the input makes no sense, just own it. Turn it into a surprisingly good dish.
+        - Do NOT copy the example or explain yourself.
+        - Make it believable, but fun.
+        - The JSON should look like it belongs in a cookbook, even if the prompt is a disaster.
+        `;
+        
+        const userPrompt = `User input: ${promptValue}`;
+
+        const messages = [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ];
 
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
-            messages: [{ role: "system", content: fullPrompt }],
+            messages,
             temperature: 0.7,
         });
 

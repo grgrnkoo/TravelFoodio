@@ -113,7 +113,7 @@ const updateElementRating = (action, mealElements, setElements, wasLiked, wasDis
     });
 };
 
-export const updateUserPreferences = async (userId, likedMeals, dislikedMeals, ingredients, cuisines) => {
+export const updateUserPreferences = async (userId, likedMeals, dislikedMeals, ingredients, cuisines, setUserProfileDynamic) => {
     try {
         const response = await fetch('/api/preferenceUpdate', {
             method: 'PATCH',
