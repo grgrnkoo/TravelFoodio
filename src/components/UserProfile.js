@@ -18,7 +18,7 @@ const updateUser = async (email, field, value) => {
 };
 
 export default function UserProfile({ className, editable = false }) {
-    const { userProfile, userProfileDynamic } = useContext(UserContext);
+    const { userProfile, userProfileDynamic, setUserProfileDynamic } = useContext(UserContext);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [pendingUpdate, setPendingUpdate] = useState(null);
     const [popUpContent, setPopUpContent] = useState("");
@@ -45,6 +45,10 @@ export default function UserProfile({ className, editable = false }) {
     };
 
     const patchUserData = async (id, value) => {
+        setUserProfileDynamic(prev => ({
+            ...prev,
+            [id]: value
+        }));
         if (userProfile?.email) await updateUser(userProfile?.email, id, value);
     };
 
@@ -142,7 +146,7 @@ export default function UserProfile({ className, editable = false }) {
                         icon: <UtensilsIcon className="h-4 w-4 text-muted-foreground" />,
                     },
                 ]
-                    .filter((item) => item.userData !== undefined && item.userData !== "") // Filter out empty fields
+                    .filter((item) => item.userData !== undefined && item.userData !== "" && item.userData !== 0) // Filter out empty fields
                     .map((item, index, arr) => (
                         <div key={item.id}>
                             <UserProfileLine

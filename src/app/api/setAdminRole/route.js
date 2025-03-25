@@ -6,7 +6,7 @@ export async function PATCH(req) {
     try {
         await dbConnect();
 
-        const userId = '67975fcc8975ddcbc7595519'; // Replace with the actual user ID
+        const userId = '67dfa7ce1c9f2242f95277dc'; // Replace with the actual user ID
         const subscriptionType = 'admin'; // Hardcoded role
 
         const user = await User.findByIdAndUpdate(userId, { subscriptionType }, { new: true });

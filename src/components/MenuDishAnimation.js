@@ -177,7 +177,7 @@ const MenuDishBackground = () => {
           position: fixed;
           top: 0;
           left: 0;
-          width: 100vw;
+          width: 200vw;
           height: 100vh;
           overflow: hidden;
           transform: rotate(-45deg) scale(1.5);

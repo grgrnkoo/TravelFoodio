@@ -64,15 +64,16 @@ export async function checkDbForMenu(userId, setLoading, showPopup) {
  * Generates a new menu and saves it to the database.
  * @param {function} setLoading - Function to toggle the loading state.
  * @param {function} setMenuContent - Function to update the menu state.
- * @param {object} userProfile - User profile containing the ID.
+ * @param {object} userProfileDynamic - User profile containing the ID.
  * @param {function} showPopup - Function to show popups on frontend error or success cases.
 
  */
 export async function handleGenerateMenu(
     setLoading,
     setMenuContent,
-    userProfile,
-    showPopup
+    userProfileDynamic,
+    showPopup,
+    yesterdaysMeals
 ) {
     try {
         setLoading(true);
@@ -81,14 +82,14 @@ export async function handleGenerateMenu(
         const res = await fetch(`${baseUrl}/api/generateMenu`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userProfile }),
+            body: JSON.stringify({ userProfile: userProfileDynamic, yesterdaysMeals }),
         });
 
-        if (!res.body){
+        if (!res.body) {
             showPopup('Not enough data!', 'error');
             throw new Error('No response body');
-        } 
-            
+        }
+
 
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -96,8 +97,8 @@ export async function handleGenerateMenu(
         let result = '';
         let tempResult = '';
 
-        const favoriteNames = new Set(userProfile.favoriteMeals.map(m => m.name.toLowerCase()));
-        const dislikedNames = new Set(userProfile.dislikedMeals.map(m => m.name.toLowerCase()));
+        const favoriteNames = new Set(userProfileDynamic.favoriteMeals.map(m => m.name.toLowerCase()));
+        const dislikedNames = new Set(userProfileDynamic.dislikedMeals.map(m => m.name.toLowerCase()));
 
         while (streaming) {
             try {
@@ -125,8 +126,8 @@ export async function handleGenerateMenu(
                             rawMealData.carbs,
                             rawMealData.ingredients,
                             // lowerIngredients,
-                            favoriteNames.has(userProfile.name),
-                            dislikedNames.has(userProfile.name),
+                            favoriteNames.has(userProfileDynamic.name),
+                            dislikedNames.has(userProfileDynamic.name),
                         );
                         menu.addMeal(streamedMeal);
                         setMenuContent(prevMeals => [...prevMeals, streamedMeal]);
@@ -168,12 +169,12 @@ export async function handleGenerateMenu(
             return { menu: [], status: res.status, message: "Failed to generate menu" };
         }
 
-        await fetch(`${baseUrl}/api/menu?userId=${userProfile._id}`, {
+        await fetch(`${baseUrl}/api/menu?userId=${userProfileDynamic._id}`, {
             method: 'DELETE',
         });
 
         if (menu.meals.length > 0) {
-            await postMenuToDb(userProfile._id, JSON.stringify(menu.meals)); // Use what works
+            await postMenuToDb(userProfileDynamic._id, JSON.stringify(menu.meals)); // Use what works
         }
         return { menu, status: 200, message: "Menu generated successfully!" };
 
@@ -258,23 +259,45 @@ export async function addMealToDb(meal) {
 
 export async function generateMeal(promptValue, setIsLoading) {
     try {
-      const response = await fetch("/api/generateOneMeal", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ promptValue }),
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to generate meal");
-      }
-  
-      setIsLoading(false);
-      return await response.json();
+        const response = await fetch("/api/generateOneMeal", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ promptValue }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to generate meal");
+        }
+
+        setIsLoading(false);
+        return await response.json();
     } catch (error) {
-      console.error("Error generating meal:", error);
-      return null;
+        console.error("Error generating meal:", error);
+        return null;
     }
-  }
-  
+}
+
+export const fetchYesterdayMeals = async (userId) => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const formatted = yesterday.toISOString().split("T")[0]; // e.g., "2025-03-24"
+
+    const url = `/api/menu?userId=${userId}&date=${formatted}`;
+    const res = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) {
+        return;
+    }
+
+    const yesterdayMenu = await res.json();
+    const meals = Array.isArray(yesterdayMenu.menu)
+    ? yesterdayMenu.menu
+    : JSON.parse(yesterdayMenu.menu || '[]')
+    const mappedNames = meals.map(meal => meal.name)
+    return mappedNames;
+}

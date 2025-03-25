@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import Menu from "@/components/Menu";
 import { useEffect, useState, useContext } from "react";
 import { UserContext } from "@/components/UserProvider";
-import { checkDbForMenu, handleGenerateMenu } from "../../../_lib/menuActions";
+import { checkDbForMenu, handleGenerateMenu, fetchYesterdayMeals } from "../../../_lib/menuActions";
 import { decreaseUpdates, resetUpdates } from "../../../_lib/usersActions";
-import { usePopup } from "@/components/providers/PopUpProvider"
+import { usePopup } from "@/components/providers/PopUpProvider";
 import { Alert } from "@/components/Alert";
 import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
 import ThinkingSvg1 from "../../ui/images/avatar-thinking-9-svgrepo-com";
@@ -22,15 +22,13 @@ export default function MenuGenerator() {
     const [totalNutrition, setTotalNutrition] = useState({});
     const [loading, setLoading] = useState(true); // Controls the loading state
     const [updatesRemaining, setUpdatesRemaining] = useState(userProfileDynamic?.updatesRemaining);
+    const [yesterdaysMeals, setYesterdaysMeals] = useState([]);
 
     // Fetch the menu from the database when the user profile is available
-    useEffect(() => {
-        if (userProfile?._id) {
-            fetchMenu();
-        }
-    }, [userProfile]);
-
+    
     const fetchMenu = async () => {
+        const yesterdaysFetch = await fetchYesterdayMeals(userProfile?._id);
+        setYesterdaysMeals(yesterdaysFetch);
         const fetchedMenu = await checkDbForMenu(userProfile._id, setLoading, showPopup);
         if (fetchedMenu.status === 200) {
             if (fetchedMenu.menu?.meals?.length > 0) {
@@ -50,6 +48,12 @@ export default function MenuGenerator() {
         setLoading(false);
     };
 
+    useEffect(() => {
+        if (userProfile?._id) {
+            fetchMenu();
+        }
+    }, [userProfile]);
+
     const onGenerateButtonClick = async () => {
         try {
             if (!userProfile?._id || updatesRemaining == null) {
@@ -63,8 +67,7 @@ export default function MenuGenerator() {
                 setTotalNutrition({});
             }
 
-
-            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfileDynamic, showPopup);
+            const menuCreation = await handleGenerateMenu(setLoading, setMenuContent, userProfileDynamic, showPopup, yesterdaysMeals);
 
             if (menuCreation?.status >= 200 && menuCreation?.status < 300) {
                 try {
@@ -126,7 +129,7 @@ export default function MenuGenerator() {
                 </div>
             }
 
-            {updatesRemaining === 0 && !loading && (
+            {!loading && updatesRemaining === 0 && (
                 <Alert variant="red" title="You're out of refreshes!">
                     {userProfile?.subscriptionType !== "premium" && (
                         <p>Upgrade your plan to get more refresh attempts!</p>
@@ -134,6 +137,7 @@ export default function MenuGenerator() {
                 </Alert>
             )}
             {/* Button to generate a new menu */}
+            {/* <span className="text-xs text-center max-w-[70%] text-gray-400 my-1">Note: It's recommended to refresh a page after updating preferences to reach most specific results!</span> */}
             <Button
                 onClick={onGenerateButtonClick}
                 disabled={loading || updatesRemaining === 0}

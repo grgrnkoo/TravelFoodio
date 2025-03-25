@@ -153,43 +153,80 @@ export async function upgradeUser(userId, newPlan) {
 };
 
 export function getTopFavoriteMeals(userProfile) {
-  return userProfile.favoriteMeals
-    .sort((a, b) => new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
-    .slice(0, 5)
-    .map(m => m.name);
+    const meals = userProfile?.favoriteMeals;
+
+    if (!meals || meals.length === 0) return 'None';
+
+    const topFavoriteMeals = [...meals]
+        .sort((a, b) => new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+        .slice(0, 5)
+        .map(m => m.name);
+
+    return topFavoriteMeals.length > 0 ? topFavoriteMeals : 'None';
 }
 
 export function getTopDislikedMeals(userProfile) {
-  return userProfile.dislikedMeals
-    .sort((a, b) => new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
-    .slice(0, 5)
-    .map(m => m.name);
+    const meals = userProfile?.dislikedMeals;
+
+    if (!meals || meals.length === 0) return 'None';
+
+    const topDislikedMeals = [...meals]
+        .sort((a, b) => new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+        .slice(0, 5)
+        .map(m => m.name);
+
+    return topDislikedMeals.length > 0 ? topDislikedMeals : 'None';
 }
 
 export function getTopIngredients(userProfile) {
-  return userProfile.ingredients
-    .sort((a, b) => b.rating - a.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated)) // Rating, then latest
-    .slice(0, 5)
-    .map(i => i.name);
+    const liked = userProfile?.ingredients?.filter(i => i.rating > 0);
+
+    if (!liked || liked.length === 0) return 'None';
+
+    const topIngredients = liked
+        .sort((a, b) => b.rating - a.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+        .slice(0, 5)
+        .map(i => i.name);
+
+    return topIngredients.length > 0 ? topIngredients : 'None';
 }
 
 export function getBottomIngredients(userProfile) {
-  return userProfile.ingredients
-    .sort((a, b) => a.rating - b.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated)) // Rating, then latest
-    .slice(0, 5)
-    .map(i => i.name);
+    const disliked = userProfile?.ingredients?.filter(i => i.rating < 0);
+
+    if (!disliked || disliked.length === 0) return 'None';
+
+    const bottomIngredients = disliked
+        .sort((a, b) => a.rating - b.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+        .slice(0, 5)
+        .map(i => i.name);
+
+    return bottomIngredients.length > 0 ? bottomIngredients : 'None';
 }
 
 export function getTopCuisines(userProfile) {
-  return userProfile.cuisines
-    .sort((a, b) => b.rating - a.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
-    .slice(0, 5)
-    .map(c => c.name);
+    const liked = userProfile?.cuisines?.filter(c => c.rating > 0);
+
+    if (!liked || liked.length === 0) return 'None';
+
+    const topCuisines = liked
+        .sort((a, b) => b.rating - a.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+        .slice(0, 5)
+        .map(c => c.name);
+
+    return topCuisines.length > 0 ? topCuisines : 'None';
 }
 
+
 export function getBottomCuisines(userProfile) {
-  return userProfile.cuisines
-    .sort((a, b) => a.rating - b.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
-    .slice(0, 5)
-    .map(c => c.name);
+    const disliked = userProfile?.cuisines?.filter(c => c.rating < 0);
+
+    if (!disliked || disliked.length === 0) return 'None';
+
+    const bottomCuisines = disliked
+        .sort((a, b) => a.rating - b.rating || new Date(b.dateLastUpdated) - new Date(a.dateLastUpdated))
+        .slice(0, 5)
+        .map(c => c.name);
+
+    return bottomCuisines.length > 0 ? bottomCuisines : 'None';
 }

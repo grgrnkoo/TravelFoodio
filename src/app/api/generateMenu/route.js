@@ -58,7 +58,7 @@ import {
 //         - Avoided Ingredients (bottom 5 rated): ${JSON.stringify(getBottomIngredients(userProfile)) || "None"}
 //         - Preferred Cuisines (top 5 rated): ${JSON.stringify(getTopCuisines(userProfile)) || "None"}
 //         - Avoided Cuisines (bottom 5 rated): ${JSON.stringify(getBottomCuisines(userProfile)) || "None"}
-        
+
 //         Return a structured JSON array of meal objects **without additional keys**:
 //         \`\`\`json
 //         [
@@ -148,38 +148,107 @@ const openai = new OpenAI({
 
 export async function POST(req) {
     try {
-        const { userProfile } = await req.json();
-        const prompt = `Generate a personalized meal plan for 1 day based on:
-        - Goals: ${userProfile?.goals}
-        - Average daily kcal amount: ${userProfile?.dailyCaloriesSuggested}
-        - Location: ${userProfile?.location}
-        - Age: ${userProfile?.age}
-        - Dietary Restrictions: ${userProfile?.dietaryRestrictions || "None"}
-        - Favorite Meals (latest 5): ${JSON.stringify(getTopFavoriteMeals(userProfile)) || "None"}
-        - Disliked Meals (latest 5): ${JSON.stringify(getTopDislikedMeals(userProfile)) || "None"}
-        - Preferred Ingredients (top 5 rated): ${JSON.stringify(getTopIngredients(userProfile)) || "None"}
-        - Avoided Ingredients (bottom 5 rated): ${JSON.stringify(getBottomIngredients(userProfile)) || "None"}
-        - Preferred Cuisines (top 5 rated): ${JSON.stringify(getTopCuisines(userProfile)) || "None"}
-        - Avoided Cuisines (bottom 5 rated): ${JSON.stringify(getBottomCuisines(userProfile)) || "None"}
+        const { userProfile, yesterdaysMeals } = await req.json();
+
+        const systemPrompt = `
+        You are a meal plan generation engine. Output only raw JSON arrays—no extra text, comments, or formatting. You receive structured user data and must return a 1-day meal plan based on it.
         
-        Return a structured JSON array of meal objects **without additional keys**:
-        \`\`\`json
+        Important Output Rules:
+        - Output must be a valid JSON array of meal objects.
+        - Each object must match this schema:
         [
           {
             "name": "Dish Name",
             "ingredients": ["Ingredient 1", "Ingredient 2"],
-            "cuisine": "Mediterranean",
+            "cuisine": "Cuisine Type",
             "fats": 10,
             "carbs": 40,
             "protein": 15,
             "calories": 350
           }
         ]
-        \`\`\`
-        Ensure **no extra text** or keys—just a **pure JSON array**. 
-        - Use Favorite Meals, Preferred Ingredients, and Preferred Cuisines as inspiration—include some, but **blend in variety** with unique meals not only listed in favorites and disliked.
-        - Avoid Disliked Meals, Avoided Ingredients, and Avoided Cuisines but not completely.
-        - Generate meals, ensuring variety in cuisines, ingredients, and nutrition—don’t repeat meals, even from previous runs.`;
+        - Return only JSON. No headings, no markdown, no explanations.
+        - Never label a cuisine as "International" or "Fusion". Always choose a specific cuisine based on the dish.
+        - Meals must be varied and not repeated from previous generations or days.
+        `;
+
+
+        const userPrompt = `
+        Generate a 1-day personalized meal plan for this user. Make sure the total calorie count is around ${userProfile?.dailyCaloriesSuggested} kcal (±200 kcal allowed).
+        
+        User context:
+        - Goals: ${userProfile?.goals}
+        - Location: ${userProfile?.location}
+        - Age: ${userProfile?.age}
+        - Dietary Restrictions: ${userProfile?.dietaryRestrictions || "None"}
+        
+        Preferences:
+        - Favorite Meals: ${JSON.stringify(getTopFavoriteMeals(userProfile)) || "None"}
+        - Disliked Meals: ${JSON.stringify(getTopDislikedMeals(userProfile)) || "None"}
+        - Preferred Ingredients: ${JSON.stringify(getTopIngredients(userProfile)) || "None"}
+        - Avoided Ingredients: ${JSON.stringify(getBottomIngredients(userProfile)) || "None"}
+        - Preferred Cuisines: ${JSON.stringify(getTopCuisines(userProfile)) || "None"}
+        - Avoided Cuisines: ${JSON.stringify(getBottomCuisines(userProfile)) || "None"}
+        
+        Guidelines:
+        - Meals must be accessible in user's location. Prioritise popular dishes in region
+- Use user preferences for inspiration, but include variety and new dishes.
+- Avoid disliked meals, ingredients, and cuisines. Soft inclusion is acceptable if it improves diversity.
+- Meals must include common, realistic ingredients based on the user’s region.
+- Add as many meals/snacks as needed to reach the calorie target.
+- Each meal should have a specific cuisine. No "International".
+- Calorie values for individual meals should be slightly overestimated to ensure the total meets or slightly exceeds the user's daily goal. This helps avoid underfeeding.
+
+        
+        Plan should be at least ${Math.ceil(userProfile?.dailyCaloriesSuggested / 370)} meals long.
+        Return only a JSON array of meals. No extra text.
+        `;
+
+
+        const messages = [
+            { role: "system", content: systemPrompt },
+            ...(yesterdaysMeals.length > 0
+                ? [{
+                    role: "user",
+                    content: `Here are meals you generated yesterday. Do NOT repeat these dishes or their core ingredients today:\n\n${yesterdaysMeals.join(', ')}`
+                }]
+                : []),
+            { role: "user", content: userPrompt },
+        ];
+
+        console.log(messages);
+
+        // const prompt = `Generate a personalized meal plan for 1 day based on:
+        // - Goals: ${userProfile?.goals}
+        // - Average daily kcal amount: ${userProfile?.dailyCaloriesSuggested}
+        // - Location: ${userProfile?.location}
+        // - Age: ${userProfile?.age}
+        // - Dietary Restrictions: ${userProfile?.dietaryRestrictions || "None"}
+        // - Favorite Meals (latest 5): ${JSON.stringify(getTopFavoriteMeals(userProfile)) || "None"}
+        // - Disliked Meals (latest 5): ${JSON.stringify(getTopDislikedMeals(userProfile)) || "None"}
+        // - Preferred Ingredients (top 5 rated): ${JSON.stringify(getTopIngredients(userProfile)) || "None"}
+        // - Avoided Ingredients (bottom 5 rated): ${JSON.stringify(getBottomIngredients(userProfile)) || "None"}
+        // - Preferred Cuisines (top 5 rated): ${JSON.stringify(getTopCuisines(userProfile)) || "None"}
+        // - Avoided Cuisines (bottom 5 rated): ${JSON.stringify(getBottomCuisines(userProfile)) || "None"}
+
+        // Return a structured JSON array of meal objects **without additional keys**:
+        // \`\`\`json
+        // [
+        //   {
+        //     "name": "Dish Name",
+        //     "ingredients": ["Ingredient 1", "Ingredient 2"],
+        //     "cuisine": "Mediterranean",
+        //     "fats": 10,
+        //     "carbs": 40,
+        //     "protein": 15,
+        //     "calories": 350
+        //   }
+        // ]
+        // \`\`\`
+        // Ensure **no extra text** or keys—just a **pure JSON array**. 
+        // - Use Favorite Meals, Preferred Ingredients, and Preferred Cuisines as inspiration—include some, but **blend in variety** with unique meals not only listed in favorites and disliked.
+        // - Avoid Disliked Meals, Avoided Ingredients, and Avoided Cuisines but not completely.
+        // - Generate meals, ensuring variety in cuisines, ingredients, and nutrition—don’t repeat meals, even from previous runs.`;
 
 
 
@@ -189,8 +258,9 @@ export async function POST(req) {
 
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
-            messages: [{ role: "system", content: prompt }],
-            temperature: 0.7,
+            // messages: [{ role: "system", content: prompt }],
+            messages,
+            temperature: 1,
             stream: true
         });
 
