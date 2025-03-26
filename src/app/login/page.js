@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import LoginWithEmail from "@/components/LoginWithEmail";
 import MenuDishBackground from "@/components/MenuDishAnimation";
 import { usePopup } from "@/components/providers/PopUpProvider";
+import InAppBrowserBanner from "@/components/InAppBrowserBanner";
 
 export default function LoginPage() {
     const { data: session, status } = useSession();
@@ -21,6 +21,7 @@ export default function LoginPage() {
     const [hover, setHover] = useState(false);
     const router = useRouter();
     const { showPopup } = usePopup();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const validateEmail = (email) => {
         const isValid = emailRegex.test(email);
@@ -71,7 +72,8 @@ export default function LoginPage() {
 
     return (
         status === 'unauthenticated' && (
-            <div className="flex min-h-screen flex-row w-full">
+            <div className="relative flex min-h-screen flex-row w-full">
+                <InAppBrowserBanner className="fixed w-full h-fit bottom-0" />
                 <div className="flex w-full items-center justify-center p-4 md:p-8 relative">
                     <Card className="mx-auto w-full max-w-sm z-10">
                         <CardHeader className="space-y-1">

@@ -123,3 +123,16 @@ export const sendFeedback = async (feedbackText, sender, showPopup, setTextareaV
     return { success: false, error };
   }
 };
+
+export function getInAppBrowserInfo() {
+  const ua = navigator.userAgent || navigator.vendor || "";
+
+  const isInstagram = ua.includes("Instagram");
+  const isTikTok = ua.includes("TikTok");
+
+  return {
+    isInstagram,
+    isTikTok,
+    isInAppBrowser: isInstagram || isTikTok,
+  };
+}

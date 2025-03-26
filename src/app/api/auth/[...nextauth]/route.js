@@ -138,7 +138,11 @@ export const authOptions = {
     },
     secret: process.env.NEXTAUTH_SECRET,
     jwt: { encryption: false }, // Disables AES-GCM
-    pages: { signIn: "/login" },
+    pages: { 
+        signIn: "/login",
+        verifyRequest: "/auth/emailsent",
+        error: "/auth/error"
+    },
     adapter: MongoDBAdapter(clientPromise),
 };
 
