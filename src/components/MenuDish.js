@@ -19,18 +19,19 @@ const debounce = (func, wait) => {
 
 // Assuming this is passed from parent to track order in stream
 export default function MenuDish({ menuDish, index = 0, showLike }) {
-    const { userProfile, setUserProfileDynamic } = useContext(UserContext);
+    const { userProfile, userProfileDynamic, setUserProfileDynamic } = useContext(UserContext);
     const { showPopup } = usePopup();
-    const [like, setLike] = useState(false);
-    const [dislike, setDislike] = useState(false);
+
+    const [like, setLike] = useState(userProfileDynamic.favoriteMeals.some((meal) => meal.name === menuDish.name));
+    const [dislike, setDislike] = useState(userProfileDynamic.dislikedMeals.some((meal) => meal.name === menuDish.name));
 
     // Fetch initial state on load
     useEffect(() => {
         if (userProfile?._id) {
-            setLike(userProfile.favoriteMeals.some(m => m.name === menuDish?.name));
-            setDislike(userProfile.dislikedMeals.some(m => m.name === menuDish?.name));
+            setLike(userProfileDynamic.favoriteMeals.some(m => m.name === menuDish?.name));
+            setDislike(userProfileDynamic.dislikedMeals.some(m => m.name === menuDish?.name));
         }
-    }, [userProfile, menuDish]);
+    }, [userProfileDynamic, menuDish]);
 
     const updatePreference = useCallback(
         debounce(async (action) => {
@@ -45,7 +46,11 @@ export default function MenuDish({ menuDish, index = 0, showLike }) {
                     setLike(action === 'like' ? !like : false);
                     setDislike(action === 'dislike' ? !dislike : false);
                     const updatedProfile = await fetch(`/api/users/${userProfile?.email}`).then(res => res.json())
-                    setUserProfileDynamic(updatedProfile);
+                    setUserProfileDynamic(prev => ({
+                        ...prev,
+                        favoriteMeals: updatedProfile.favoriteMeals,
+                        dislikedMeals: updatedProfile.dislikedMeals
+                    }));
                     showPopup('Updated successfully!', 'success');
                 } else {
                     console.error('Update failed:', data.error);

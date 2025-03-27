@@ -8,11 +8,9 @@ import { checkDbForMenu, handleGenerateMenu, fetchYesterdayMeals } from "../../.
 import { decreaseUpdates, resetUpdates } from "../../../_lib/usersActions";
 import { usePopup } from "@/components/providers/PopUpProvider";
 import { Alert } from "@/components/Alert";
-import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
 import ThinkingSvg1 from "../../ui/images/avatar-thinking-9-svgrepo-com";
 import MenuDish from "@/components/MenuDish";
 import MenuClass from "@/classes/MenuClass";
-import { Separator } from "@/components/ui/separator";
 
 export default function MenuGenerator() {
     const { showPopup } = usePopup();
@@ -29,7 +27,9 @@ export default function MenuGenerator() {
     const fetchMenu = async () => {
         const yesterdaysFetch = await fetchYesterdayMeals(userProfile?._id);
         setYesterdaysMeals(yesterdaysFetch);
+        console.log('yesterdays: ', yesterdaysMeals)
         const fetchedMenu = await checkDbForMenu(userProfile._id, setLoading, showPopup);
+        console.log('Fetched from main: ', fetchedMenu);
         if (fetchedMenu.status === 200) {
             if (fetchedMenu.menu?.meals?.length > 0) {
                 const newMenu = new MenuClass(fetchedMenu.menu.meals);
@@ -96,7 +96,12 @@ export default function MenuGenerator() {
 
     return (
         <div className="flex flex-col items-center w-full">
-            <Menu content={menuContent} className='flex-grow w-full' />
+            <Menu 
+                content={menuContent} 
+                totalNutrition={totalNutrition} 
+                showTotal={true}
+                loading={loading}
+                className='flex-grow w-full' />
             {
                 (!menuContent || menuContent.length === 0 || !userProfile) && !loading && (
                     <>
@@ -108,25 +113,6 @@ export default function MenuGenerator() {
                         <p className="my-4 text-center">Generate a menu to start a day!</p>
                     </>
                 )
-            }
-
-            {
-                loading &&
-                Array.from({ length: 3 - menuContent?.length > 0 ? 3 - menuContent?.length : 0 }).map((_, index) => (
-                    <MenuDishSkeleton key={index} showLike={true} className="flex-grow w-full" />
-                ))
-            }
-
-            {/* Calculating total nutrition */}
-            {
-                Object.keys(totalNutrition).length > 0 &&
-                <div className="w-full px-4">
-                    <Separator className="my-4 " />
-                    <MenuDish
-                        menuDish={totalNutrition}
-                        showLike={false}
-                    />
-                </div>
             }
 
             {!loading && updatesRemaining === 0 && (
