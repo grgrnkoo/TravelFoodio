@@ -43,8 +43,8 @@ export async function checkDbForMenu(userId, setLoading, showPopup) {
             meal.fats,
             meal.carbs,
             meal.ingredients,
-            meal.like,
-            meal.dislike
+            // meal.like,
+            // meal.dislike
         ));
 
         return { menu: new MenuClass(convertedMeals), status: res.status, message: 'Menu parsed successfully' };
@@ -284,7 +284,7 @@ export const fetchYesterdayMeals = async (userId) => {
     yesterday.setDate(yesterday.getDate() - 1);
     const formatted = yesterday.toISOString().split("T")[0]; // e.g., "2025-03-24"
 
-    const url = `/api/menu?userId=${userId}&date=${formatted}`;
+    const url = `${baseUrl}/api/menu?userId=${userId}&date=${formatted}`;
     const res = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -301,3 +301,30 @@ export const fetchYesterdayMeals = async (userId) => {
     const mappedNames = meals.map(meal => meal.name)
     return mappedNames;
 }
+
+export async function fetchMenuByDate(userId, date) {
+    const url = `${baseUrl}/api/menu?userId=${userId}&date=${date}`
+  
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store' // prevent stale fetch in SSR
+      })
+  
+      if (!res.ok) {
+        console.error(`Server error: ${res.status} ${res.statusText}`)
+        return { menu: [], status: res.status, message: 'Error fetching menu' }
+      }
+  
+      const data = await res.json()
+      const menu = data.menu ?? []
+  
+      return { menu, status: res.status, message: 'Menu fetched' }
+  
+    } catch (error) {
+      console.error('Fetch error:', error)
+      return { menu: [], status: 500, message: 'Network or server error' }
+    }
+  }
+  
