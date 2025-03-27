@@ -62,7 +62,7 @@ export default async function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-full flex flex-col w-full justify-start items-center relative">
-        <SessionProviderWrapper>
+        <SessionProviderWrapper session={session}>
           <UserProvider value={{ session, userProfile }}>
             <PopUpProvider>
               <Header session={session} />

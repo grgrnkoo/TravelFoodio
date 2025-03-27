@@ -8,8 +8,8 @@ import { checkDbForMenu, handleGenerateMenu, fetchYesterdayMeals } from "../../.
 import { decreaseUpdates, resetUpdates } from "../../../_lib/usersActions";
 import { usePopup } from "@/components/providers/PopUpProvider";
 import { Alert } from "@/components/Alert";
-import ThinkingSvg1 from "../../ui/images/avatar-thinking-9-svgrepo-com";
-import MenuDish from "@/components/MenuDish";
+import RandomThinkingSvg from "@/components/RandomThinkingSvg";
+// import MenuDish from "@/components/MenuDish";
 import MenuClass from "@/classes/MenuClass";
 
 export default function MenuGenerator() {
@@ -47,10 +47,12 @@ export default function MenuGenerator() {
     };
 
     useEffect(() => {
-        if (userProfile?._id) {
-            fetchMenu();
+        let fetched = false;
+        if (userProfile?._id && !fetched) {
+          fetchMenu();
+          fetched = true;
         }
-    }, [userProfile]);
+      }, [userProfile]);
 
     const onGenerateButtonClick = async () => {
         try {
@@ -105,7 +107,7 @@ export default function MenuGenerator() {
                     <>
                         {
                             <div className="my-12">
-                                <ThinkingSvg1 />
+                                <RandomThinkingSvg />
                             </div>
                         }
                         <p className="my-4 text-center">Generate a menu to start a day!</p>
