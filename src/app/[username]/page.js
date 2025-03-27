@@ -27,9 +27,7 @@ export default function MenuGenerator() {
     const fetchMenu = async () => {
         const yesterdaysFetch = await fetchYesterdayMeals(userProfile?._id);
         setYesterdaysMeals(yesterdaysFetch);
-        console.log('yesterdays: ', yesterdaysMeals)
         const fetchedMenu = await checkDbForMenu(userProfile._id, setLoading, showPopup);
-        console.log('Fetched from main: ', fetchedMenu);
         if (fetchedMenu.status === 200) {
             if (fetchedMenu.menu?.meals?.length > 0) {
                 const newMenu = new MenuClass(fetchedMenu.menu.meals);

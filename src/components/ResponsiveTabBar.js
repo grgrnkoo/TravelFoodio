@@ -1,15 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useRouter, usePathname } from "next/navigation"
+import { UserContext } from "./UserProvider"
 
 const today = new Date().toISOString().split('T')[0];
 
-export function ResponsiveTabBar({ defaultTab = today, tabs, username, usedIn }) {
+export function ResponsiveTabBar({ defaultTab = today, tabs, usedIn }) {
+    const { userProfile, userProfileDynamic } = useContext(UserContext);
+    const username = userProfileDynamic.username;
+
     const [activeTab, setActiveTab] = useState(defaultTab)
     const [isMobile, setIsMobile] = useState(false)
     const router = useRouter();
@@ -45,9 +49,8 @@ export function ResponsiveTabBar({ defaultTab = today, tabs, username, usedIn })
                             key={tab.id}
                             onClick={() => onTabCLick(tab)}
                             className={cn(
-                                "px-4 py-2 text-sm font-medium rounded-md transition-all",
-                                "hover:bg-muted/70",
-                                activeTab === tab.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground",
+                                "px-2 py-2 text-sm font-medium rounded-md transition-all",
+                                activeTab === tab.id ? "bg-primary text-background shadow-sm" : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
                             )}
                         >
                             {tab.label}

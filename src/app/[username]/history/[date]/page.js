@@ -13,11 +13,6 @@ export default async function HistoryByDate({ params }) {
     const user = await getUserByEmail(userEmail);
     if (!user) return <div>User not found</div>
 
-    const userId = user._id;
-
-    console.log('page user: ', userId);
-    console.log('date: ', date);
-
     const { menu, status } = await fetchMenuByDate(user._id, date)
     const parsedMenu = typeof menu === 'string' ? JSON.parse(menu) : menu
     if (status !== 200 || !parsedMenu?.length) {
@@ -26,7 +21,6 @@ export default async function HistoryByDate({ params }) {
     
     const menuInstance = new MenuClass(parsedMenu)
 
-    console.log('Menu Instance: ', menuInstance)
     const totalNutrition = menuInstance.calculateTotalNutrition()
 
     return (
