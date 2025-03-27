@@ -28,8 +28,8 @@ export default function MenuDish({ menuDish, index = 0, showLike }) {
     // Fetch initial state on load
     useEffect(() => {
         if (userProfile?._id) {
-            setLike(userProfileDynamic?.favoriteMeals.some(m => m.name === menuDish?.name));
-            setDislike(userProfileDynamic?.dislikedMeals.some(m => m.name === menuDish?.name));
+            setLike(userProfileDynamic?.favoriteMeals?.some(m => m.name === menuDish?.name));
+            setDislike(userProfileDynamic?.dislikedMeals?.some(m => m.name === menuDish?.name));
         }
     }, [userProfileDynamic, menuDish]);
 
