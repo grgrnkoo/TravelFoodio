@@ -22,14 +22,14 @@ export default function MenuDish({ menuDish, index = 0, showLike }) {
     const { userProfile, userProfileDynamic, setUserProfileDynamic } = useContext(UserContext);
     const { showPopup } = usePopup();
 
-    const [like, setLike] = useState(userProfileDynamic.favoriteMeals.some((meal) => meal.name === menuDish.name));
-    const [dislike, setDislike] = useState(userProfileDynamic.dislikedMeals.some((meal) => meal.name === menuDish.name));
+    const [like, setLike] = useState(userProfileDynamic?.favoriteMeals?.some((meal) => meal?.name === menuDish?.name));
+    const [dislike, setDislike] = useState(userProfileDynamic?.dislikedMeals?.some((meal) => meal?.name === menuDish?.name));
 
     // Fetch initial state on load
     useEffect(() => {
         if (userProfile?._id) {
-            setLike(userProfileDynamic.favoriteMeals.some(m => m.name === menuDish?.name));
-            setDislike(userProfileDynamic.dislikedMeals.some(m => m.name === menuDish?.name));
+            setLike(userProfileDynamic?.favoriteMeals.some(m => m.name === menuDish?.name));
+            setDislike(userProfileDynamic?.dislikedMeals.some(m => m.name === menuDish?.name));
         }
     }, [userProfileDynamic, menuDish]);
 
