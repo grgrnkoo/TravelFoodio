@@ -1,13 +1,9 @@
 'use client'
 
 import { ResponsiveTabBar } from "@/components/ResponsiveTabBar"
-import { UserContext } from "@/components/UserProvider";
-import { useContext } from "react";
 import { usePathname } from "next/navigation";
 
 export default function HistoryLayout({ children }) {
-    const { userProfile, userProfileDynamic } = useContext(UserContext);
-
     const pathname = usePathname();
     const pathnameParamsArray = pathname.split('/');
     const dateOnLoad = pathnameParamsArray[pathnameParamsArray.length - 1]
@@ -40,7 +36,6 @@ export default function HistoryLayout({ children }) {
         <div className="flex flex-col w-full mt-4">
             <ResponsiveTabBar
                 tabs={tabs}
-                username={userProfileDynamic.username}
                 defaultTab={dateOnLoad}
                 usedIn='history'
             />

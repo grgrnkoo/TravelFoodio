@@ -1,7 +1,14 @@
-export default function PreferencesMain() {
+import { redirect } from "next/navigation"
+
+export default async function PreferencesMain({ params }) {
+    const awaitedParams = await params;
+    const username = awaitedParams.username;
+
+    redirect(`/${username}/preferences/favoriteMeals`);
+    
     return (
         <>
-            <p>That's a preferences in works</p>
+            <p>Redirecting...</p>
         </>
     )
 }
