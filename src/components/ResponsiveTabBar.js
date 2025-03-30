@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useContext } from "react"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, ArrowLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -17,6 +17,7 @@ export function ResponsiveTabBar({ defaultTab = today, tabs, usedIn }) {
     const [activeTab, setActiveTab] = useState(defaultTab)
     const [isMobile, setIsMobile] = useState(false)
     const router = useRouter();
+    const pathname = usePathname();
 
     // Check if we're on mobile screen size
     useEffect(() => {
@@ -32,7 +33,14 @@ export function ResponsiveTabBar({ defaultTab = today, tabs, usedIn }) {
 
         // Cleanup
         return () => window.removeEventListener("resize", checkIfMobile)
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        const currentTab = tabs.find(tab => pathname.includes(tab.id));
+        if (currentTab) {
+            setActiveTab(currentTab.id);
+        }
+    }, [pathname, tabs]);
 
     const onTabCLick = (tab) => {
         setActiveTab(tab.id);
@@ -42,7 +50,17 @@ export function ResponsiveTabBar({ defaultTab = today, tabs, usedIn }) {
     return (
         <div className="w-full">
             {/* Desktop Tabs (md and up) - Vercel Style */}
-            <div className="hidden md:flex w-full justify-evenly p-1.5 bg-muted/30 rounded-lg">
+            <div className="hidden md:flex w-full justify-evenly items-center p-1.5 bg-muted/30 rounded-lg">
+                {/* Back button */}
+                <Button variant="outline"
+                    size="icon"
+                    className="h-9 w-9 rounded-md mr-2"
+                    onClick={() => router.push(`/${username}`)}
+                >
+                    <ArrowLeft className="h-4 w-4" />
+                    <span className="sr-only">Go back</span>
+                </Button>
+
                 <div className="flex space-x-1">
                     {tabs.map((tab) => (
                         <button

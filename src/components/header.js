@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
-import { useContext, useState, useEffect } from "react"
+import { useContext, useState, useEffect, useRef } from "react"
 import { UserContext } from "@/components/UserProvider"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
@@ -20,6 +20,7 @@ export default function Header({ session }) {
     const [scrollDirection, setScrollDirection] = useState("up")
     const [lastScrollY, setLastScrollY] = useState(0)
     const [isAtTop, setIsAtTop] = useState(true)
+    const dropdownRef = useRef(null)
 
     // Handle scroll direction detection
     useEffect(() => {
@@ -42,6 +43,25 @@ export default function Header({ session }) {
         window.addEventListener("scroll", handleScroll, { passive: true })
         return () => window.removeEventListener("scroll", handleScroll)
     }, [lastScrollY])
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
+                setIsOpen(false)
+            }
+        }
+
+        if (isOpen) {
+            document.addEventListener("mousedown", handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+        }
+    }, [isOpen])
 
     const handleSignOut = () => {
         signOut({ callbackUrl: "/" })
@@ -86,6 +106,11 @@ export default function Header({ session }) {
                                 <Link href="/dashboard">Dashboard</Link>
                             </Button>
                         )}
+                        {userProfile && (
+                            <Button variant="ghost" size="sm" className="hover:bg-primary/10">
+                                <Link href={`/${userProfile.username}/history`}>History</Link>
+                            </Button>
+                        )}
                         <Button
                             onClick={handleSignOut}
                             variant="outline"
@@ -105,7 +130,10 @@ export default function Header({ session }) {
 
             {/* Mobile Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-full left-0 right-0 mx-8 bg-white/95 backdrop-blur-md shadow-lg overflow-hidden rounded-xl flex flex-col gap-4 md:hidden border border-border/40">
+                <div
+                    ref={dropdownRef}
+                    className="absolute top-full left-0 right-0 mx-8 bg-white/95 backdrop-blur-md shadow-lg overflow-hidden rounded-xl flex flex-col gap-4 md:hidden border border-border/40"
+                >
                     {session && (
                         <CardHeader className="relative pb-0 pt-6">
                             <div className="absolute inset-0 h-24 bg-gradient-to-r from-primary/20 to-primary/40" />
@@ -182,11 +210,20 @@ export default function Header({ session }) {
                                 )}
                                 {userProfile && (
                                     <Link
-                                        href="/dashboard"
+                                    href="/dashboard"
+                                    className="px-2 py-3 hover:bg-primary/10 rounded-md transition-colors"
+                                    onClick={() => setIsOpen(false)}
+                                    >
+                                        Dashboard
+                                    </Link>
+                                )}
+                                {userProfile && (
+                                    <Link
+                                        href={`/${userProfile?.username}/history`}
                                         className="px-2 py-3 hover:bg-primary/10 rounded-md transition-colors"
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        Dashboard
+                                        History
                                     </Link>
                                 )}
                                 <button
