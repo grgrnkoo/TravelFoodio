@@ -34,6 +34,11 @@ export default function HistoryLayout({ children }) {
 
     return (
         <div className="flex flex-col w-full mt-4">
+            <h2
+                className="mx-4 my-2 text-2xl font-bold md:hidden"
+            >
+                History
+            </h2>
             <ResponsiveTabBar
                 tabs={tabs}
                 defaultTab={dateOnLoad}

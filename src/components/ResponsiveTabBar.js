@@ -48,20 +48,18 @@ export function ResponsiveTabBar({ defaultTab = today, tabs, usedIn }) {
     }
 
     return (
-        <div className="w-full">
+        <div className="w-full flex justify-center items-center p-1.5 md:bg-muted/30 bg-transparent rounded-lg">
             {/* Desktop Tabs (md and up) - Vercel Style */}
-            <div className="hidden md:flex w-full justify-evenly items-center p-1.5 bg-muted/30 rounded-lg">
-                {/* Back button */}
-                <Button variant="outline"
-                    size="icon"
-                    className="h-9 w-9 rounded-md mr-2"
-                    onClick={() => router.push(`/${username}`)}
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                    <span className="sr-only">Go back</span>
-                </Button>
-
-                <div className="flex space-x-1">
+            <Button variant="outline"
+                size="icon"
+                className="min-h-9 w-9 rounded-md"
+                onClick={() => router.push(`/${username}`)}
+            >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Go back</span>
+            </Button>
+            <div className="hidden md:flex w-full items-center">
+                <div className="flex space-x-1 w-full justify-evenly">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
