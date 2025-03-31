@@ -9,22 +9,23 @@ function Menu({ content: menuContent, totalNutrition, showTotal = true, loading 
   
   return (
     <div className="w-full px-4">
+
+      {menuContent?.map((menuDish, index) => (
+        <MenuDish
+        menuDish={menuDish}
+        key={`${menuDish.name}-${date}`}
+        index={index}
+        showLike={true}
+        />
+      ))}
+
       {
         loading &&
         Array.from({ length: 3 - menuContent?.length > 0 ? 3 - menuContent?.length : 0 }).map((_, index) => (
           <MenuDishSkeleton key={index} showLike={true} className="flex-grow w-full" />
         ))
       }
-
-      {menuContent?.map((menuDish, index) => (
-        <MenuDish
-          menuDish={menuDish}
-          key={`${menuDish.name}-${date}`}
-          index={index}
-          showLike={true}
-        />
-      ))}
-
+      
       {/* Calculating total nutrition */}
       {
         Object.keys(totalNutrition).length > 0 &&

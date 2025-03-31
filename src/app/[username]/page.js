@@ -23,7 +23,7 @@ export default function MenuGenerator() {
     const [yesterdaysMeals, setYesterdaysMeals] = useState([]);
 
     // Fetch the menu from the database when the user profile is available
-    
+
     const fetchMenu = async () => {
         const yesterdaysFetch = await fetchYesterdayMeals(userProfile?._id);
         setYesterdaysMeals(yesterdaysFetch);
@@ -49,10 +49,10 @@ export default function MenuGenerator() {
     useEffect(() => {
         let fetched = false;
         if (userProfile?._id && !fetched) {
-          fetchMenu();
-          fetched = true;
+            fetchMenu();
+            fetched = true;
         }
-      }, [userProfile]);
+    }, [userProfile]);
 
     const onGenerateButtonClick = async () => {
         try {
@@ -96,9 +96,17 @@ export default function MenuGenerator() {
 
     return (
         <div className="flex flex-col items-center w-full">
-            <Menu 
-                content={menuContent} 
-                totalNutrition={totalNutrition} 
+            {
+                menuContent &&
+                <h2
+                    className="ml-4 mr-auto mb-2 mt-6 text-2xl font-bold md:hidden"
+                >
+                    Your Menu For Today
+                </h2>
+            }
+            <Menu
+                content={menuContent}
+                totalNutrition={totalNutrition}
                 showTotal={true}
                 loading={loading}
                 className='flex-grow w-full' />
