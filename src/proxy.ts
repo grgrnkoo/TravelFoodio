@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
     "/",
-    "/login",
     "/feedback",
     "/privacy",
     "/terms",
@@ -32,10 +31,16 @@ export default clerkMiddleware(async (auth, request) => {
     // Get auth data
     const { userId, sessionClaims } = await auth();
 
-    // Redirect to login if not authenticated
+    // Redirect to sign-in if not authenticated
     if (!userId) {
-        console.log("No userId, redirecting to /login.");
-        return NextResponse.redirect(new URL("/login", request.url));
+        console.log("No userId, redirecting to /sign-in.");
+        return NextResponse.redirect(new URL("/sign-in", request.url));
+    }
+
+    // Allow all API routes for authenticated users
+    // API routes handle their own authorization logic
+    if (pathname.startsWith("/api/")) {
+        return NextResponse.next();
     }
 
     // Check onboarding status from Clerk public metadata

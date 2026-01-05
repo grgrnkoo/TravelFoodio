@@ -2,10 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { ClerkProvider } from "@clerk/nextjs";
-import UserProvider from "@/components/UserProvider";
-import { PopUpProvider } from "@/components/providers/PopUpProvider";
 import { auth } from "@clerk/nextjs/server";
-import { getUserByClerkId } from "../../_lib/actions";
+import { PopUpProvider } from "@/components/providers/PopUpProvider";
 import Script from "next/script";
 import Footer from "@/components/Footer";
 import LocationProvider from "@/components/providers/LocationProvider";
@@ -28,19 +26,10 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  let userId = null;
-  let userProfile = null;
-  const country = await fetchCountry();
-
-  try {
-    const authData = await auth();
-    userId = authData.userId;
-    if (userId) {
-      userProfile = await getUserByClerkId(userId);
-    }
-  } catch (error) {
-    console.error("Error fetching auth or user:", error);
-  }
+  const countryData = await fetchCountry();
+  
+  // Check auth cookie for Header
+  const { userId } = await auth();
 
   return (
     <ClerkProvider>
@@ -66,17 +55,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
         </head>
         <body className="min-h-full flex flex-col w-full justify-start items-center relative">
-          <UserProvider value={{ userId, userProfile }}>
-            <PopUpProvider>
-            <LocationProvider location={country}>
-              <Header />
+          <PopUpProvider>
+            <LocationProvider location={countryData}>
+              <Header initialIsSignedIn={!!userId} />
               <div className="flex flex-1 w-full">
                 {children}
               </div>
               <Footer />
-              </LocationProvider>
-            </PopUpProvider>
-          </UserProvider>
+            </LocationProvider>
+          </PopUpProvider>
         </body>
       </html>
     </ClerkProvider>

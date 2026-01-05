@@ -67,7 +67,18 @@ const plans = [
   },
 ];
 
-function Plan({ plan, onClick, isYearly }) {
+interface PlanType {
+  name: string;
+  price: { monthly: string; yearly: string };
+  description: string;
+  features: { text: string; included: boolean }[];
+  available: boolean;
+  popular: boolean;
+  color: string;
+  savings?: string;
+}
+
+function Plan({ plan, onClick, isYearly }: { plan: PlanType; onClick: (name: string) => void; isYearly: boolean }) {
   return (
     <div 
       className={`relative overflow-hidden border-2 rounded-3xl shadow-xl transition-all duration-300 flex flex-col h-full text-center min-w-[80%] md:min-w-0 snap-center hover:shadow-2xl hover:-translate-y-1 ${
@@ -140,8 +151,8 @@ export default function PricingComponent() {
   const router = useRouter();
   const [isYearly, setIsYearly] = useState(false);
   
-  const handlePricingButtonClick = (plan) => {
-    router.push(`/login?plan=${plan.toLowerCase()}`);
+  const handlePricingButtonClick = (plan: string) => {
+    router.push(`/sign-up?plan=${plan.toLowerCase()}`);
   };
 
   return (

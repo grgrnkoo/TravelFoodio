@@ -15,7 +15,7 @@ export default function CTASection() {
                 </p>
 
                 <div className="flex flex-col items-center">
-                    <Link href="/login?source=cta-why">
+                    <Link href="/sign-up?source=cta-why">
                         <Button size="lg" className="px-8 py-6 text-lg">
                             Start free
                         </Button>

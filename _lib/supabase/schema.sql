@@ -16,11 +16,6 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     image TEXT DEFAULT '',
     name TEXT,
-    age INTEGER DEFAULT 0,
-    location TEXT DEFAULT '',
-    daily_calories_suggested INTEGER DEFAULT 0,
-    goals TEXT DEFAULT '',
-    dietary_restrictions TEXT DEFAULT '',
     updates_remaining INTEGER DEFAULT 0,
     subscription_type TEXT DEFAULT 'free',
     onboarding_completed BOOLEAN DEFAULT FALSE,
@@ -31,6 +26,26 @@ CREATE TABLE IF NOT EXISTS users (
 -- Index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_users_clerk_user_id ON users(clerk_user_id);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- =============================================
+-- USER PREFERENCES TABLE
+-- Menu generation preferences (separated from core user data)
+-- =============================================
+CREATE TABLE IF NOT EXISTS user_preferences (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    age INTEGER DEFAULT 0,
+    date_of_birth DATE,
+    location TEXT DEFAULT '',
+    daily_calories_suggested INTEGER DEFAULT 0,
+    goals TEXT DEFAULT '',
+    dietary_restrictions TEXT DEFAULT '',
+    medical_recommendations JSONB DEFAULT '[]'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user_id);
 
 -- =============================================
 -- USER FAVORITE MEALS TABLE
@@ -187,12 +202,18 @@ CREATE TRIGGER update_user_cuisines_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_user_preferences_updated_at
+    BEFORE UPDATE ON user_preferences
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- =============================================
 -- ROW LEVEL SECURITY (RLS)
 -- =============================================
 
 -- Enable RLS on all tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_favorite_meals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_disliked_meals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_ingredients ENABLE ROW LEVEL SECURITY;
@@ -221,6 +242,19 @@ CREATE POLICY "Users can view own profile"
 CREATE POLICY "Users can update own profile"
     ON users FOR UPDATE
     USING (auth.uid()::text = clerk_user_id OR auth.role() = 'service_role');
+
+-- User preferences
+CREATE POLICY "Service role has full access to user_preferences"
+    ON user_preferences FOR ALL
+    USING (auth.role() = 'service_role');
+
+CREATE POLICY "Users can view own preferences"
+    ON user_preferences FOR SELECT
+    USING (user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.uid()::text) OR auth.role() = 'service_role');
+
+CREATE POLICY "Users can manage own preferences"
+    ON user_preferences FOR ALL
+    USING (user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.uid()::text) OR auth.role() = 'service_role');
 
 -- User favorite meals
 CREATE POLICY "Service role has full access to user_favorite_meals"
@@ -318,6 +352,7 @@ DECLARE
 BEGIN
     SELECT json_build_object(
         'user', (SELECT row_to_json(u) FROM users u WHERE u.id = p_user_id),
+        'preferences', (SELECT row_to_json(p) FROM user_preferences p WHERE p.user_id = p_user_id),
         'favoriteMeals', (SELECT COALESCE(json_agg(json_build_object('name', meal_name, 'dateLastUpdated', created_at)), '[]'::json) FROM user_favorite_meals WHERE user_id = p_user_id),
         'dislikedMeals', (SELECT COALESCE(json_agg(json_build_object('name', meal_name, 'dateLastUpdated', created_at)), '[]'::json) FROM user_disliked_meals WHERE user_id = p_user_id),
         'ingredients', (SELECT COALESCE(json_agg(json_build_object('name', ingredient_name, 'rating', rating, 'dateLastUpdated', updated_at)), '[]'::json) FROM user_ingredients WHERE user_id = p_user_id),

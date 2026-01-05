@@ -5,8 +5,10 @@ import { Button } from "./ui/button"
 import { useRouter } from "next/navigation"
 import { saveUserPreferencesToDb, setOnboardingProp } from "../../_lib/onboardingFunctions"
 import { usePopup } from "./providers/PopUpProvider"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "@clerk/nextjs"
+import { generateMedicalRestrictions } from "../../_lib/generateMedicalRestrictions"
+import RestrictedRecommendationsDisplay from "./RestrictedRecommendationsDisplay"
 
 interface UserFromSession {
     id?: string;
@@ -22,8 +24,23 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
     const searchParams = useSearchParams();
     const router = useRouter();
     const { showPopup } = usePopup();
-    const { session } = useSession();
+    const { session, isLoaded: isSessionLoaded } = useSession();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Read customGoal from localStorage
+    const [customGoal, setCustomGoal] = useState("");
+    
+    // Medical restrictions state
+    const [restrictedRecommendations, setRestrictedRecommendations] = useState<string[]>([]);
+    const [isLoadingRestrictions, setIsLoadingRestrictions] = useState(false);
+    const [restrictionsError, setRestrictionsError] = useState<string>("");
+
+    useEffect(() => {
+        const stored = localStorage.getItem('customGoal');
+        if (stored) {
+            setCustomGoal(stored);
+        }
+    }, []);
 
     // Get data from search params
     const name = searchParams.get("name") || userFromSession.name || "";
@@ -43,6 +60,76 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
         ? new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`)
         : null;
 
+    // Calculate age from date of birth
+    const calculateAge = (date: Date | null): number | undefined => {
+        if (!date) return undefined;
+        const today = new Date();
+        let age = today.getFullYear() - date.getFullYear();
+        const monthDiff = today.getMonth() - date.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    const userAge = calculateAge(formattedDate);
+
+    // Fetch medical restrictions on mount if dietaryRestrictions or otherInfo exist
+    useEffect(() => {
+        const fetchRestrictions = async () => {
+            // Wait for session to be loaded before making authenticated API calls
+            if (!isSessionLoaded) {
+                console.log('[OnboardingSummary] Waiting for session to load...');
+                return;
+            }
+
+            // Only fetch if we have dietary restrictions or other info
+            if (!dietaryRestrictions && !otherInfo) {
+                return;
+            }
+
+            console.log('[OnboardingSummary] Session loaded, fetching restrictions...');
+            setIsLoadingRestrictions(true);
+            setRestrictionsError("");
+
+            try {
+                const result = await generateMedicalRestrictions({
+                    dietaryRestrictions: dietaryRestrictions || undefined,
+                    otherInfo: otherInfo || undefined,
+                    age: userAge,
+                });
+
+                if (result.error) {
+                    setRestrictionsError(result.error);
+                    setRestrictedRecommendations([]);
+                } else if (result.recommendations) {
+                    setRestrictedRecommendations(result.recommendations);
+                } else {
+                    setRestrictedRecommendations([]);
+                }
+            } catch (error) {
+                console.error("Error fetching restrictions:", error);
+                setRestrictionsError("Failed to analyze restrictions");
+                setRestrictedRecommendations([]);
+            } finally {
+                setIsLoadingRestrictions(false);
+            }
+        };
+
+        fetchRestrictions();
+    }, [dietaryRestrictions, otherInfo, isSessionLoaded, userAge]);
+
+    const handleRemoveRecommendation = (index: number) => {
+        setRestrictedRecommendations(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleAddRecommendation = (recommendation: string) => {
+        // Avoid duplicates (case-insensitive check)
+        if (!restrictedRecommendations.some(r => r.toLowerCase() === recommendation.toLowerCase())) {
+            setRestrictedRecommendations(prev => [...prev, recommendation]);
+        }
+    };
+
     const handleConfirm = async () => {
         if (!userFromSession.id) {
             showPopup("User ID not found", "error");
@@ -57,11 +144,12 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
                 formattedDate: formattedDate || undefined,
                 dateOfBirthday: formattedDate || undefined,
                 location,
-                goal,
+                goal: goal === "custom" ? customGoal : goal,
                 dietaryRestrictions: dietaryRestrictions || null,
                 otherInfo: otherInfo || null,
                 weight: `${weight} ${weightUnit}`,
                 height: `${height} ${heightUnit}`,
+                medicalRecommendations: restrictedRecommendations.length > 0 ? restrictedRecommendations : undefined,
             };
 
             const user = {
@@ -78,6 +166,9 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
 
             await setOnboardingProp(user, '1');
 
+            // Clear customGoal from localStorage after successful save
+            localStorage.removeItem('customGoal');
+
             if (session) {
                 await session.reload();
             }
@@ -92,7 +183,10 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
         }
     };
 
-    const formatGoal = (goal: string) => {
+    const formatGoal = (goal: string, customGoal: string) => {
+        if (goal === "custom") {
+            return customGoal || "Custom Goal";
+        }
         return goal.split("-").map(word => 
             word.charAt(0).toUpperCase() + word.slice(1)
         ).join(" ");
@@ -126,7 +220,7 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
                     {goal && (
                         <div>
                             <p className="text-sm text-slate-500">Goal</p>
-                            <p className="font-medium">{formatGoal(goal)}</p>
+                            <p className="font-medium">{formatGoal(goal, customGoal)}</p>
                         </div>
                     )}
 
@@ -159,6 +253,17 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
                     </div>
                 )}
             </div>
+
+            {/* Display restricted ingredients if we have dietary restrictions or other info */}
+            {(dietaryRestrictions || otherInfo) && (
+                <RestrictedRecommendationsDisplay
+                    recommendations={restrictedRecommendations}
+                    isLoading={isLoadingRestrictions}
+                    error={restrictionsError}
+                    onRemove={handleRemoveRecommendation}
+                    onAdd={handleAddRecommendation}
+                />
+            )}
 
             <div className="flex gap-4">
                 <Button

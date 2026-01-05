@@ -1,6 +1,8 @@
 import { getSupabaseServerClient } from '../server'
+import { clerkClient } from '@clerk/nextjs/server'
 import type { IUser, IUserCore, IUserMeal, IUserIngredient, IUserCuisine } from '../../../types'
 import type { UserInsert, UserUpdate } from '../../../types/supabase'
+import { getUserMenuPreferences } from './preferences'
 
 const supabase = getSupabaseServerClient()
 
@@ -12,11 +14,6 @@ function transformToUserCore(row: Record<string, unknown>): IUserCore {
         email: row.email as string,
         image: row.image as string | undefined,
         name: row.name as string | undefined,
-        age: row.age as number | undefined,
-        location: row.location as string | undefined,
-        dailyCaloriesSuggested: row.daily_calories_suggested as number | undefined,
-        goals: row.goals as string | undefined,
-        dietaryRestrictions: row.dietary_restrictions as string | undefined,
         updatesRemaining: row.updates_remaining as number,
         subscriptionType: row.subscription_type as string,
         onboardingCompleted: row.onboarding_completed as boolean,
@@ -34,11 +31,65 @@ export async function getUserByClerkId(clerkUserId: string): Promise<IUserCore |
         .single()
 
     if (error || !data) {
-        console.error('[getUserByClerkId] Error:', error?.message)
+        // Don't log PGRST116 (no rows) as an error - it's expected for new users
+        if (error?.code !== 'PGRST116') {
+            console.error('[getUserByClerkId] Error:', error?.message)
+        }
         return null
     }
 
     return transformToUserCore(data)
+}
+
+// Ensures user exists in DB, syncs from Clerk if missing (lazy sync)
+export async function ensureUserExists(clerkUserId: string): Promise<IUserCore | null> {
+    // First, try to get from DB (most common case - no extra requests)
+    const existingUser = await getUserByClerkId(clerkUserId)
+    if (existingUser) {
+        return existingUser
+    }
+
+    // User not in DB - fetch from Clerk and create (rare fallback)
+    console.log('[ensureUserExists] User not in DB, syncing from Clerk:', clerkUserId)
+    
+    try {
+        const clerk = await clerkClient()
+        const clerkUser = await clerk.users.getUser(clerkUserId)
+        
+        if (!clerkUser) {
+            console.error('[ensureUserExists] User not found in Clerk:', clerkUserId)
+            return null
+        }
+
+        const primaryEmail = clerkUser.emailAddresses?.find(
+            e => e.id === clerkUser.primaryEmailAddressId
+        )?.emailAddress
+
+        if (!primaryEmail) {
+            console.error('[ensureUserExists] No primary email found for Clerk user:', clerkUserId)
+            return null
+        }
+
+        // Create user in DB
+        const newUser = await createUser({
+            clerkUserId,
+            email: primaryEmail,
+            name: clerkUser.firstName && clerkUser.lastName 
+                ? `${clerkUser.firstName} ${clerkUser.lastName}` 
+                : clerkUser.firstName || '',
+            image: clerkUser.imageUrl || '',
+            onboardingCompleted: false,
+        })
+
+        if (newUser) {
+            console.log('[ensureUserExists] User synced successfully:', primaryEmail)
+        }
+
+        return newUser
+    } catch (error) {
+        console.error('[ensureUserExists] Error syncing from Clerk:', error)
+        return null
+    }
 }
 
 // Get user by email (lightweight - core data only)
@@ -90,25 +141,22 @@ export async function getUserFullProfile(clerkUserId: string): Promise<IUser | n
     const userId = userData.id
 
     // Fetch all preferences in parallel
-    const [favoriteMeals, dislikedMeals, ingredients, cuisines] = await Promise.all([
+    const [menuPreferences, favoriteMeals, dislikedMeals, ingredients, cuisines] = await Promise.all([
+        getUserMenuPreferences(userId),
         supabase.from('user_favorite_meals').select('*').eq('user_id', userId),
         supabase.from('user_disliked_meals').select('*').eq('user_id', userId),
         supabase.from('user_ingredients').select('*').eq('user_id', userId),
         supabase.from('user_cuisines').select('*').eq('user_id', userId),
     ])
 
-    return {
+    const result: IUser = {
         id: userData.id,
         _id: userData.id, // Backwards compatibility
         clerkUserId: userData.clerk_user_id,
         email: userData.email,
         image: userData.image || undefined,
         name: userData.name || undefined,
-        age: userData.age || undefined,
-        location: userData.location || undefined,
-        dailyCaloriesSuggested: userData.daily_calories_suggested || undefined,
-        goals: userData.goals || undefined,
-        dietaryRestrictions: userData.dietary_restrictions || undefined,
+        preferences: menuPreferences || undefined,
         updatesRemaining: userData.updates_remaining,
         subscriptionType: userData.subscription_type,
         onboardingCompleted: userData.onboarding_completed,
@@ -133,6 +181,17 @@ export async function getUserFullProfile(clerkUserId: string): Promise<IUser | n
         createdAt: userData.created_at,
         updatedAt: userData.updated_at,
     }
+
+    // Add legacy fields for backwards compatibility
+    if (menuPreferences) {
+        result.age = menuPreferences.age
+        result.location = menuPreferences.location
+        result.dailyCaloriesSuggested = menuPreferences.dailyCaloriesSuggested
+        result.goals = menuPreferences.goals
+        result.dietaryRestrictions = menuPreferences.dietaryRestrictions
+    }
+
+    return result
 }
 
 // Create a new user
@@ -172,11 +231,6 @@ export async function updateUserByClerkId(
         email: string
         name: string
         image: string
-        age: number
-        location: string
-        dailyCaloriesSuggested: number
-        goals: string
-        dietaryRestrictions: string
         updatesRemaining: number
         subscriptionType: string
         onboardingCompleted: boolean
@@ -187,11 +241,6 @@ export async function updateUserByClerkId(
     if (updates.email !== undefined) updateData.email = updates.email
     if (updates.name !== undefined) updateData.name = updates.name
     if (updates.image !== undefined) updateData.image = updates.image
-    if (updates.age !== undefined) updateData.age = updates.age
-    if (updates.location !== undefined) updateData.location = updates.location
-    if (updates.dailyCaloriesSuggested !== undefined) updateData.daily_calories_suggested = updates.dailyCaloriesSuggested
-    if (updates.goals !== undefined) updateData.goals = updates.goals
-    if (updates.dietaryRestrictions !== undefined) updateData.dietary_restrictions = updates.dietaryRestrictions
     if (updates.updatesRemaining !== undefined) updateData.updates_remaining = updates.updatesRemaining
     if (updates.subscriptionType !== undefined) updateData.subscription_type = updates.subscriptionType
     if (updates.onboardingCompleted !== undefined) updateData.onboarding_completed = updates.onboardingCompleted
@@ -218,16 +267,11 @@ export async function updateUserByEmail(
 ): Promise<IUserCore | null> {
     const updateData: UserUpdate = {}
 
-    // Map camelCase to snake_case
+    // Map camelCase to snake_case (only core user fields)
     const fieldMap: Record<string, keyof UserUpdate> = {
         email: 'email',
         name: 'name',
         image: 'image',
-        age: 'age',
-        location: 'location',
-        dailyCaloriesSuggested: 'daily_calories_suggested',
-        goals: 'goals',
-        dietaryRestrictions: 'dietary_restrictions',
         updatesRemaining: 'updates_remaining',
         subscriptionType: 'subscription_type',
         onboardingCompleted: 'onboarding_completed',
@@ -262,16 +306,11 @@ export async function updateUserById(
 ): Promise<IUserCore | null> {
     const updateData: UserUpdate = {}
 
-    // Map camelCase to snake_case
+    // Map camelCase to snake_case (only core user fields)
     const fieldMap: Record<string, keyof UserUpdate> = {
         email: 'email',
         name: 'name',
         image: 'image',
-        age: 'age',
-        location: 'location',
-        dailyCaloriesSuggested: 'daily_calories_suggested',
-        goals: 'goals',
-        dietaryRestrictions: 'dietary_restrictions',
         updatesRemaining: 'updates_remaining',
         subscriptionType: 'subscription_type',
         onboardingCompleted: 'onboarding_completed',

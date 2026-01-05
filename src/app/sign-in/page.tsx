@@ -1,8 +1,9 @@
 'use client'
 
-import { useSignIn, useSignUp, useUser } from "@clerk/nextjs"
+import { useSignIn, useUser } from "@clerk/nextjs"
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Mail, MailOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,7 +14,7 @@ import MenuDishBackground from "@/components/MenuDishAnimation";
 import { usePopup } from "@/components/providers/PopUpProvider";
 import InAppBrowserBanner from "@/components/InAppBrowserBanner";
 
-export default function LoginPage() {
+export default function SignInPage() {
     const { isSignedIn } = useUser();
     const { signIn } = useSignIn();
     const [formEmail, setFormEmail] = useState('');
@@ -34,7 +35,7 @@ export default function LoginPage() {
         if (isSignedIn) {
             router.push(`/user`);
         }
-    }, [isSignedIn]);
+    }, [isSignedIn, router]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
@@ -100,9 +101,10 @@ export default function LoginPage() {
                 // Redirect to verification page with email
                 router.push(`/auth/verify-email?email=${encodeURIComponent(formEmail)}`);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error sending authentication email:", error);
-            showPopup(error?.errors?.[0]?.message || "Failed to send authentication email. Please try again later.", "error");
+            const clerkError = error as { errors?: { message: string }[] };
+            showPopup(clerkError?.errors?.[0]?.message || "Failed to send authentication email. Please try again later.", "error");
         } finally {
             setIsLoading(false);
         }
@@ -121,9 +123,10 @@ export default function LoginPage() {
                 redirectUrl: `${window.location.origin}/sso-callback`,
                 redirectUrlComplete: `${window.location.origin}/user`,
             });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error with Google sign in:", error);
-            showPopup(error?.errors?.[0]?.message || "Failed to sign in with Google. Please try again.", "error");
+            const clerkError = error as { errors?: { message: string }[] };
+            showPopup(clerkError?.errors?.[0]?.message || "Failed to sign in with Google. Please try again.", "error");
         }
     }
 
@@ -211,23 +214,29 @@ export default function LoginPage() {
                                         </span>
                                     ) : (
                                         <span className="flex justify-center align-middle w-full">
-                                            {hover ? <MailOpen className="pb-px mr-2 mt-[2px]" /> : <Mail className="mr-2 mt-[2px]" />} Login with Email
+                                            {hover ? <MailOpen className="pb-px mr-2 mt-[2px]" /> : <Mail className="mr-2 mt-[2px]" />} Sign in with Email
                                         </span>
                                     )}
                                 </Button>
                             </form>
                         </CardContent>
-                        <CardFooter className="flex justify-center">
+                        <CardFooter className="flex flex-col gap-4">
+                            <p className="text-sm text-muted-foreground">
+                                Don&apos;t have an account?{" "}
+                                <Link href="/sign-up" className="underline underline-offset-4 hover:text-primary font-medium">
+                                    Sign up
+                                </Link>
+                            </p>
                             <p className="text-xs text-center text-muted-foreground">
                                 By signing in, you agree to our{" "}
-                                <a href="#" className="underline underline-offset-4 hover:text-primary">
-                                Terms of Service
-                                </a>{" "}
+                                <Link href="/terms" className="underline underline-offset-4 hover:text-primary">
+                                    Terms of Service
+                                </Link>{" "}
                                 and{" "}
-                                <a href="#" className="underline underline-offset-4 hover:text-primary">
-                                Privacy Policy
-                                </a>
-                                </p>
+                                <Link href="/privacy" className="underline underline-offset-4 hover:text-primary">
+                                    Privacy Policy
+                                </Link>
+                            </p>
                         </CardFooter>
                     </Card>
                     <div className="flex h-full -z-1 absolute">

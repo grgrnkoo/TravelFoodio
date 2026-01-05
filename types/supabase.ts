@@ -16,11 +16,6 @@ export interface Database {
           email: string
           image: string | null
           name: string | null
-          age: number
-          location: string | null
-          daily_calories_suggested: number
-          goals: string | null
-          dietary_restrictions: string | null
           updates_remaining: number
           subscription_type: string
           onboarding_completed: boolean
@@ -33,11 +28,6 @@ export interface Database {
           email: string
           image?: string | null
           name?: string | null
-          age?: number
-          location?: string | null
-          daily_calories_suggested?: number
-          goals?: string | null
-          dietary_restrictions?: string | null
           updates_remaining?: number
           subscription_type?: string
           onboarding_completed?: boolean
@@ -50,11 +40,6 @@ export interface Database {
           email?: string
           image?: string | null
           name?: string | null
-          age?: number
-          location?: string | null
-          daily_calories_suggested?: number
-          goals?: string | null
-          dietary_restrictions?: string | null
           updates_remaining?: number
           subscription_type?: string
           onboarding_completed?: boolean
@@ -62,6 +47,55 @@ export interface Database {
           updated_at?: string
         }
         Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          age: number
+          date_of_birth: string | null
+          location: string | null
+          daily_calories_suggested: number
+          goals: string | null
+          dietary_restrictions: string | null
+          medical_recommendations: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          age?: number
+          date_of_birth?: string | null
+          location?: string | null
+          daily_calories_suggested?: number
+          goals?: string | null
+          dietary_restrictions?: string | null
+          medical_recommendations?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          age?: number
+          date_of_birth?: string | null
+          location?: string | null
+          daily_calories_suggested?: number
+          goals?: string | null
+          dietary_restrictions?: string | null
+          medical_recommendations?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       user_favorite_meals: {
         Row: {
@@ -373,6 +407,10 @@ export type UpdateTables<T extends keyof Database['public']['Tables']> = Databas
 export type User = Tables<'users'>
 export type UserInsert = InsertTables<'users'>
 export type UserUpdate = UpdateTables<'users'>
+
+export type UserPreferences = Tables<'user_preferences'>
+export type UserPreferencesInsert = InsertTables<'user_preferences'>
+export type UserPreferencesUpdate = UpdateTables<'user_preferences'>
 
 export type UserFavoriteMeal = Tables<'user_favorite_meals'>
 export type UserDislikedMeal = Tables<'user_disliked_meals'>

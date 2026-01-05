@@ -2,7 +2,6 @@
 
 import { JSX } from "react"
 import { useEffect, useState } from "react"
-import { useUser } from "@clerk/nextjs"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardFooter } from "@/components/ui/card"
@@ -18,15 +17,13 @@ import OthersCard from "./onboardingCards/OthersCard"
 import WeightCard from "./onboardingCards/WeightCard"
 import HeightCard from "./onboardingCards/HeightCard"
 
-export default function OnboardingComponent(): JSX.Element {
-    const { user } = useUser();
+export default function OnboardingComponent({ firstStep, nameFromSession }: { firstStep: 1 | 0, nameFromSession?: string }): JSX.Element {
     const locationFromIp = useLocation();
-    const firstStep = user?.firstName ? 1 : 0
 
     const searchParams = useSearchParams()
     const router = useRouter()
     const totalSteps = 7;
-    const [step, setStep] = useState(Number(searchParams.get("step")) || firstStep)
+    const [step, setStep] = useState(firstStep || Number(searchParams.get("step")) || 0)
     const [disabled, setDisabled] = useState(false)
 
     // Form state
@@ -36,6 +33,7 @@ export default function OnboardingComponent(): JSX.Element {
     const [year, setYear] = useState(searchParams.get("year") || "")
     const [location, setLocation] = useState(searchParams.get("location") || locationFromIp || "")
     const [goal, setGoal] = useState(searchParams.get("goal") || "")
+    const [customGoal, setCustomGoal] = useState("")
     const [dietaryRestrictions, setDietaryRestrictions] = useState(searchParams.get("dietaryRestrictions") || "")
     const [otherInfo, setOtherInfo] = useState(searchParams.get("otherInfo") || "")
     const [weight, setWeight] = useState(searchParams.get("weight") || "")
@@ -51,12 +49,22 @@ export default function OnboardingComponent(): JSX.Element {
     const [weightError, setWeightError] = useState("")
     const [heightError, setHeightError] = useState("")
 
+    // Load customGoal from localStorage on mount (client-side only)
+    useEffect(() => {
+        const stored = localStorage.getItem("customGoal");
+        if (stored && stored !== "undefined" && goal === "custom") {
+            setCustomGoal(stored);
+        }
+        if (goal !== "custom") {
+            localStorage.removeItem("customGoal");
+        }
+    }, []);
 
     // Update URL with search params
     useEffect(() => {
         const params = new URLSearchParams()
         params.set("step", step.toString())
-        if (!user?.firstName && name) params.set("name", name)
+        if (!nameFromSession && name) params.set("name", name)
         if (day) params.set("day", day)
         if (month) params.set("month", month)
         if (year) params.set("year", year)
@@ -102,6 +110,10 @@ export default function OnboardingComponent(): JSX.Element {
                     setGoalError("Please select a goal")
                     return false
                 }
+                if (goal === "custom" && !customGoal.trim()) {
+                    setGoalError("Please enter your custom goal")
+                    return false
+                }
                 setGoalError("")
                 return true
             case 4:
@@ -131,6 +143,9 @@ export default function OnboardingComponent(): JSX.Element {
 
     const handleNext = () => {
         if (validateCurrentStep()) {
+            if(goal === "custom" && customGoal.trim()) {
+                localStorage.setItem('customGoal', customGoal);
+            }
             if (step < totalSteps) {
                 setStep(step + 1)
             } else {
@@ -193,6 +208,8 @@ export default function OnboardingComponent(): JSX.Element {
                     <GoalsCard
                         goal={goal}
                         setGoal={setGoal}
+                        customGoal={customGoal}
+                        setCustomGoal={setCustomGoal}
                         goalError={goalError}
                         setGoalError={setGoalError}
                     />

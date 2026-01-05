@@ -1,31 +1,5 @@
 import { IUser, PopupType, ApiResponse } from '../types';
 
-interface User {
-    email: string;
-    name?: string;
-    username?: string;
-}
-
-export async function addUsername(user: User): Promise<void> {
-    const { email, name } = user;
-    const username = email.split('@')[0];
-
-    const baseUrl = process.env.NEXTAUTH_URL;
-
-    await fetch(`${baseUrl}/api/users/${email}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            email: email,
-            username: username
-        })
-    }).then((response) => response.json())
-        .then((data) => console.log('User updated'))
-        .catch((error) => console.error('Error: ', error));
-}
-
 export async function getUserByEmail(email: string): Promise<IUser | null> {
     console.log('db fetch triggered');
     if (!email) {
@@ -58,15 +32,16 @@ export async function getUserByEmail(email: string): Promise<IUser | null> {
 }
 
 export async function getUserByClerkId(clerkUserId: string): Promise<IUser | null> {
-    console.log('[getUserByClerkId] Fetch triggered by clerkUserId:', clerkUserId);
+    console.log('[getUserByClerkId] 🔍 Fetch triggered for clerkUserId:', clerkUserId);
+    
     if (!clerkUserId) {
-        console.log("[getUserByClerkId] No clerkUserId provided");
+        console.log("[getUserByClerkId] ⚠️ No clerkUserId provided");
         return null;
     }
 
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
     const apiUrl = `${baseUrl}/api/users/clerk/${clerkUserId}`;
-    console.log('[getUserByClerkId] Fetching from URL:', apiUrl);
+    console.log('[getUserByClerkId] 📡 Request URL:', apiUrl);
 
     try {
         const response = await fetch(apiUrl, {
@@ -76,23 +51,29 @@ export async function getUserByClerkId(clerkUserId: string): Promise<IUser | nul
             },
         });
 
-        console.log('[getUserByClerkId] Response status:', response.status);
-        console.log('[getUserByClerkId] Content-Type:', response.headers.get('content-type'));
+        console.log('[getUserByClerkId] 📥 Response status:', response.status, response.statusText);
 
+        // 404 is a valid case - user simply doesn't exist yet
+        if (response.status === 404) {
+            console.log('[getUserByClerkId] ℹ️ User not found (404) - this is expected for new users');
+            return null;
+        }
+
+        // Handle other non-OK responses as actual errors
         if (!response.ok) {
             const errorText = await response.text();
-            console.error(`[getUserByClerkId] Fetch failed with status: ${response.status}`);
-            console.error(`[getUserByClerkId] Error response:`, errorText.substring(0, 200));
+            console.error(`[getUserByClerkId] ❌ Request failed with status: ${response.status}`);
+            console.error(`[getUserByClerkId] ❌ Error response:`, errorText.substring(0, 200));
             return null;
         }
 
         const data = await response.json();
-        console.log('[getUserByClerkId] Successfully fetched user data');
+        console.log('[getUserByClerkId] ✅ User found successfully');
         return data;
     } catch (error) {
-        console.error("[getUserByClerkId] Error fetching user:", error);
+        console.error("[getUserByClerkId] ❌ Network/parsing error:", error);
         if (error instanceof SyntaxError) {
-            console.error("[getUserByClerkId] Likely received HTML instead of JSON - check middleware configuration");
+            console.error("[getUserByClerkId] ❌ Likely received HTML instead of JSON - check middleware configuration");
         }
         return null;
     }

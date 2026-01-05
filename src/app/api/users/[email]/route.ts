@@ -1,5 +1,6 @@
 import { getSupabaseServerClient } from "../../../../../_lib/supabase/server";
 import { getUserByEmail, updateUserByEmail, getUserPreferences } from "../../../../../_lib/supabase/queries/users";
+import { getUserMenuPreferences } from "../../../../../_lib/supabase/queries/preferences";
 import { NextResponse } from "next/server";
 
 // Function to search users by email (unique value)
@@ -24,8 +25,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ emai
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        // Get preferences
+        // Get preferences (meal/ingredient/cuisine preferences)
         const preferences = await getUserPreferences(user.id);
+        // Get menu preferences
+        const menuPreferences = await getUserMenuPreferences(user.id);
 
         return NextResponse.json({
             _id: user.id,
@@ -34,11 +37,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ emai
             email: user.email,
             image: user.image || '',
             name: user.name || '',
-            age: user.age || 0,
-            location: user.location || '',
-            dailyCaloriesSuggested: user.daily_calories_suggested || 0,
-            goals: user.goals || '',
-            dietaryRestrictions: user.dietary_restrictions || '',
+            age: menuPreferences?.age || 0,
+            location: menuPreferences?.location || '',
+            dailyCaloriesSuggested: menuPreferences?.dailyCaloriesSuggested || 0,
+            goals: menuPreferences?.goals || '',
+            dietaryRestrictions: menuPreferences?.dietaryRestrictions || '',
             updatesRemaining: user.updates_remaining || 0,
             subscriptionType: user.subscription_type || 'free',
             onboardingCompleted: user.onboarding_completed || false,
@@ -73,6 +76,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ emai
             );
         }
 
+        // Get menu preferences for response
+        const menuPreferences = await getUserMenuPreferences(updatedUser.id);
+
         return NextResponse.json({
             _id: updatedUser.id,
             id: updatedUser.id,
@@ -80,11 +86,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ emai
             email: updatedUser.email,
             image: updatedUser.image || '',
             name: updatedUser.name || '',
-            age: updatedUser.age || 0,
-            location: updatedUser.location || '',
-            dailyCaloriesSuggested: updatedUser.dailyCaloriesSuggested || 0,
-            goals: updatedUser.goals || '',
-            dietaryRestrictions: updatedUser.dietaryRestrictions || '',
+            age: menuPreferences?.age || 0,
+            location: menuPreferences?.location || '',
+            dailyCaloriesSuggested: menuPreferences?.dailyCaloriesSuggested || 0,
+            goals: menuPreferences?.goals || '',
+            dietaryRestrictions: menuPreferences?.dietaryRestrictions || '',
             updatesRemaining: updatedUser.updatesRemaining || 0,
             subscriptionType: updatedUser.subscriptionType || 'free',
             onboardingCompleted: updatedUser.onboardingCompleted || false,

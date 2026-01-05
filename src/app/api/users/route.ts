@@ -103,17 +103,13 @@ function transformUserResponse(user: any) {
         email: user.email,
         image: user.image || '',
         name: user.name || '',
-        age: user.age || 0,
-        location: user.location || '',
-        dailyCaloriesSuggested: user.daily_calories_suggested || 0,
-        goals: user.goals || '',
-        dietaryRestrictions: user.dietary_restrictions || '',
         updatesRemaining: user.updates_remaining || 0,
         subscriptionType: user.subscription_type || 'free',
         onboardingCompleted: user.onboarding_completed || false,
         createdAt: user.created_at,
         updatedAt: user.updated_at,
-        // Empty arrays for preferences (loaded separately)
+        // Preference fields removed - use user_preferences table instead
+        // Empty arrays for meal preferences (loaded separately)
         favoriteMeals: [],
         dislikedMeals: [],
         ingredients: [],

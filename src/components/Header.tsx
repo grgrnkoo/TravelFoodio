@@ -10,10 +10,23 @@ import { DropdownBackdrop } from "@/components/DropdownBackdrop"
 import { Command, CommandGroup, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command"
 import { useScrollLock } from "@/app/hooks/useScrollLock"
 import { useUser, useClerk } from "@clerk/nextjs"
+import { usePathname } from "next/navigation"
 
-export default function Header() {
-    const { isSignedIn, user } = useUser()
+interface HeaderProps {
+    initialIsSignedIn?: boolean;
+}
+
+export default function Header({ initialIsSignedIn = false }: HeaderProps) {
+    const { isSignedIn: clientIsSignedIn, user, isLoaded } = useUser()
     const { signOut } = useClerk()
+
+    // Use server boolean initially, then client data once loaded
+    const isSignedIn = isLoaded ? clientIsSignedIn : initialIsSignedIn
+    const pathname = usePathname()
+
+    // Hide auth buttons on sign-in/sign-up pages
+    const isAuthPage = pathname === "/sign-in" || pathname === "/sign-up"
+    const isOnboardingPage = pathname === "/user/onboarding"
 
     const [isOpen, setIsOpen] = useState(false)
     const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up")
@@ -107,24 +120,35 @@ export default function Header() {
                     </Button>
                 </Link>
 
-                {!isSignedIn ? (
-                    <Link href="/login">
-                        <Button size="sm" className="hover:opacity-90 cursor-pointer">
-                            Sign in
-                        </Button>
-                    </Link>
-                ) : (
+                {!isSignedIn && !isAuthPage ? (
                     <>
-                        <Link href="/user">
-                            <Button variant="ghost" size="sm" className="hover:bg-primary/10 cursor-pointer">
-                                Dashboard
+                        <Link href="/sign-in">
+                            <Button size="sm" className="hover:opacity-90 cursor-pointer" variant="secondary">
+                                Sign in
                             </Button>
                         </Link>
-                        <Link href="/user/history">
-                            <Button variant="ghost" size="sm" className="hover:bg-primary/10 cursor-pointer">
-                                History
+                        <Link href="/sign-up">
+                            <Button size="sm" className="hover:opacity-90 cursor-pointer">
+                                Get Started
                             </Button>
                         </Link>
+                    </>
+                ) : isSignedIn ? (
+                    <>
+                        {!isOnboardingPage && (
+                            <>
+                                <Link href="/user">
+                                    <Button variant="ghost" size="sm" className="hover:bg-primary/10 cursor-pointer">
+                                        Dashboard
+                                    </Button>
+                                </Link>
+                                <Link href="/user/history">
+                                    <Button variant="ghost" size="sm" className="hover:bg-primary/10 cursor-pointer">
+                                        History
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
                         <Button
                             onClick={handleSignOut}
                             variant="outline"
@@ -134,7 +158,7 @@ export default function Header() {
                             Sign out
                         </Button>
                     </>
-                )}
+                ) : null}
             </nav>
 
             {/* Mobile Menu Button */}
@@ -180,7 +204,7 @@ export default function Header() {
                                 <span className="text-slate-700">Send feedback</span>
                             </CommandItem>
 
-                            {!isSignedIn ? (
+                            {!isSignedIn && !isAuthPage ? (
                                 <>
                                     <CommandItem
                                         className="hover:bg-transparent! focus:bg-transparent! p-4 text-lg rounded-none"
@@ -197,12 +221,12 @@ export default function Header() {
                                     <CommandSeparator className="my-2" />
                                     <CommandItem
                                         className="hover:bg-transparent! focus:bg-transparent! pt-2 px-4 pb-5 text-lg rounded-none"
-                                        onSelect={() => closeMenuAndNavigate("/login")}
+                                        onSelect={() => closeMenuAndNavigate("/sign-in")}
                                     >
                                         <span className="font-semibold">Sign in</span>
                                     </CommandItem>
                                 </>
-                            ) : (
+                            ) : isSignedIn ? (
                                 <>
                                     <CommandItem
                                         className="hover:bg-transparent! focus:bg-transparent! p-4 text-lg rounded-none"
@@ -227,7 +251,7 @@ export default function Header() {
                                         <span className="font-semibold text-destructive">Sign out</span>
                                     </CommandItem>
                                 </>
-                            )}
+                            ) : null}
                         </CommandGroup>
                     </CommandList>
                 </Command>

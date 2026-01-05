@@ -1,5 +1,6 @@
 import { getSupabaseServerClient } from '../server'
-import type { IUserMeal, IUserIngredient, IUserCuisine } from '../../../types'
+import type { IUserMeal, IUserIngredient, IUserCuisine, IUserPreferences } from '../../../types'
+import type { UserPreferencesInsert, UserPreferencesUpdate } from '../../../types/supabase'
 
 const supabase = getSupabaseServerClient()
 
@@ -364,6 +365,151 @@ export async function bulkUpdatePreferences(
         const message = error instanceof Error ? error.message : 'Unknown error'
         console.error('[bulkUpdatePreferences] Error:', message)
         return false
+    }
+}
+
+// =============================================
+// USER PREFERENCES (Menu Generation Data)
+// =============================================
+
+// Get user preferences by user ID
+export async function getUserMenuPreferences(userId: string): Promise<IUserPreferences | null> {
+    const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+
+    if (error || !data) {
+        if (error?.code !== 'PGRST116') {
+            console.error('[getUserMenuPreferences] Error:', error?.message)
+        }
+        return null
+    }
+
+    return {
+        id: data.id,
+        userId: data.user_id,
+        age: data.age || undefined,
+        dateOfBirth: data.date_of_birth || undefined,
+        location: data.location || undefined,
+        dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
+        goals: data.goals || undefined,
+        dietaryRestrictions: data.dietary_restrictions || undefined,
+        medicalRecommendations: Array.isArray(data.medical_recommendations) 
+            ? data.medical_recommendations as string[]
+            : undefined,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+    }
+}
+
+// Create user preferences
+export async function createUserPreferences(
+    userId: string,
+    preferences: Partial<Omit<IUserPreferences, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>
+): Promise<IUserPreferences | null> {
+    const insertData: UserPreferencesInsert = {
+        user_id: userId,
+        age: preferences.age ?? undefined,
+        date_of_birth: preferences.dateOfBirth ? (typeof preferences.dateOfBirth === 'string' ? preferences.dateOfBirth : preferences.dateOfBirth.toISOString().split('T')[0]) : undefined,
+        location: preferences.location ?? undefined,
+        daily_calories_suggested: preferences.dailyCaloriesSuggested ?? undefined,
+        goals: preferences.goals ?? undefined,
+        dietary_restrictions: preferences.dietaryRestrictions ?? undefined,
+        medical_recommendations: preferences.medicalRecommendations ? JSON.stringify(preferences.medicalRecommendations) : undefined,
+    }
+
+    const { data, error } = await supabase
+        .from('user_preferences')
+        .insert(insertData)
+        .select()
+        .single()
+
+    if (error) {
+        console.error('[createUserPreferences] Error:', error.message)
+        return null
+    }
+
+    return {
+        id: data.id,
+        userId: data.user_id,
+        age: data.age || undefined,
+        dateOfBirth: data.date_of_birth || undefined,
+        location: data.location || undefined,
+        dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
+        goals: data.goals || undefined,
+        dietaryRestrictions: data.dietary_restrictions || undefined,
+        medicalRecommendations: Array.isArray(data.medical_recommendations) 
+            ? data.medical_recommendations as string[]
+            : undefined,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+    }
+}
+
+// Update user preferences
+export async function updateUserPreferences(
+    userId: string,
+    updates: Partial<Omit<IUserPreferences, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>
+): Promise<IUserPreferences | null> {
+    const updateData: UserPreferencesUpdate = {}
+
+    if (updates.age !== undefined) updateData.age = updates.age
+    if (updates.dateOfBirth !== undefined) {
+        updateData.date_of_birth = typeof updates.dateOfBirth === 'string' 
+            ? updates.dateOfBirth 
+            : updates.dateOfBirth.toISOString().split('T')[0]
+    }
+    if (updates.location !== undefined) updateData.location = updates.location
+    if (updates.dailyCaloriesSuggested !== undefined) updateData.daily_calories_suggested = updates.dailyCaloriesSuggested
+    if (updates.goals !== undefined) updateData.goals = updates.goals
+    if (updates.dietaryRestrictions !== undefined) updateData.dietary_restrictions = updates.dietaryRestrictions
+    if (updates.medicalRecommendations !== undefined) {
+        updateData.medical_recommendations = JSON.stringify(updates.medicalRecommendations)
+    }
+
+    const { data, error } = await supabase
+        .from('user_preferences')
+        .update(updateData)
+        .eq('user_id', userId)
+        .select()
+        .single()
+
+    if (error) {
+        console.error('[updateUserPreferences] Error:', error.message)
+        return null
+    }
+
+    return {
+        id: data.id,
+        userId: data.user_id,
+        age: data.age || undefined,
+        dateOfBirth: data.date_of_birth || undefined,
+        location: data.location || undefined,
+        dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
+        goals: data.goals || undefined,
+        dietaryRestrictions: data.dietary_restrictions || undefined,
+        medicalRecommendations: Array.isArray(data.medical_recommendations) 
+            ? data.medical_recommendations as string[]
+            : undefined,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+    }
+}
+
+// Upsert user preferences (create or update)
+export async function upsertUserPreferences(
+    userId: string,
+    preferences: Partial<Omit<IUserPreferences, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>
+): Promise<IUserPreferences | null> {
+    // Try to get existing preferences
+    const existing = await getUserMenuPreferences(userId)
+    
+    if (existing) {
+        return await updateUserPreferences(userId, preferences)
+    } else {
+        return await createUserPreferences(userId, preferences)
     }
 }
 

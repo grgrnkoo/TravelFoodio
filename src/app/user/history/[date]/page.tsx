@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { getUserByClerkId } from "../../../../../_lib/actions";
+import { ensureUserExists } from "../../../../../_lib/supabase/queries/users";
 import { fetchMenuByDate } from "../../../../../_lib/menuActions";
 import Menu from "@/components/Menu";
 import MenuClass from "@/classes/MenuClass";
@@ -12,10 +12,10 @@ export default async function HistoryByDate({ params }: { params: Promise<{ date
     const { userId } = await auth();
     if (!userId) return <div>Not authenticated</div>
     
-    const user = await getUserByClerkId(userId);
+    const user = await ensureUserExists(userId);
     if (!user) return <div>User not found</div>
 
-    const { menu, status } = await fetchMenuByDate(String(user._id), date)
+    const { menu, status } = await fetchMenuByDate(user.id, date)
     const parsedMenu = typeof menu === 'string' ? JSON.parse(menu) : menu
     if (status !== 200 || !parsedMenu?.length) {
         return (

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getSupabaseServerClient } from "../../../../../_lib/supabase/server";
+import { upsertUserPreferences } from "../../../../../_lib/supabase/queries/preferences";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -11,7 +11,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         dietaryRestrictions,
         otherInfo,
         weight,
-        height
+        height,
+        medicalRecommendations
     } = await req.json();
 
     try {
@@ -25,25 +26,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
         console.log('Onboarding data: ', location, formattedDate, goal, dietaryRestrictions, otherInfo, weight, height)
 
-        const supabase = getSupabaseServerClient();
-
-        // Update user with onboarding data
-        const { data, error } = await supabase
-            .from('users')
-            .update({
-                location,
-                goals: goal,
-                dietary_restrictions: dietaryRestrictions || null,
-            })
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error || !data) {
-            throw new Error('Error while saving data');
+        // Parse date_of_birth from formattedDate
+        let dateOfBirth: Date | undefined;
+        if (formattedDate) {
+            dateOfBirth = typeof formattedDate === 'string' ? new Date(formattedDate) : formattedDate;
         }
 
-        return NextResponse.json({ success: true, message: 'User data saved successfully' });
+        // Update user preferences with onboarding data
+        const preferences = await upsertUserPreferences(id, {
+            location,
+            dateOfBirth,
+            goals: goal,
+            dietaryRestrictions: dietaryRestrictions || undefined,
+            medicalRecommendations: medicalRecommendations || undefined,
+        });
+
+        if (!preferences) {
+            throw new Error('Error while saving preferences');
+        }
+
+        return NextResponse.json({ success: true, message: 'User preferences saved successfully' });
     } catch (error) {
         if (error instanceof Error) {
             return NextResponse.json({ success: false, error: error.message });
@@ -63,7 +65,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         dietaryRestrictions,
         otherInfo,
         weight,
-        height
+        height,
+        medicalRecommendations
     } = await req.json();
 
     try {
@@ -77,25 +80,26 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
         console.log('Updating onboarding data: ', location, formattedDate, goal, dietaryRestrictions, otherInfo, weight, height)
 
-        const supabase = getSupabaseServerClient();
-
-        // Update user with onboarding data
-        const { data, error } = await supabase
-            .from('users')
-            .update({
-                location,
-                goals: goal,
-                dietary_restrictions: dietaryRestrictions || null,
-            })
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error || !data) {
-            throw new Error('Error while saving data');
+        // Parse date_of_birth from formattedDate
+        let dateOfBirth: Date | undefined;
+        if (formattedDate) {
+            dateOfBirth = typeof formattedDate === 'string' ? new Date(formattedDate) : formattedDate;
         }
 
-        return NextResponse.json({ success: true, message: 'User data saved successfully' });
+        // Update user preferences with onboarding data
+        const preferences = await upsertUserPreferences(id, {
+            location,
+            dateOfBirth,
+            goals: goal,
+            dietaryRestrictions: dietaryRestrictions || undefined,
+            medicalRecommendations: medicalRecommendations || undefined,
+        });
+
+        if (!preferences) {
+            throw new Error('Error while saving preferences');
+        }
+
+        return NextResponse.json({ success: true, message: 'User preferences saved successfully' });
     } catch (error) {
         if (error instanceof Error) {
             return NextResponse.json({ success: false, error: error.message });

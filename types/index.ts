@@ -19,6 +19,21 @@ export interface IUserCuisine {
     dateLastUpdated: Date | string;
 }
 
+// User preferences type (menu generation data)
+export interface IUserPreferences {
+    id?: string;
+    userId: string;
+    age?: number;
+    dateOfBirth?: Date | string;
+    location?: string;
+    dailyCaloriesSuggested?: number;
+    goals?: string;
+    dietaryRestrictions?: string;
+    medicalRecommendations?: string[];
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+}
+
 // IUser interface for backwards compatibility with existing components
 // This combines the user core data with preferences
 export interface IUser {
@@ -28,11 +43,7 @@ export interface IUser {
     email: string;
     image?: string;
     name?: string;
-    age?: number;
-    location?: string;
-    dailyCaloriesSuggested?: number;
-    goals?: string;
-    dietaryRestrictions?: string;
+    preferences?: IUserPreferences;
     favoriteMeals: IUserMeal[];
     dislikedMeals: IUserMeal[];
     ingredients: IUserIngredient[];
@@ -42,6 +53,12 @@ export interface IUser {
     onboardingCompleted: boolean;
     createdAt?: Date | string;
     updatedAt?: Date | string;
+    // Legacy fields for backwards compatibility (deprecated - use preferences)
+    age?: number;
+    location?: string;
+    dailyCaloriesSuggested?: number;
+    goals?: string;
+    dietaryRestrictions?: string;
 }
 
 // Lightweight user type without preferences (for initial load)
@@ -51,11 +68,6 @@ export interface IUserCore {
     email: string;
     image?: string;
     name?: string;
-    age?: number;
-    location?: string;
-    dailyCaloriesSuggested?: number;
-    goals?: string;
-    dietaryRestrictions?: string;
     updatesRemaining: number;
     subscriptionType: string;
     onboardingCompleted: boolean;

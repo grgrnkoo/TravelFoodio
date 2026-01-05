@@ -1,5 +1,5 @@
-import { getSupabaseServerClient } from "../../../../../../_lib/supabase/server";
 import { getUserFullProfile, updateUserByClerkId } from "../../../../../../_lib/supabase/queries/users";
+import { getUserMenuPreferences } from "../../../../../../_lib/supabase/queries/preferences";
 import { NextResponse } from "next/server";
 
 // Function to get user by clerkUserId
@@ -86,6 +86,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ cl
             );
         }
 
+        // Get menu preferences for response
+        const menuPreferences = await getUserMenuPreferences(updatedUser.id);
+
         return NextResponse.json({
             _id: updatedUser.id,
             id: updatedUser.id,
@@ -93,11 +96,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ cl
             email: updatedUser.email,
             image: updatedUser.image || '',
             name: updatedUser.name || '',
-            age: updatedUser.age || 0,
-            location: updatedUser.location || '',
-            dailyCaloriesSuggested: updatedUser.dailyCaloriesSuggested || 0,
-            goals: updatedUser.goals || '',
-            dietaryRestrictions: updatedUser.dietaryRestrictions || '',
+            age: menuPreferences?.age || 0,
+            location: menuPreferences?.location || '',
+            dailyCaloriesSuggested: menuPreferences?.dailyCaloriesSuggested || 0,
+            goals: menuPreferences?.goals || '',
+            dietaryRestrictions: menuPreferences?.dietaryRestrictions || '',
             updatesRemaining: updatedUser.updatesRemaining || 0,
             subscriptionType: updatedUser.subscriptionType || 'free',
             onboardingCompleted: updatedUser.onboardingCompleted || false,

@@ -4,25 +4,20 @@ import { CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { JSX } from "react";
 import { AlertCircle } from "lucide-react";
+import { Textarea } from "../ui/textarea";
 
 
 interface GoalsProps {
   goal: string;
   setGoal: (goal: string) => void;
+  customGoal: string;
+  setCustomGoal: (customGoal: string) => void;
   goalError: string;
   setGoalError: (goalsError: string) => void;
 }
 
-// Goals options
-const goals = [
-  { value: "weight-loss", label: "Weight Loss" },
-  { value: "muscle-gain", label: "Muscle Gain" },
-  { value: "maintenance", label: "Maintenance" },
-  { value: "health-improvement", label: "Health Improvement" },
-  { value: "energy-boost", label: "Energy Boost" },
-]
+export default function GoalsCard({ goal, setGoal, customGoal, setCustomGoal, goalError, setGoalError }: GoalsProps): JSX.Element {
 
-export default function GoalsCard({ goal, setGoal, goalError, setGoalError }: GoalsProps): JSX.Element {
   return (
     <div className="flex flex-col w-full justify-between">
       <CardHeader>
@@ -35,6 +30,7 @@ export default function GoalsCard({ goal, setGoal, goalError, setGoalError }: Go
             className="justify-start h-auto py-3 cursor-pointer"
             onClick={() => {
               setGoal("weight-loss")
+              setCustomGoal("")
               setGoalError("")
             }}
           >
@@ -45,6 +41,7 @@ export default function GoalsCard({ goal, setGoal, goalError, setGoalError }: Go
             className="justify-start h-auto py-3 cursor-pointer"
             onClick={() => {
               setGoal("muscle-gain")
+              setCustomGoal("")
               setGoalError("")
             }}
           >
@@ -55,6 +52,7 @@ export default function GoalsCard({ goal, setGoal, goalError, setGoalError }: Go
             className="justify-start h-auto py-3 cursor-pointer"
             onClick={() => {
               setGoal("maintenance")
+              setCustomGoal("")
               setGoalError("")
             }}
           >
@@ -65,6 +63,7 @@ export default function GoalsCard({ goal, setGoal, goalError, setGoalError }: Go
             className="justify-start h-auto py-3 cursor-pointer"
             onClick={() => {
               setGoal("health-improvement")
+              setCustomGoal("")
               setGoalError("")
             }}
           >
@@ -75,11 +74,23 @@ export default function GoalsCard({ goal, setGoal, goalError, setGoalError }: Go
             className="justify-start h-auto py-3 cursor-pointer"
             onClick={() => {
               setGoal("energy-boost")
+              setCustomGoal("")
               setGoalError("")
             }}
           >
             Energy Boost
           </Button>
+          <Textarea
+            id="goal"
+            placeholder="E.g., I want to lose 10 pounds in 3 months"
+            value={customGoal}
+            onFocus={() => setGoal("custom")}
+            onChange={(e) => {
+              setCustomGoal(e.target.value)
+              setGoalError("")
+            }}
+            className={`w-full h-auto resize-none`}
+          />
         </div>
         <span className="text-xs font-medium text-destructive flex items-center w-full mt-4">
           {goalError ? (

@@ -52,6 +52,10 @@ export interface Ingredient {
     };
 }
 
+export interface MedicalRecommendation {
+    recommendation: string;
+}
+
 export interface UserOnboardingData {   
     name: string;
     day: string;
@@ -97,4 +101,18 @@ export interface User {
     onboarding2Completed?: boolean;
     updatesRemaining?: number | null;
     [key: string]: unknown;
+}
+
+export interface MedicalRestrictionsFormatted {
+    dietaryRestrictions?: string;
+    otherInfo?: string;
+    age?: number;
+}
+
+export interface MedicalRestrictionsResponse {
+    recommendations?: string[];
+    error?: string;
+    details?: string;
+    status?: number;
+    success?: boolean;
 }

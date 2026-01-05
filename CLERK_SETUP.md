@@ -12,8 +12,8 @@ CLERK_SECRET_KEY=sk_test_...
 
 # Clerk Configuration
 # Sign-in and sign-up URLs (custom pages)
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/login
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/user
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/user/onboarding
 ```
@@ -40,8 +40,8 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/user/onboarding
 
 ### Step 3: Configure URLs and Redirects
 5. Go to "Configure" → "Paths":
-   - **Sign-in URL**: `/login`
-   - **Sign-up URL**: `/login`
+   - **Sign-in URL**: `/sign-in`
+   - **Sign-up URL**: `/sign-up`
    - **After sign-in URL**: `/user`
    - **After sign-up URL**: `/user/onboarding`
 

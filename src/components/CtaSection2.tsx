@@ -11,7 +11,7 @@ export default function CTASection2() {
         <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
           Get started now
         </h2>
-        <Link href='/login'>
+        <Link href='/sign-up'>
           <Button size="lg" className="px-8 py-6 text-lg">
             Start free
           </Button>

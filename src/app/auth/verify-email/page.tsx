@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignIn, useUser } from "@clerk/nextjs"
+import { useSignIn, useSignUp, useUser } from "@clerk/nextjs"
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button"
@@ -12,12 +12,15 @@ import { ArrowLeft, Mail } from "lucide-react";
 
 export default function VerifyEmailPage() {
     const { isSignedIn } = useUser();
-    const { signIn, setActive } = useSignIn();
+    const { signIn, setActive: setSignInActive } = useSignIn();
+    const { signUp, setActive: setSignUpActive } = useSignUp();
     const [code, setCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
+    const mode = searchParams.get('mode'); // 'signup' or null (sign-in)
+    const isSignUpMode = mode === 'signup';
     const { showPopup } = usePopup();
 
     useEffect(() => {
@@ -28,19 +31,13 @@ export default function VerifyEmailPage() {
 
     useEffect(() => {
         if (!email) {
-            router.push('/login');
+            router.push('/sign-in');
         }
     }, [email, router]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
-
-        if (!signIn) {
-            showPopup("Sign in not available", "error");
-            setIsLoading(false);
-            return;
-        }
 
         if (!code || code.length < 6) {
             showPopup("Please enter a valid 6-digit code", "error");
@@ -49,72 +46,116 @@ export default function VerifyEmailPage() {
         }
 
         try {
-            // Attempt to verify the email code
-            const result = await signIn.attemptFirstFactor({
-                strategy: "email_code",
-                code: code,
-            });
-
-            if (result.status === "complete") {
-                // Set the active session
-                if (setActive) {
-                    await setActive({ session: result.createdSessionId });
+            if (isSignUpMode) {
+                // Sign-up verification flow
+                if (!signUp) {
+                    showPopup("Sign up not available", "error");
+                    setIsLoading(false);
+                    return;
                 }
-                
-                showPopup("Successfully signed in!", "success");
-                
-                // Check if user needs onboarding
-                router.push('/user');
+
+                const result = await signUp.attemptEmailAddressVerification({
+                    code: code,
+                });
+
+                if (result.status === "complete") {
+                    if (setSignUpActive) {
+                        await setSignUpActive({ session: result.createdSessionId });
+                    }
+                    
+                    showPopup("Account created successfully!", "success");
+                    router.push('/user/onboarding');
+                } else {
+                    showPopup("Verification incomplete. Please try again.", "error");
+                }
             } else {
-                // Handle other statuses if needed
-                showPopup("Verification incomplete. Please try again.", "error");
+                // Sign-in verification flow
+                if (!signIn) {
+                    showPopup("Sign in not available", "error");
+                    setIsLoading(false);
+                    return;
+                }
+
+                const result = await signIn.attemptFirstFactor({
+                    strategy: "email_code",
+                    code: code,
+                });
+
+                if (result.status === "complete") {
+                    if (setSignInActive) {
+                        await setSignInActive({ session: result.createdSessionId });
+                    }
+                    
+                    showPopup("Successfully signed in!", "success");
+                    router.push('/user');
+                } else {
+                    showPopup("Verification incomplete. Please try again.", "error");
+                }
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error verifying code:", error);
-            showPopup(error?.errors?.[0]?.message || "Invalid code. Please try again.", "error");
+            const clerkError = error as { errors?: { message: string }[] };
+            showPopup(clerkError?.errors?.[0]?.message || "Invalid code. Please try again.", "error");
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleResendCode = async () => {
-        if (!signIn) {
-            showPopup("Sign in not available", "error");
-            return;
-        }
-
         if (!email) {
-            showPopup("Email not found. Please return to login.", "error");
+            showPopup("Email not found. Please return to sign in.", "error");
             return;
         }
 
         try {
             setIsLoading(true);
             
-            // Create a new sign in
-            const result = await signIn.create({
-                identifier: email,
-            });
-            
-            const emailCodeFactor = result.supportedFirstFactors?.find(
-                (ff) => ff.strategy === "email_code" && "emailAddressId" in ff
-            );
+            if (isSignUpMode) {
+                // Resend for sign-up
+                if (!signUp) {
+                    showPopup("Sign up not available", "error");
+                    return;
+                }
 
-            if (emailCodeFactor && "emailAddressId" in emailCodeFactor) {
-                await result.prepareFirstFactor({
+                await signUp.prepareEmailAddressVerification({
                     strategy: "email_code",
-                    emailAddressId: emailCodeFactor.emailAddressId,
                 });
                 
                 showPopup("New code sent! Please check your email.", "success");
+            } else {
+                // Resend for sign-in
+                if (!signIn) {
+                    showPopup("Sign in not available", "error");
+                    return;
+                }
+
+                const result = await signIn.create({
+                    identifier: email,
+                });
+                
+                const emailCodeFactor = result.supportedFirstFactors?.find(
+                    (ff) => ff.strategy === "email_code" && "emailAddressId" in ff
+                );
+
+                if (emailCodeFactor && "emailAddressId" in emailCodeFactor) {
+                    await result.prepareFirstFactor({
+                        strategy: "email_code",
+                        emailAddressId: emailCodeFactor.emailAddressId,
+                    });
+                    
+                    showPopup("New code sent! Please check your email.", "success");
+                }
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Error resending code:", error);
-            showPopup(error?.errors?.[0]?.message || "Failed to resend code. Please try again.", "error");
+            const clerkError = error as { errors?: { message: string }[] };
+            showPopup(clerkError?.errors?.[0]?.message || "Failed to resend code. Please try again.", "error");
         } finally {
             setIsLoading(false);
         }
     };
+
+    const backUrl = isSignUpMode ? '/sign-up' : '/sign-in';
 
     return (
         !isSignedIn && (
@@ -125,7 +166,7 @@ export default function VerifyEmailPage() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => router.push('/login')}
+                                onClick={() => router.push(backUrl)}
                                 className="h-8 w-8"
                             >
                                 <ArrowLeft className="h-4 w-4" />
@@ -135,7 +176,7 @@ export default function VerifyEmailPage() {
                         <CardDescription className="flex items-start gap-2">
                             <Mail className="h-4 w-4 mt-0.5 flex-shrink-0" />
                             <span>
-                                We've sent a 6-digit verification code to{" "}
+                                We&apos;ve sent a 6-digit verification code to{" "}
                                 <span className="font-semibold text-foreground">{email}</span>
                             </span>
                         </CardDescription>
@@ -193,7 +234,7 @@ export default function VerifyEmailPage() {
                     </CardContent>
                     <CardFooter className="flex flex-col gap-2">
                         <div className="text-sm text-center text-muted-foreground">
-                            Didn't receive the code?{" "}
+                            Didn&apos;t receive the code?{" "}
                             <Button
                                 variant="link"
                                 className="p-0 h-auto font-semibold"
@@ -209,4 +250,3 @@ export default function VerifyEmailPage() {
         )
     );
 }
-

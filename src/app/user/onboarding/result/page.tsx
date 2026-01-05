@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { getUserByClerkId } from "../../../../../_lib/actions";
+import { ensureUserExists } from "../../../../../_lib/supabase/queries/users";
 import { fetchPreferences } from "../../../../../_lib/onboardingFunctions";
 import OnboardingResultClient from "@/components/OnboardingResultClient";
 
@@ -12,13 +12,13 @@ export default async function OnboardingResult() {
     const { userId: clerkUserId } = await auth();
 
     if (!clerkUserId) {
-        redirect("/login?error=sign-out");
+        redirect("/sign-in?error=sign-out");
     }
 
-    const userProfile = await getUserByClerkId(clerkUserId);
+    const userProfile = await ensureUserExists(clerkUserId);
 
     if (!userProfile) {
-        redirect("/login?error=sign-out");
+        redirect("/sign-in?error=sign-out");
     }
 
     // If user has completed onboarding, redirect to dashboard
@@ -26,14 +26,14 @@ export default async function OnboardingResult() {
         return redirect("/user");
     }
 
-    // Get the MongoDB user ID for fetching preferences
-    const mongoUserId = userProfile._id?.toString() || '';
+    // Get the user ID for fetching preferences
+    const userId = userProfile.id;
 
-    if (!mongoUserId) {
+    if (!userId) {
         return redirect("/user/onboarding");
     }
 
-    const fetchedUserPreferences = await fetchPreferences(mongoUserId);
+    const fetchedUserPreferences = await fetchPreferences(userId);
     if (fetchedUserPreferences.status !== 200) {
         return (
             <div className="flex flex-col w-full">
@@ -50,7 +50,7 @@ export default async function OnboardingResult() {
 
     // Create a user object that matches the expected interface
     const user = {
-        id: mongoUserId,
+        id: userId,
         email: userProfile.email,
         name: userProfile.name,
     };

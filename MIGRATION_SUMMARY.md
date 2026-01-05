@@ -75,7 +75,7 @@ Successfully migrated the authentication system from NextAuth to Clerk while rem
 - `src/components/Chat.tsx` - Updated to use Clerk
 - `src/components/UserProfile.tsx` - Removed username, shows email
 - `src/components/ResponsiveTabBar.tsx` - Updated routes
-- `src/app/login/page.tsx` - Custom UI with Clerk auth methods
+- `src/app/sign-in/page.tsx` and `src/app/sign-up/page.tsx` - Custom UI with Clerk auth methods
 
 ### Route Pages
 - All pages in `src/app/user/` (moved from `[username]`)
@@ -95,7 +95,8 @@ Successfully migrated the authentication system from NextAuth to Clerk while rem
    - Add Clerk keys to `.env.local`:
      - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
      - `CLERK_SECRET_KEY`
-     - `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/login`
+     - `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in`
+     - `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up`
      - `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/user`
      - `NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/user/onboarding`
 

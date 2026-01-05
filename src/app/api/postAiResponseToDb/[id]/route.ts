@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getSupabaseServerClient } from "../../../../../_lib/supabase/server";
-import { updateUserById } from "../../../../../_lib/supabase/queries/users";
+import { upsertUserPreferences } from "../../../../../_lib/supabase/queries/preferences";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -23,16 +22,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
         console.log('post data: ', dailyKcalSuggested, dailyFatsSuggested, dailyProteinsSuggested, dailyCarbsSuggested)
 
-        // Update the user's daily calorie suggestion
-        const updatedUser = await updateUserById(id, {
+        // Update the user's daily calorie suggestion in preferences
+        const preferences = await upsertUserPreferences(id, {
             dailyCaloriesSuggested: dailyKcalSuggested,
         });
 
-        if (!updatedUser) {
-            throw new Error('Error while saving data');
+        if (!preferences) {
+            throw new Error('Error while saving preferences');
         }
 
-        return NextResponse.json({ success: true, message: 'User data saved successfully' });
+        return NextResponse.json({ success: true, message: 'User preferences saved successfully' });
     } catch (error) {
         if (error instanceof Error) {
             return NextResponse.json({ success: false, error: error.message });
