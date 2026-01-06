@@ -8,6 +8,7 @@ import {
     getTopCuisines,
     getBottomCuisines
 } from '../../../../_lib/usersActions';
+import { getFullUserProfileForGeneration } from '../../../../_lib/supabase/queries';
 
 // const DEEPSEEK_API = process.env.DEEPSEEK_API; // Ensure this is set in your environment variables
 // const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'; // Replace with the actual DeepSeek API URL
@@ -148,7 +149,50 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
     try {
-        const { userProfile, yesterdaysMeals } = await req.json();
+        const body = await req.json();
+        const userId = body?.userId as string | undefined;
+        const yesterdaysMeals: string[] = Array.isArray(body?.yesterdaysMeals) ? body.yesterdaysMeals : [];
+
+        if (!userId || typeof userId !== 'string') {
+            return NextResponse.json({ error: "Missing or invalid userId" }, { status: 400 });
+        }
+
+        const fullProfile = await getFullUserProfileForGeneration(userId);
+
+        if (!fullProfile) {
+            return NextResponse.json({ error: "User profile not found" }, { status: 404 });
+        }
+
+        const { user, preferences, favoriteMeals, dislikedMeals, ingredients, cuisines } = fullProfile;
+
+        // Normalize dateLastUpdated fields to Date for helper functions
+        const favoriteMealsForHelpers = favoriteMeals.map(m => ({
+            name: m.name,
+            dateLastUpdated: new Date(m.dateLastUpdated),
+        }));
+        const dislikedMealsForHelpers = dislikedMeals.map(m => ({
+            name: m.name,
+            dateLastUpdated: new Date(m.dateLastUpdated),
+        }));
+        const ingredientsForHelpers = ingredients.map(i => ({
+            name: i.name,
+            rating: i.rating,
+            dateLastUpdated: new Date(i.dateLastUpdated),
+        }));
+        const cuisinesForHelpers = cuisines.map(c => ({
+            name: c.name,
+            rating: c.rating,
+            dateLastUpdated: new Date(c.dateLastUpdated),
+        }));
+
+        const dailyCaloriesSuggested = preferences?.dailyCaloriesSuggested ?? 2000;
+        const proteinCalories = Math.round(dailyCaloriesSuggested * 0.3);
+        const fatsCalories = Math.round(dailyCaloriesSuggested * 0.3);
+        const carbsCalories = dailyCaloriesSuggested - proteinCalories - fatsCalories;
+
+        const proteinGrams = Math.round(proteinCalories / 4);
+        const fatsGrams = Math.round(fatsCalories / 9);
+        const carbsGrams = Math.round(carbsCalories / 4);
 
         const systemPrompt = `
         You are a meal plan generation engine. Output only raw JSON arrays—no extra text, comments, or formatting. You receive structured user data and must return a 1-day meal plan based on it.
@@ -174,21 +218,23 @@ export async function POST(req: Request) {
 
 
         const userPrompt = `
-        Generate a 1-day personalized meal plan for this user. Make sure the total calorie count is around ${userProfile?.dailyCaloriesSuggested} kcal (±200 kcal allowed).
+        Generate a 1-day personalized meal plan for this user. Make sure the total calorie count is around ${dailyCaloriesSuggested} kcal (±200 kcal allowed).
         
         User context:
-        - Goals: ${userProfile?.goals}
-        - Location: ${userProfile?.location}
-        - Age: ${userProfile?.age}
-        - Dietary Restrictions: ${userProfile?.dietaryRestrictions || "None"}
+        - Goals: ${preferences?.goals ?? "None"}
+        - Location: ${preferences?.location ?? "Unknown"}
+        - Age: ${preferences?.age ?? "Unknown"}
+        - Dietary Restrictions: ${preferences?.dietaryRestrictions || "None"}
+        - Medical Recommendations: ${(preferences?.medicalRecommendations || []).join('; ') || "None"}
+        - Target macros for the whole day: approximately ${proteinGrams}g protein, ${fatsGrams}g fats, ${carbsGrams}g carbs.
         
         Preferences:
-        - Favorite Meals: ${JSON.stringify(getTopFavoriteMeals(userProfile)) || "None"}
-        - Disliked Meals: ${JSON.stringify(getTopDislikedMeals(userProfile)) || "None"}
-        - Preferred Ingredients: ${JSON.stringify(getTopIngredients(userProfile)) || "None"}
-        - Avoided Ingredients: ${JSON.stringify(getBottomIngredients(userProfile)) || "None"}
-        - Preferred Cuisines: ${JSON.stringify(getTopCuisines(userProfile)) || "None"}
-        - Avoided Cuisines: ${JSON.stringify(getBottomCuisines(userProfile)) || "None"}
+        - Favorite Meals: ${JSON.stringify(getTopFavoriteMeals({ favoriteMeals: favoriteMealsForHelpers })) || "None"}
+        - Disliked Meals: ${JSON.stringify(getTopDislikedMeals({ dislikedMeals: dislikedMealsForHelpers })) || "None"}
+        - Preferred Ingredients: ${JSON.stringify(getTopIngredients({ ingredients: ingredientsForHelpers })) || "None"}
+        - Avoided Ingredients: ${JSON.stringify(getBottomIngredients({ ingredients: ingredientsForHelpers })) || "None"}
+        - Preferred Cuisines: ${JSON.stringify(getTopCuisines({ cuisines: cuisinesForHelpers })) || "None"}
+        - Avoided Cuisines: ${JSON.stringify(getBottomCuisines({ cuisines: cuisinesForHelpers })) || "None"}
         
         Guidelines:
         - Meals must be accessible in user's location. Prioritise popular dishes in region
@@ -200,7 +246,7 @@ export async function POST(req: Request) {
 - Calorie values for individual meals should be slightly overestimated to ensure the total meets or slightly exceeds the user's daily goal. This helps avoid underfeeding.
 
         
-        Plan should be at least ${Math.ceil(userProfile?.dailyCaloriesSuggested / 370)} meals long.
+        Plan should be at least ${Math.ceil(dailyCaloriesSuggested / 370)} meals long.
         Return only a JSON array of meals. No extra text.
         `;
 
@@ -252,7 +298,11 @@ export async function POST(req: Request) {
 
 
 
-        if (!userProfile.goals || !userProfile.location || !userProfile.age) {
+        if (!preferences?.goals 
+            || !preferences?.location 
+            // || preferences?.age == null
+            || !preferences?.dailyCaloriesSuggested
+        ) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 

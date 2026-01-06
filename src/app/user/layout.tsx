@@ -1,6 +1,8 @@
 import UserProvider from "@/components/UserProvider";
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../_lib/supabase/queries/users";
+import SideMenu from "@/components/SideMenu";
+import { MealPreferencesProvider } from "@/components/MealPreferencesProvider";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     let userId = null;
@@ -20,11 +22,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
     // Dashboard page
     return (
         <UserProvider value={{ userId, userProfile }}>
-            <div className="flex w-full min-h-full mt-[65px]">
-                <div className="flex w-full mx-4">
-                    {children}
+            <MealPreferencesProvider>
+                <div className="flex w-full min-h-full mt-[65px] px-36">
+                    <div className="flex w-full mx-4">
+                        <SideMenu className="mr-8 min-w-[25%]" />
+                        {children}
+                    </div>
                 </div>
-            </div>
+            </MealPreferencesProvider>
         </UserProvider>
     );
 }

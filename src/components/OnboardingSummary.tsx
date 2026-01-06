@@ -141,8 +141,8 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
         try {
             const formattedUserData = {
                 name: name || null,
-                formattedDate: formattedDate || undefined,
                 dateOfBirthday: formattedDate || undefined,
+                age: userAge || null,
                 location,
                 goal: goal === "custom" ? customGoal : goal,
                 dietaryRestrictions: dietaryRestrictions || null,
@@ -169,12 +169,11 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
             // Clear customGoal from localStorage after successful save
             localStorage.removeItem('customGoal');
 
-            if (session) {
-                await session.reload();
-            }
-
             showPopup("Preferences saved!", "success");
-            router.push("/user/onboarding/result");
+            
+            // Use window.location for navigation to ensure session is properly loaded
+            // This avoids middleware issues with session state during router.push
+            window.location.href = "/user/onboarding/result";
         } catch (error) {
             console.error("Error saving preferences:", error);
             showPopup(`Error: ${error instanceof Error ? error.message : "Unknown error"}`, "error");
@@ -276,7 +275,7 @@ export default function OnboardingSummary({ userFromSession }: OnboardingSummary
                 </Button>
                 <Button
                     onClick={handleConfirm}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !isSessionLoaded || isLoadingRestrictions}
                     className="flex-1"
                 >
                     {isSubmitting ? "Saving..." : "Confirm & Continue"}

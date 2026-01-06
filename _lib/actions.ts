@@ -104,7 +104,7 @@ export async function addDataFromReply(
 
     const updatedData = {
         ...data,
-        onboardingCompleted: true
+        onboarding2Completed: true
     };
 
     try {
@@ -120,7 +120,7 @@ export async function addDataFromReply(
 
         if (response.ok) {
             await update({
-                onboardingCompleted: true
+                onboarding2Completed: true
             });
             router.push(`/user`);
             console.log('Token updated');

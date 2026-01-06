@@ -6,7 +6,6 @@ import { finaliseOnboarding, saveAiResponseToDb, setOnboardingProp } from "../..
 import { AIReplyFormatted, User, UserOnboardingFormatted } from "../../_lib/interfaces"
 import { JSX } from "react"
 import { Button } from "./ui/button"
-import { useRouter } from "next/navigation"
 import { usePopup } from "./providers/PopUpProvider"
 import { useSession } from "@clerk/nextjs"
 
@@ -26,7 +25,6 @@ export default function OnboardingResultClient({
         motivationalMessage?: string;
     } | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
     const { showPopup } = usePopup();
     const { session } = useSession();
 
@@ -71,15 +69,28 @@ export default function OnboardingResultClient({
             if (res.status !== 200) {
                 throw new Error('Error saving preferences');
             }
+            
+            // Update onboarding flag in database and Clerk metadata
             await setOnboardingProp(user, '2');
             
-            // Reload the Clerk session to reflect updated user metadata
+            // Force session refresh to get updated metadata in the cookie
+            // This is critical because Clerk's JWT token contains metadata at issuance time
+            // and doesn't automatically refresh when metadata is updated via API
             if (session) {
+                console.log('[OnboardingResultClient] Reloading session to refresh metadata...');
                 await session.reload();
+                console.log('[OnboardingResultClient] Session reloaded');
             }
             
+            // Small delay to ensure session cookie is updated before redirect
+            // This gives Clerk time to issue a new JWT with updated metadata
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             showPopup(`Your data saved`, 'success');
-            router.push('/user');
+            
+            // Use window.location.href to force full page reload with fresh session
+            // The database fallback in middleware will handle any remaining timing issues
+            window.location.href = '/user';
         } catch (error) {
             setIsLoaded(true);
             showPopup(`Error: ${error}`, 'error');

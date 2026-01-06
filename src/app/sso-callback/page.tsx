@@ -8,9 +8,8 @@ export default function SSOCallback() {
 
   return (
     <AuthenticateWithRedirectCallback
-      afterSignInUrl="/user"
-      afterSignUpUrl="/user/onboarding"
-      redirectUrl="/user"
+      fallbackRedirectUrl="/user"
+      forceRedirectUrl="/user"
       continueSignUpUrl="/user/onboarding"
     />
   );

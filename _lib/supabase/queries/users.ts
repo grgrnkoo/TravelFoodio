@@ -1,8 +1,15 @@
 import { getSupabaseServerClient } from '../server'
 import { clerkClient } from '@clerk/nextjs/server'
-import type { IUser, IUserCore, IUserMeal, IUserIngredient, IUserCuisine } from '../../../types'
+import type {
+    IUser,
+    IUserCore,
+    IUserMeal,
+    IUserIngredient,
+    IUserCuisine,
+    FullUserProfileForGeneration,
+} from '../../../types'
 import type { UserInsert, UserUpdate } from '../../../types/supabase'
-import { getUserMenuPreferences } from './preferences'
+import { getUserMenuPreferences, getUserMealPreferences } from './preferences'
 
 const supabase = getSupabaseServerClient()
 
@@ -16,7 +23,8 @@ function transformToUserCore(row: Record<string, unknown>): IUserCore {
         name: row.name as string | undefined,
         updatesRemaining: row.updates_remaining as number,
         subscriptionType: row.subscription_type as string,
-        onboardingCompleted: row.onboarding_completed as boolean,
+        onboarding1Completed: (row.onboarding1_completed as boolean) || false,
+        onboarding2Completed: (row.onboarding2_completed as boolean) || false,
         createdAt: row.created_at as string,
         updatedAt: row.updated_at as string,
     }
@@ -78,7 +86,8 @@ export async function ensureUserExists(clerkUserId: string): Promise<IUserCore |
                 ? `${clerkUser.firstName} ${clerkUser.lastName}` 
                 : clerkUser.firstName || '',
             image: clerkUser.imageUrl || '',
-            onboardingCompleted: false,
+            onboarding1Completed: false,
+            onboarding2Completed: false,
         })
 
         if (newUser) {
@@ -159,7 +168,8 @@ export async function getUserFullProfile(clerkUserId: string): Promise<IUser | n
         preferences: menuPreferences || undefined,
         updatesRemaining: userData.updates_remaining,
         subscriptionType: userData.subscription_type,
-        onboardingCompleted: userData.onboarding_completed,
+        onboarding1Completed: userData.onboarding1_completed || false,
+        onboarding2Completed: userData.onboarding2_completed || false,
         favoriteMeals: (favoriteMeals.data || []).map(m => ({
             name: m.meal_name,
             dateLastUpdated: m.created_at,
@@ -194,20 +204,46 @@ export async function getUserFullProfile(clerkUserId: string): Promise<IUser | n
     return result
 }
 
+// Aggregated profile for menu generation, fetched by Supabase user ID
+export async function getFullUserProfileForGeneration(
+    userId: string
+): Promise<FullUserProfileForGeneration | null> {
+    const core = await getUserById(userId)
+    if (!core) {
+        return null
+    }
+
+    const [menuPreferences, mealPreferences] = await Promise.all([
+        getUserMenuPreferences(userId),
+        getUserMealPreferences(userId),
+    ])
+
+    return {
+        user: core,
+        preferences: menuPreferences || undefined,
+        favoriteMeals: mealPreferences?.favoriteMeals ?? [],
+        dislikedMeals: mealPreferences?.dislikedMeals ?? [],
+        ingredients: mealPreferences?.ingredients ?? [],
+        cuisines: mealPreferences?.cuisines ?? [],
+    }
+}
+
 // Create a new user
 export async function createUser(userData: {
     clerkUserId: string
     email: string
     name?: string
     image?: string
-    onboardingCompleted?: boolean
+    onboarding1Completed?: boolean
+    onboarding2Completed?: boolean
 }): Promise<IUserCore | null> {
     const insertData: UserInsert = {
         clerk_user_id: userData.clerkUserId,
         email: userData.email,
         name: userData.name || null,
         image: userData.image || null,
-        onboarding_completed: userData.onboardingCompleted || false,
+        onboarding1_completed: userData.onboarding1Completed || false,
+        onboarding2_completed: userData.onboarding2Completed || false,
     }
 
     const { data, error } = await supabase
@@ -233,7 +269,8 @@ export async function updateUserByClerkId(
         image: string
         updatesRemaining: number
         subscriptionType: string
-        onboardingCompleted: boolean
+        onboarding1Completed: boolean
+        onboarding2Completed: boolean
     }>
 ): Promise<IUserCore | null> {
     const updateData: UserUpdate = {}
@@ -243,7 +280,8 @@ export async function updateUserByClerkId(
     if (updates.image !== undefined) updateData.image = updates.image
     if (updates.updatesRemaining !== undefined) updateData.updates_remaining = updates.updatesRemaining
     if (updates.subscriptionType !== undefined) updateData.subscription_type = updates.subscriptionType
-    if (updates.onboardingCompleted !== undefined) updateData.onboarding_completed = updates.onboardingCompleted
+    if (updates.onboarding1Completed !== undefined) updateData.onboarding1_completed = updates.onboarding1Completed
+    if (updates.onboarding2Completed !== undefined) updateData.onboarding2_completed = updates.onboarding2Completed
 
     const { data, error } = await supabase
         .from('users')
@@ -274,7 +312,8 @@ export async function updateUserByEmail(
         image: 'image',
         updatesRemaining: 'updates_remaining',
         subscriptionType: 'subscription_type',
-        onboardingCompleted: 'onboarding_completed',
+        onboarding1Completed: 'onboarding1_completed',
+        onboarding2Completed: 'onboarding2_completed',
     }
 
     for (const [key, value] of Object.entries(updates)) {
@@ -313,7 +352,8 @@ export async function updateUserById(
         image: 'image',
         updatesRemaining: 'updates_remaining',
         subscriptionType: 'subscription_type',
-        onboardingCompleted: 'onboarding_completed',
+        onboarding1Completed: 'onboarding1_completed',
+        onboarding2Completed: 'onboarding2_completed',
     }
 
     for (const [key, value] of Object.entries(updates)) {
@@ -356,41 +396,5 @@ export async function updateUserUpdatesRemaining(
     }
 
     return { success: true, updatesRemaining: data.updates_remaining }
-}
-
-// Get user preferences only (for preferences page)
-export async function getUserPreferences(userId: string): Promise<{
-    favoriteMeals: IUserMeal[]
-    dislikedMeals: IUserMeal[]
-    ingredients: IUserIngredient[]
-    cuisines: IUserCuisine[]
-} | null> {
-    const [favoriteMeals, dislikedMeals, ingredients, cuisines] = await Promise.all([
-        supabase.from('user_favorite_meals').select('*').eq('user_id', userId),
-        supabase.from('user_disliked_meals').select('*').eq('user_id', userId),
-        supabase.from('user_ingredients').select('*').eq('user_id', userId),
-        supabase.from('user_cuisines').select('*').eq('user_id', userId),
-    ])
-
-    return {
-        favoriteMeals: (favoriteMeals.data || []).map(m => ({
-            name: m.meal_name,
-            dateLastUpdated: m.created_at,
-        })),
-        dislikedMeals: (dislikedMeals.data || []).map(m => ({
-            name: m.meal_name,
-            dateLastUpdated: m.created_at,
-        })),
-        ingredients: (ingredients.data || []).map(i => ({
-            name: i.ingredient_name,
-            rating: i.rating,
-            dateLastUpdated: i.updated_at,
-        })),
-        cuisines: (cuisines.data || []).map(c => ({
-            name: c.cuisine_name,
-            rating: c.rating,
-            dateLastUpdated: c.updated_at,
-        })),
-    }
 }
 

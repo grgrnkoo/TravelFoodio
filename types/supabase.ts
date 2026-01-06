@@ -18,7 +18,8 @@ export interface Database {
           name: string | null
           updates_remaining: number
           subscription_type: string
-          onboarding_completed: boolean
+          onboarding1_completed: boolean
+          onboarding2_completed: boolean
           created_at: string
           updated_at: string
         }
@@ -30,7 +31,8 @@ export interface Database {
           name?: string | null
           updates_remaining?: number
           subscription_type?: string
-          onboarding_completed?: boolean
+          onboarding1_completed?: boolean
+          onboarding2_completed?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -42,7 +44,8 @@ export interface Database {
           name?: string | null
           updates_remaining?: number
           subscription_type?: string
-          onboarding_completed?: boolean
+          onboarding1_completed?: boolean
+          onboarding2_completed?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -59,6 +62,9 @@ export interface Database {
           goals: string | null
           dietary_restrictions: string | null
           medical_recommendations: Json
+          weight: string | null
+          height: string | null
+          other_info: string | null
           created_at: string
           updated_at: string
         }
@@ -72,6 +78,9 @@ export interface Database {
           goals?: string | null
           dietary_restrictions?: string | null
           medical_recommendations?: Json
+          weight?: string | null
+          height?: string | null
+          other_info?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -85,6 +94,9 @@ export interface Database {
           goals?: string | null
           dietary_restrictions?: string | null
           medical_recommendations?: Json
+          weight?: string | null
+          height?: string | null
+          other_info?: string | null
           created_at?: string
           updated_at?: string
         }

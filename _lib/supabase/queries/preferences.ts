@@ -1,11 +1,12 @@
 import { getSupabaseServerClient } from '../server'
 import type { IUserMeal, IUserIngredient, IUserCuisine, IUserPreferences } from '../../../types'
 import type { UserPreferencesInsert, UserPreferencesUpdate } from '../../../types/supabase'
+import type { UserOnboardingFormatted } from '../../../_lib/interfaces'
 
 const supabase = getSupabaseServerClient()
 
-// Get all preferences for a user
-export async function getUserPreferences(userId: string): Promise<{
+// Get meal preferences for a user (favorite meals, disliked meals, ingredients, cuisines)
+export async function getUserMealPreferences(userId: string): Promise<{
     favoriteMeals: IUserMeal[]
     dislikedMeals: IUserMeal[]
     ingredients: IUserIngredient[]
@@ -138,6 +139,38 @@ export async function updateIngredientRating(
 
     if (error) {
         console.error('[updateIngredientRating] Error:', error.message)
+        return false
+    }
+
+    return true
+}
+
+// Remove an ingredient
+export async function removeIngredient(userId: string, ingredientName: string): Promise<boolean> {
+    const { error } = await supabase
+        .from('user_ingredients')
+        .delete()
+        .eq('user_id', userId)
+        .eq('ingredient_name', ingredientName)
+
+    if (error) {
+        console.error('[removeIngredient] Error:', error.message)
+        return false
+    }
+
+    return true
+}
+
+// Remove a cuisine
+export async function removeCuisine(userId: string, cuisineName: string): Promise<boolean> {
+    const { error } = await supabase
+        .from('user_cuisines')
+        .delete()
+        .eq('user_id', userId)
+        .eq('cuisine_name', cuisineName)
+
+    if (error) {
+        console.error('[removeCuisine] Error:', error.message)
         return false
     }
 
@@ -372,8 +405,8 @@ export async function bulkUpdatePreferences(
 // USER PREFERENCES (Menu Generation Data)
 // =============================================
 
-// Get user preferences by user ID
-export async function getUserMenuPreferences(userId: string): Promise<IUserPreferences | null> {
+// Get user preferences by user ID (menu generation preferences)
+export async function getUserPreferences(userId: string): Promise<IUserPreferences | null> {
     const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
@@ -382,7 +415,7 @@ export async function getUserMenuPreferences(userId: string): Promise<IUserPrefe
 
     if (error || !data) {
         if (error?.code !== 'PGRST116') {
-            console.error('[getUserMenuPreferences] Error:', error?.message)
+            console.error('[getUserPreferences] Error:', error?.message)
         }
         return null
     }
@@ -396,11 +429,63 @@ export async function getUserMenuPreferences(userId: string): Promise<IUserPrefe
         dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
         goals: data.goals || undefined,
         dietaryRestrictions: data.dietary_restrictions || undefined,
-        medicalRecommendations: Array.isArray(data.medical_recommendations) 
-            ? data.medical_recommendations as string[]
-            : undefined,
+        medicalRecommendations: Array.isArray(data.medical_recommendations)
+            ? (data.medical_recommendations as string[])
+            : typeof data.medical_recommendations === 'string'
+                ? (() => {
+                    try {
+                        const parsed = JSON.parse(data.medical_recommendations)
+                        return Array.isArray(parsed) ? (parsed as string[]) : undefined
+                    } catch {
+                        return undefined
+                    }
+                })()
+                : undefined,
+        weight: data.weight || undefined,
+        height: data.height || undefined,
+        otherInfo: data.other_info || undefined,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
+    }
+}
+
+// Get user menu preferences by user ID (alias for getUserPreferences for backward compatibility)
+export async function getUserMenuPreferences(userId: string): Promise<IUserPreferences | null> {
+    return getUserPreferences(userId)
+}
+
+// Get user preferences with profile data (name, date, age, etc.) parsed for onboarding
+export async function getUserPreferencesWithProfile(userId: string): Promise<UserOnboardingFormatted | null> {
+    // Fetch user profile to get name
+    const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('name')
+        .eq('id', userId)
+        .single()
+
+    if (userError || !userData) {
+        console.error('[getUserPreferencesWithProfile] Error fetching user:', userError?.message)
+        return null
+    }
+
+    // Fetch preferences
+    const preferences = await getUserPreferences(userId)
+
+    if (!preferences) {
+        return null
+    }
+
+    // Parse and combine data
+    return {
+        name: userData.name || null,
+        formattedDate: preferences.dateOfBirth ? new Date(preferences.dateOfBirth) : undefined,
+        dateOfBirthday: preferences.dateOfBirth ? new Date(preferences.dateOfBirth) : undefined,
+        location: preferences.location || "",
+        goal: preferences.goals || "",
+        dietaryRestrictions: preferences.dietaryRestrictions || null,
+        otherInfo: preferences.otherInfo || null,
+        weight: preferences.weight || "",
+        height: preferences.height || "",
     }
 }
 
@@ -417,7 +502,11 @@ export async function createUserPreferences(
         daily_calories_suggested: preferences.dailyCaloriesSuggested ?? undefined,
         goals: preferences.goals ?? undefined,
         dietary_restrictions: preferences.dietaryRestrictions ?? undefined,
-        medical_recommendations: preferences.medicalRecommendations ? JSON.stringify(preferences.medicalRecommendations) : undefined,
+        // Store as JSONB array directly; Supabase client will handle serialization
+        medical_recommendations: preferences.medicalRecommendations ?? undefined,
+        weight: preferences.weight ?? undefined,
+        height: preferences.height ?? undefined,
+        other_info: preferences.otherInfo ?? undefined,
     }
 
     const { data, error } = await supabase
@@ -440,9 +529,21 @@ export async function createUserPreferences(
         dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
         goals: data.goals || undefined,
         dietaryRestrictions: data.dietary_restrictions || undefined,
-        medicalRecommendations: Array.isArray(data.medical_recommendations) 
-            ? data.medical_recommendations as string[]
-            : undefined,
+        medicalRecommendations: Array.isArray(data.medical_recommendations)
+            ? (data.medical_recommendations as string[])
+            : typeof data.medical_recommendations === 'string'
+                ? (() => {
+                    try {
+                        const parsed = JSON.parse(data.medical_recommendations)
+                        return Array.isArray(parsed) ? (parsed as string[]) : undefined
+                    } catch {
+                        return undefined
+                    }
+                })()
+                : undefined,
+        weight: data.weight || undefined,
+        height: data.height || undefined,
+        otherInfo: data.other_info || undefined,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
     }
@@ -466,8 +567,12 @@ export async function updateUserPreferences(
     if (updates.goals !== undefined) updateData.goals = updates.goals
     if (updates.dietaryRestrictions !== undefined) updateData.dietary_restrictions = updates.dietaryRestrictions
     if (updates.medicalRecommendations !== undefined) {
-        updateData.medical_recommendations = JSON.stringify(updates.medicalRecommendations)
+        // Store as JSONB array directly
+        updateData.medical_recommendations = updates.medicalRecommendations
     }
+    if (updates.weight !== undefined) updateData.weight = updates.weight
+    if (updates.height !== undefined) updateData.height = updates.height
+    if (updates.otherInfo !== undefined) updateData.other_info = updates.otherInfo
 
     const { data, error } = await supabase
         .from('user_preferences')
@@ -490,9 +595,21 @@ export async function updateUserPreferences(
         dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
         goals: data.goals || undefined,
         dietaryRestrictions: data.dietary_restrictions || undefined,
-        medicalRecommendations: Array.isArray(data.medical_recommendations) 
-            ? data.medical_recommendations as string[]
-            : undefined,
+        medicalRecommendations: Array.isArray(data.medical_recommendations)
+            ? (data.medical_recommendations as string[])
+            : typeof data.medical_recommendations === 'string'
+                ? (() => {
+                    try {
+                        const parsed = JSON.parse(data.medical_recommendations)
+                        return Array.isArray(parsed) ? (parsed as string[]) : undefined
+                    } catch {
+                        return undefined
+                    }
+                })()
+                : undefined,
+        weight: data.weight || undefined,
+        height: data.height || undefined,
+        otherInfo: data.other_info || undefined,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
     }
@@ -504,7 +621,7 @@ export async function upsertUserPreferences(
     preferences: Partial<Omit<IUserPreferences, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>
 ): Promise<IUserPreferences | null> {
     // Try to get existing preferences
-    const existing = await getUserMenuPreferences(userId)
+    const existing = await getUserPreferences(userId)
     
     if (existing) {
         return await updateUserPreferences(userId, preferences)

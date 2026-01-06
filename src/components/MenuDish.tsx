@@ -1,71 +1,52 @@
 'use client';
 import { ThumbsUp, ThumbsDown, Utensils, Flame, Beef, Cookie, Wheat } from "lucide-react";
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useContext } from 'react';
-import { UserContext } from './UserProvider';
 import { usePopup } from './providers/PopUpProvider';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-// Simple debounce function
-const debounce = (func, wait) => {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-    };
-};
+import { useMealPreferencesContext } from './MealPreferencesProvider';
 
 // Assuming this is passed from parent to track order in stream
 export default function MenuDish({ menuDish, index = 0, showLike }) {
-    const { userProfile, userProfileDynamic, setUserProfileDynamic } = useContext(UserContext);
     const { showPopup } = usePopup();
+    const { favoriteMeals, dislikedMeals, likeMeal, dislikeMeal } = useMealPreferencesContext();
 
-    const [like, setLike] = useState(userProfileDynamic?.favoriteMeals?.some((meal) => meal?.name === menuDish?.name));
-    const [dislike, setDislike] = useState(userProfileDynamic?.dislikedMeals?.some((meal) => meal?.name === menuDish?.name));
+    const [like, setLike] = useState(false);
+    const [dislike, setDislike] = useState(false);
 
-    // Fetch initial state on load
+    // Sync local state with global preferences
     useEffect(() => {
-        if (userProfile?._id) {
-            setLike(userProfileDynamic?.favoriteMeals?.some(m => m.name === menuDish?.name));
-            setDislike(userProfileDynamic?.dislikedMeals?.some(m => m.name === menuDish?.name));
-        }
-    }, [userProfileDynamic, menuDish]);
+        const isLiked = favoriteMeals.some(meal => meal.name === menuDish?.name);
+        const isDisliked = dislikedMeals.some(meal => meal.name === menuDish?.name);
+        setLike(isLiked);
+        setDislike(isDisliked);
+    }, [favoriteMeals, dislikedMeals, menuDish]);
 
-    const updatePreference = useCallback(
-        debounce(async (action) => {
-            try {
-                const response = await fetch('/api/preferenceUpdate', {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userProfile._id, meal: menuDish, action, setUserProfileDynamic }),
+    const handleClick = async (action: 'like' | 'dislike') => {
+        try {
+            if (action === 'like') {
+                await likeMeal({
+                    name: menuDish?.name,
+                    ingredients: menuDish?.ingredients,
+                    cuisine: menuDish?.cuisine,
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    setLike(action === 'like' ? !like : false);
-                    setDislike(action === 'dislike' ? !dislike : false);
-                    const updatedProfile = await fetch(`/api/users/${userProfile?.email}`).then(res => res.json())
-                    setUserProfileDynamic(prev => ({
-                        ...prev,
-                        favoriteMeals: updatedProfile.favoriteMeals,
-                        dislikedMeals: updatedProfile.dislikedMeals
-                    }));
-                    showPopup('Updated successfully!', 'success');
-                } else {
-                    console.error('Update failed:', data.error);
-                    showPopup(`Error: ${data.error || 'Update failed'}`, 'error');
-                }
-            } catch (error) {
-                console.error('Request error:', error);
-                showPopup('Network error: ' + error.message, 'error');
+                showPopup('Updated successfully!', 'success');
+            } else {
+                await dislikeMeal({
+                    name: menuDish?.name,
+                    ingredients: menuDish?.ingredients,
+                    cuisine: menuDish?.cuisine,
+                });
+                showPopup('Updated successfully!', 'success');
             }
-        }, 500),
-        [menuDish, like, dislike, userProfile?._id]
-    );
-
-    const handleClick = (action) => {
-        updatePreference(action);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Request error:', message);
+            showPopup('Network error: ' + message, 'error');
+        }
     };
 
     return (

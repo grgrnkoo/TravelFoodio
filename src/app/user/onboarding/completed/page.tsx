@@ -21,7 +21,7 @@ export default async function OnboardingCompletedPage() {
     }
 
     // If user has completed onboarding, redirect to dashboard
-    if (userProfile?.onboardingCompleted) {
+    if (userProfile?.onboarding2Completed) {
         return redirect("/user");
     }
 

@@ -13,7 +13,7 @@ interface RestrictedRecommendationsDisplayProps {
     onAdd?: (recommendation: string) => void;
 }
 
-function RecommendationBadge({ 
+export function RecommendationBadge({ 
     recommendation, 
     index, 
     onRemove 
@@ -22,6 +22,7 @@ function RecommendationBadge({
     index: number; 
     onRemove?: (index: number) => void 
 }) {
+    const [isHovered, setIsHovered] = useState(false);
     return (
         <motion.div
             layout
@@ -29,28 +30,32 @@ function RecommendationBadge({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="group relative"
+            className="relative inline-block"
         >
-            <Badge 
-                variant="secondary"
-                className="bg-red-100 text-red-800 border-red-200 pr-2 transition-all duration-200 ease-out group-hover:pr-7 cursor-default"
-            >
-                {recommendation}
-                {onRemove && (
-                    <button
-                        onClick={() => onRemove(index)}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:text-red-900 cursor-pointer"
-                        aria-label={`Remove ${recommendation}`}
-                    >
-                        <X className="h-3.5 w-3.5" />
-                    </button>
-                )}
-            </Badge>
+            <div className="group relative">
+                <Badge 
+                    variant="secondary"
+                    className="bg-red-100 text-red-800 border-red-200 pr-2 transition-all duration-200 hover:pr-7 cursor-default"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
+                    {recommendation}
+                    {onRemove && (
+                        <button
+                            onClick={() => onRemove(index)}
+                            className={`absolute right-1 top-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-200 text-red-900 cursor-pointer ${isHovered ? 'opacity-100' : ''}`}
+                            aria-label={`Remove ${recommendation}`}
+                        >
+                            <X className="h-3.5 w-3.5" />
+                        </button>
+                    )}
+                </Badge>
+            </div>
         </motion.div>
     );
 }
 
-function AddRecommendationButton({ 
+export function AddRecommendationButton({ 
     onAdd 
 }: { 
     onAdd?: (recommendation: string) => void 

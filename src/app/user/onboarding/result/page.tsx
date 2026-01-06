@@ -1,11 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { ensureUserExists } from "../../../../../_lib/supabase/queries/users";
-import { fetchPreferences } from "../../../../../_lib/onboardingFunctions";
+import { getUserPreferencesWithProfile } from "../../../../../_lib/supabase/queries/preferences";
 import OnboardingResultClient from "@/components/OnboardingResultClient";
 
 export const metadata = {
-    title: "Onboarding Results | FoodSmart AI",
+    title: "Onboarding Results | TravelFoodio",
 };
 
 export default async function OnboardingResult() {
@@ -22,19 +22,21 @@ export default async function OnboardingResult() {
     }
 
     // If user has completed onboarding, redirect to dashboard
-    if (userProfile?.onboardingCompleted) {
+    if (userProfile?.onboarding2Completed) {
         return redirect("/user");
     }
 
     // Get the user ID for fetching preferences
     const userId = userProfile.id;
+    console.log("userId: ", userId);
 
     if (!userId) {
         return redirect("/user/onboarding");
     }
 
-    const fetchedUserPreferences = await fetchPreferences(userId);
-    if (fetchedUserPreferences.status !== 200) {
+    const parsedPreferences = await getUserPreferencesWithProfile(userId);
+    console.log("parsedPreferences: ", parsedPreferences);
+    if (!parsedPreferences) {
         return (
             <div className="flex flex-col w-full">
                 <h2>
@@ -46,7 +48,6 @@ export default async function OnboardingResult() {
             </div>
         );
     }
-    const parsedPreferences = JSON.parse(fetchedUserPreferences.data);
 
     // Create a user object that matches the expected interface
     const user = {

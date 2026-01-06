@@ -1,6 +1,6 @@
 import { getSupabaseServerClient } from "../../../../../_lib/supabase/server";
-import { getUserByEmail, updateUserByEmail, getUserPreferences } from "../../../../../_lib/supabase/queries/users";
-import { getUserMenuPreferences } from "../../../../../_lib/supabase/queries/preferences";
+import { getUserByEmail, updateUserByEmail } from "../../../../../_lib/supabase/queries/users";
+import { getUserMealPreferences, getUserMenuPreferences, updateUserPreferences } from "../../../../../_lib/supabase/queries/preferences";
 import { NextResponse } from "next/server";
 
 // Function to search users by email (unique value)
@@ -26,7 +26,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ emai
         }
 
         // Get preferences (meal/ingredient/cuisine preferences)
-        const preferences = await getUserPreferences(user.id);
+        const preferences = await getUserMealPreferences(user.id);
         // Get menu preferences
         const menuPreferences = await getUserMenuPreferences(user.id);
 
@@ -38,13 +38,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ emai
             image: user.image || '',
             name: user.name || '',
             age: menuPreferences?.age || 0,
+            weight: menuPreferences?.weight || '',
+            height: menuPreferences?.height || '',
+            medicalRecommendations: menuPreferences?.medicalRecommendations || [],
+            otherInfo: menuPreferences?.otherInfo || '',
             location: menuPreferences?.location || '',
             dailyCaloriesSuggested: menuPreferences?.dailyCaloriesSuggested || 0,
             goals: menuPreferences?.goals || '',
             dietaryRestrictions: menuPreferences?.dietaryRestrictions || '',
+            dateOfBirth: menuPreferences?.dateOfBirth || undefined,
             updatesRemaining: user.updates_remaining || 0,
             subscriptionType: user.subscription_type || 'free',
-            onboardingCompleted: user.onboarding_completed || false,
+            onboarding1Completed: user.onboarding1_completed || false,
+            onboarding2Completed: user.onboarding2_completed || false,
             favoriteMeals: preferences?.favoriteMeals || [],
             dislikedMeals: preferences?.dislikedMeals || [],
             ingredients: preferences?.ingredients || [],
@@ -93,7 +99,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ emai
             dietaryRestrictions: menuPreferences?.dietaryRestrictions || '',
             updatesRemaining: updatedUser.updatesRemaining || 0,
             subscriptionType: updatedUser.subscriptionType || 'free',
-            onboardingCompleted: updatedUser.onboardingCompleted || false,
+            onboarding1Completed: updatedUser.onboarding1Completed || false,
+            onboarding2Completed: updatedUser.onboarding2Completed || false,
         }, { status: 200 });
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error';
@@ -117,20 +124,80 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ email:
             return NextResponse.json({ message: "E-mail, key, and value are required" }, { status: 400 });
         }
 
-        const updatedUser = await updateUserByEmail(email, { [key]: value });
+        const supabase = getSupabaseServerClient();
+        
+        // Get user to find user ID
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('email', email)
+            .single();
 
-        if (!updatedUser) {
+        if (userError || !user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
+
+        // Define core user fields (in users table)
+        const coreUserFields = ['name', 'image', 'email', 'updatesRemaining', 'subscriptionType', 'onboarding1Completed', 'onboarding2Completed'];
+        
+        // Define preference fields (in user_preferences table)
+        const preferenceFields = ['age', 'weight', 'height', 'medicalRecommendations', 'otherInfo', 'dailyCaloriesSuggested', 'location', 'goals', 'dietaryRestrictions', 'dateOfBirth'];
+
+        let updatedUser;
+
+        if (coreUserFields.includes(key)) {
+            // Update core user field
+            updatedUser = await updateUserByEmail(email, { [key]: value });
+            if (!updatedUser) {
+                return NextResponse.json({ message: "User not found" }, { status: 404 });
+            }
+        } else if (preferenceFields.includes(key)) {
+            // Update preference field
+            const prefUpdate: Record<string, unknown> = { [key]: value };
+            
+            // Handle special case for medicalRecommendations (ensure it's an array)
+            if (key === 'medicalRecommendations') {
+                prefUpdate[key] = Array.isArray(value) ? value : [];
+            }
+            
+            const updatedPreferences = await updateUserPreferences(user.id, prefUpdate);
+            if (!updatedPreferences) {
+                return NextResponse.json({ message: "Failed to update preferences" }, { status: 500 });
+            }
+            
+            // Get updated user data
+            updatedUser = await getUserByEmail(email);
+            if (!updatedUser) {
+                return NextResponse.json({ message: "User not found" }, { status: 404 });
+            }
+        } else {
+            return NextResponse.json({ message: `Unknown field: ${key}` }, { status: 400 });
+        }
+
+        // Get menu preferences for response
+        const menuPreferences = await getUserMenuPreferences(user.id);
 
         return NextResponse.json({
             _id: updatedUser.id,
             id: updatedUser.id,
             clerkUserId: updatedUser.clerkUserId,
             email: updatedUser.email,
+            name: updatedUser.name || '',
+            image: updatedUser.image || '',
+            age: menuPreferences?.age || 0,
+            weight: menuPreferences?.weight || '',
+            height: menuPreferences?.height || '',
+            medicalRecommendations: menuPreferences?.medicalRecommendations || [],
+            otherInfo: menuPreferences?.otherInfo || '',
+            dailyCaloriesSuggested: menuPreferences?.dailyCaloriesSuggested || 0,
+            location: menuPreferences?.location || '',
+            goals: menuPreferences?.goals || '',
+            dietaryRestrictions: menuPreferences?.dietaryRestrictions || '',
+            dateOfBirth: menuPreferences?.dateOfBirth || undefined,
             updatesRemaining: updatedUser.updatesRemaining,
             subscriptionType: updatedUser.subscriptionType,
-            onboardingCompleted: updatedUser.onboardingCompleted,
+            onboarding1Completed: updatedUser.onboarding1Completed,
+            onboarding2Completed: updatedUser.onboarding2Completed,
         }, { status: 200 });
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error';

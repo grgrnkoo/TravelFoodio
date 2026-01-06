@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT,
     updates_remaining INTEGER DEFAULT 0,
     subscription_type TEXT DEFAULT 'free',
-    onboarding_completed BOOLEAN DEFAULT FALSE,
+    onboarding1_completed BOOLEAN DEFAULT FALSE,
+    onboarding2_completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -41,6 +42,9 @@ CREATE TABLE IF NOT EXISTS user_preferences (
     goals TEXT DEFAULT '',
     dietary_restrictions TEXT DEFAULT '',
     medical_recommendations JSONB DEFAULT '[]'::jsonb,
+    weight TEXT DEFAULT '',
+    height TEXT DEFAULT '',
+    other_info TEXT DEFAULT '',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "FoodSm.art | Your AI food helper",
+  title: "TravelFoodio | Your AI food helper",
   description: "Ultimate AI meal generation agent",
 };
 

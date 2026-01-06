@@ -102,7 +102,8 @@ export async function POST(req: Request) {
                         email: primaryEmail.email_address,
                         name: first_name && last_name ? `${first_name} ${last_name}` : first_name || '',
                         image: image_url || '',
-                        onboarding_completed: false,
+                        onboarding1_completed: false,
+                        onboarding2_completed: false,
                         updates_remaining: 0,
                         subscription_type: 'free',
                     });

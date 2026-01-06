@@ -4,10 +4,12 @@ import { memo } from 'react';
 import { Separator } from './ui/separator';
 import MenuDishSkeleton from './loadingSkeletons/MenuDishLoading';
 import MealClass from '@/classes/MealClass';
-import { TotalNutrition } from '@/types';
+import type { IMeal, TotalNutrition } from '@/types';
+
+type MenuItem = MealClass | IMeal | TotalNutrition;
 
 interface MenuProps {
-  content: MealClass[];
+  content: MenuItem[];
   totalNutrition: TotalNutrition;
   showTotal?: boolean;
   loading?: boolean;
@@ -16,6 +18,9 @@ interface MenuProps {
 
 function Menu({ content: menuContent, totalNutrition, showTotal = true, loading, className }: MenuProps) {
   const date = new Date().toISOString().split('T')[0];
+
+  console.log('menuContent', menuContent);
+  console.log('totalNutrition', totalNutrition);
 
   return (
     <div className={`w-full px-4 ${className || ''}`}>
@@ -40,6 +45,8 @@ function Menu({ content: menuContent, totalNutrition, showTotal = true, loading,
       {
         Object.keys(totalNutrition).length > 0 &&
         showTotal &&
+        menuContent?.length > 0 &&
+        !loading &&
         <div className="w-full pt-1">
           <Separator className="my-4 w-[80%] mx-auto" />
           <MenuDish

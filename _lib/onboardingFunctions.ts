@@ -110,17 +110,9 @@ export async function finaliseOnboarding({ userFromSession, formattedUserData }:
 }
 
 export async function setOnboardingProp(userFromSession: User | null, onboardingStep: string) {
-    if (!userFromSession) {
-        console.error('No user provided')
-        throw new Error('No user provided. Log in and try again');
-    }
-
-    if (!userFromSession.id) {
-        console.error('No ID provided')
-        throw new Error('No ID provided. Nothing to update');
-    }
-
-    const res = await fetch(`${baseUrl}/api/setOnboardingFlag/${userFromSession.id?.toString()}`, {
+    // No need to check user or ID - the API route uses authenticated Clerk userId
+    // This prevents ID mismatch issues (MongoDB _id vs Supabase UUID)
+    const res = await fetch(`${baseUrl}/api/setOnboardingFlag`, {
         method: 'PATCH',
         headers: {
             "Content-Type": "application/json"
@@ -128,7 +120,8 @@ export async function setOnboardingProp(userFromSession: User | null, onboarding
         body: onboardingStep
     })
     if (!res.ok) {
-        throw new Error('Error saving preferences')
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Error updating onboarding flag');
     }
     return { status: 200, message: 'Flag updated' }
 }

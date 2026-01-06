@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserPreferences } from "../../../../../_lib/supabase/queries/preferences";
+import { getUserMealPreferences } from "../../../../../_lib/supabase/queries/preferences";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
     try {
-        const preferences = await getUserPreferences(id);
+        const preferences = await getUserMealPreferences(id);
 
         if (!preferences) {
             console.error('no preferences found');

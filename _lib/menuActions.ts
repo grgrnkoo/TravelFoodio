@@ -1,7 +1,7 @@
 import MealClass from "@/classes/MealClass";
 import MenuClass from "@/classes/MenuClass";
 import React from "react";
-import { IUser, IUserMeal, PopupType } from "../types";
+import { IUser, IUserMeal, PopupType, IMeal } from "../types";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -93,7 +93,10 @@ export async function handleGenerateMenu(
         const res = await fetch(`${baseUrl}/api/generateMenu`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userProfile: userProfileDynamic, yesterdaysMeals }),
+            body: JSON.stringify({
+                userId: userProfileDynamic._id ?? userProfileDynamic.id,
+                yesterdaysMeals: yesterdaysMeals ?? [],
+            }),
         });
 
         if (!res.body) {
@@ -322,9 +325,9 @@ export const fetchYesterdayMeals = async (userId: string): Promise<string[] | un
     }
 
     const yesterdayMenu = await res.json();
-    const meals = Array.isArray(yesterdayMenu.menu)
+    const meals: MealData[] = Array.isArray(yesterdayMenu.menu)
         ? yesterdayMenu.menu
-        : JSON.parse(yesterdayMenu.menu || '[]');
+        : [];
     const mappedNames = meals.map((meal: MealData) => meal.name);
     return mappedNames;
 };
@@ -332,7 +335,7 @@ export const fetchYesterdayMeals = async (userId: string): Promise<string[] | un
 export async function fetchMenuByDate(
     userId: string,
     date: string
-): Promise<{ menu: MealClass[]; status: number; message: string }> {
+): Promise<{ menu: IMeal[]; status: number; message: string }> {
     const url = `${baseUrl}/api/menu?userId=${userId}&date=${date}`;
 
     try {
@@ -348,7 +351,7 @@ export async function fetchMenuByDate(
         }
 
         const data = await res.json();
-        const menu = data.menu ?? [];
+        const menu: IMeal[] = Array.isArray(data.menu) ? data.menu : [];
 
         return { menu, status: res.status, message: 'Menu fetched' };
 

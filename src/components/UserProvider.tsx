@@ -5,12 +5,23 @@ import { IUserCore } from "../../types";
 
 // Extended user type that includes core data plus optional preference arrays
 // that may be added dynamically by components
-interface UserProfileDynamic extends IUserCore {
+export interface UserProfileDynamic extends IUserCore {
     _id?: string; // Backwards compatibility alias
     favoriteMeals?: Array<{ name: string; dateLastUpdated?: string | Date }>;
     dislikedMeals?: Array<{ name: string; dateLastUpdated?: string | Date }>;
     ingredients?: Array<{ name: string; rating: number; dateLastUpdated?: string | Date }>;
     cuisines?: Array<{ name: string; rating: number; dateLastUpdated?: string | Date }>;
+    // Preference fields
+    age?: number;
+    weight?: string;
+    height?: string;
+    medicalRecommendations?: string[];
+    otherInfo?: string;
+    dailyCaloriesSuggested?: number;
+    location?: string;
+    goals?: string;
+    dietaryRestrictions?: string;
+    dateOfBirth?: string | Date;
 }
 
 interface UserContextType {

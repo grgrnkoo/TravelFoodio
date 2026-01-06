@@ -104,6 +104,78 @@ The application stores `onboardingCompleted` in Clerk's public metadata. This is
 - Check that `onboardingCompleted` is correctly set in Clerk public metadata
 - Verify user is properly authenticated (check Clerk dashboard → Users)
 
+### Checking Clerk Cookies and Session Metadata
+
+If you're experiencing issues with onboarding redirects or session state, you can inspect Clerk cookies and session metadata:
+
+#### 1. Inspect Clerk Cookies in Browser DevTools
+
+1. Open your browser's Developer Tools (F12 or right-click → Inspect)
+2. Go to the **Application** tab (Chrome) or **Storage** tab (Firefox)
+3. Navigate to **Cookies** → Select your domain (e.g., `localhost:3000`)
+4. Look for the `__session` cookie - this contains the JWT token with user session data
+
+#### 2. Decode JWT Token to View Metadata
+
+The `__session` cookie contains a JWT token. To view its contents:
+
+**Option A: Using jwt.io**
+1. Copy the value of the `__session` cookie
+2. Go to https://jwt.io
+3. Paste the token in the "Encoded" field
+4. View the payload to see `publicMetadata` with onboarding flags:
+   ```json
+   {
+     "publicMetadata": {
+       "onboarding1Completed": true,
+       "onboarding2Completed": true
+     }
+   }
+   ```
+
+**Option B: Using Browser Console**
+```javascript
+// In browser console, decode the session cookie
+const sessionCookie = document.cookie.split('; ').find(row => row.startsWith('__session='));
+if (sessionCookie) {
+  const token = sessionCookie.split('=')[1];
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  console.log('Session metadata:', payload.publicMetadata);
+}
+```
+
+#### 3. Check Server-Side Logs
+
+The proxy middleware now includes comprehensive debug logging:
+- Check your server console for `[Proxy]` prefixed logs
+- These logs show:
+  - The userId being checked
+  - The full sessionClaims structure
+  - Which metadata path is being used (publicMetadata vs metadata)
+  - Whether database fallback was used
+  - Final onboarding status decision
+
+#### 4. Verify Metadata in Clerk Dashboard
+
+1. Go to Clerk Dashboard → Users
+2. Select the user experiencing issues
+3. Check the **Public metadata** section
+4. Verify `onboarding1Completed` and `onboarding2Completed` are set to `true`
+
+#### 5. Common Issues and Solutions
+
+**Issue: Cookie not updating after onboarding**
+- **Solution**: The middleware now uses database fallback if Clerk metadata is stale
+- **Workaround**: Clear cookies and sign in again, or wait for session to refresh
+
+**Issue: Metadata path mismatch**
+- **Solution**: The proxy checks both `publicMetadata` (Clerk standard) and `metadata` (custom type) paths
+- The first available value is used
+
+**Issue: Session claims not reflecting updates**
+- **Solution**: The middleware falls back to database check when metadata is unavailable
+- This ensures reliable onboarding status even if Clerk session is cached
+
 ## Migration from NextAuth
 
 If you have existing users in MongoDB from NextAuth, you need to:

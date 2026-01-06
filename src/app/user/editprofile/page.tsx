@@ -2,9 +2,11 @@ import UserProfile from "@/components/UserProfile";
 
 export default function EditProfile() {
     return (
-        <UserProfile
-            editable={true}
-            className='mr-8'
-        />
+        <div className="w-full">
+            <UserProfile
+                editable={true}
+                className=''
+            />
+        </div>
     )
 }

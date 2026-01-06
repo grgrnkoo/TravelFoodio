@@ -15,10 +15,10 @@ export default function OnboardingPageContent() {
 
     // Redirect if user has already completed onboarding
     useEffect(() => {
-        if (!isLoading && userProfileDynamic?.onboardingCompleted) {
+        if (!isLoading && userProfileDynamic?.onboarding2Completed) {
             router.push("/user");
         }
-    }, [isLoading, userProfileDynamic?.onboardingCompleted, router]);
+    }, [isLoading, userProfileDynamic?.onboarding2Completed, router]);
 
     // Show loading skeleton while checking user status
     if (isLoading) {
@@ -38,7 +38,7 @@ export default function OnboardingPageContent() {
     }
 
     // Don't render content if redirecting
-    if (userProfileDynamic?.onboardingCompleted) {
+    if (userProfileDynamic?.onboarding2Completed) {
         return null;
     }
 

@@ -46,7 +46,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ cler
             dietaryRestrictions: userProfile.dietaryRestrictions || '',
             updatesRemaining: userProfile.updatesRemaining || 0,
             subscriptionType: userProfile.subscriptionType || 'free',
-            onboardingCompleted: userProfile.onboardingCompleted || false,
+            onboarding1Completed: userProfile.onboarding1Completed || false,
+            onboarding2Completed: userProfile.onboarding2Completed || false,
             favoriteMeals: userProfile.favoriteMeals || [],
             dislikedMeals: userProfile.dislikedMeals || [],
             ingredients: userProfile.ingredients || [],
@@ -103,7 +104,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ cl
             dietaryRestrictions: menuPreferences?.dietaryRestrictions || '',
             updatesRemaining: updatedUser.updatesRemaining || 0,
             subscriptionType: updatedUser.subscriptionType || 'free',
-            onboardingCompleted: updatedUser.onboardingCompleted || false,
+            onboarding1Completed: updatedUser.onboarding1Completed || false,
+            onboarding2Completed: updatedUser.onboarding2Completed || false,
         }, { status: 200 });
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error';

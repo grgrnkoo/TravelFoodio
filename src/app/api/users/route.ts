@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { clerkUserId, email, name, image, onboardingCompleted } = body;
+        const { clerkUserId, email, name, image, onboarding2Completed } = body;
 
         // Validate required fields
         if (!clerkUserId || !email) {
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
             email,
             name: name || '',
             image: image || '',
-            onboardingCompleted: onboardingCompleted || false,
+            onboarding2Completed: onboarding2Completed || false,
         });
 
         if (!newUser) {
@@ -105,7 +105,8 @@ function transformUserResponse(user: any) {
         name: user.name || '',
         updatesRemaining: user.updates_remaining || 0,
         subscriptionType: user.subscription_type || 'free',
-        onboardingCompleted: user.onboarding_completed || false,
+        onboarding1Completed: user.onboarding1_completed || false,
+        onboarding2Completed: user.onboarding2_completed || false,
         createdAt: user.created_at,
         updatedAt: user.updated_at,
         // Preference fields removed - use user_preferences table instead

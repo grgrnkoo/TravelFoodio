@@ -30,6 +30,9 @@ export interface IUserPreferences {
     goals?: string;
     dietaryRestrictions?: string;
     medicalRecommendations?: string[];
+    weight?: string;
+    height?: string;
+    otherInfo?: string;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 }
@@ -50,7 +53,8 @@ export interface IUser {
     cuisines: IUserCuisine[];
     updatesRemaining: number;
     subscriptionType: string;
-    onboardingCompleted: boolean;
+    onboarding1Completed: boolean;
+    onboarding2Completed: boolean;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     // Legacy fields for backwards compatibility (deprecated - use preferences)
@@ -59,6 +63,16 @@ export interface IUser {
     dailyCaloriesSuggested?: number;
     goals?: string;
     dietaryRestrictions?: string;
+}
+
+// Aggregated profile used specifically for menu generation prompts
+export interface FullUserProfileForGeneration {
+    user: IUserCore;
+    preferences?: IUserPreferences;
+    favoriteMeals: IUserMeal[];
+    dislikedMeals: IUserMeal[];
+    ingredients: IUserIngredient[];
+    cuisines: IUserCuisine[];
 }
 
 // Lightweight user type without preferences (for initial load)
@@ -70,7 +84,8 @@ export interface IUserCore {
     name?: string;
     updatesRemaining: number;
     subscriptionType: string;
-    onboardingCompleted: boolean;
+    onboarding1Completed: boolean;
+    onboarding2Completed: boolean;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 }
