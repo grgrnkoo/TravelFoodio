@@ -4,7 +4,7 @@ export default async function HistoryMain() {
     const date = new Date;
     const today = date.toISOString().split('T')[0];
 
-    redirect(`/user/history/${today}`);
+    redirect(`/user/history/${today}?type=menus`);
 
     return (
         <>

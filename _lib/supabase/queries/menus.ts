@@ -1,5 +1,6 @@
 import { getSupabaseServerClient } from '../server'
 import type { IMeal } from '../../../types'
+import { getSingleMealsByNames } from './singleMeals'
 
 const supabase = getSupabaseServerClient()
 
@@ -302,5 +303,29 @@ export async function getMealsFromCatalog(names: string[]): Promise<IMeal[]> {
         weight: m.weight || undefined,
         createdAt: m.created_at,
     }))
+}
+
+// Get favorite meals with full data by looking up in multiple sources
+// Strategy: Check meals catalog first (where menu meals are saved), then fallback to single_meals (user-generated meals)
+export async function getFavoriteMealsWithData(
+    userId: string,
+    favoriteMealNames: string[]
+): Promise<IMeal[]> {
+    if (favoriteMealNames.length === 0) {
+        return []
+    }
+
+    // Check catalog first - menu meals are automatically saved here via addMealToDb
+    const catalogMeals = await getMealsFromCatalog(favoriteMealNames)
+    const foundNames = new Set(catalogMeals.map(m => m.name))
+    const missingNames = favoriteMealNames.filter(name => !foundNames.has(name))
+
+    // Fallback to single_meals for user-generated meals (photo analysis, single meal generation)
+    const singleMeals = missingNames.length > 0
+        ? await getSingleMealsByNames(userId, missingNames)
+        : []
+
+    // Combine both results, prioritizing catalog meals
+    return [...catalogMeals, ...singleMeals]
 }
 

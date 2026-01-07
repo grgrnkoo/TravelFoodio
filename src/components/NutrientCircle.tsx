@@ -1,6 +1,8 @@
 'use client'
 
 import { cn } from "@/lib/utils"
+import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
+import { useEffect } from 'react'
 
 interface NutrientCircleProps {
     name: string
@@ -14,7 +16,23 @@ interface NutrientCircleProps {
 
 export function NutrientCircle({ name, consumed, goal, color, size = "normal", isLoaded = true, onboarding = false }: NutrientCircleProps) {
     const percentage = Math.min(Math.round((consumed / goal) * 100), 100)
-    const animatedPercentage = isLoaded ? percentage : 5
+    
+    // Use motion values for smooth animations
+    const motionPercentage = useMotionValue(isLoaded ? percentage : 0)
+    const springPercentage = useSpring(motionPercentage, {
+        stiffness: 50,
+        damping: 20,
+        mass: 1,
+    })
+    
+    // Animate percentage when consumed value changes
+    useEffect(() => {
+        if (isLoaded) {
+            motionPercentage.set(percentage)
+        }
+    }, [percentage, isLoaded, motionPercentage])
+    
+    const animatedPercentage = useTransform(springPercentage, (value) => Math.max(0, Math.min(100, value)))
 
     // SVG parameters
     const radius = size === "large" ? 80 : 60
@@ -32,12 +50,6 @@ export function NutrientCircle({ name, consumed, goal, color, size = "normal", i
     const endPoint = polarToCartesian(radius, endAngle)
     const largeArcFlag = maxAngle > 180 ? 1 : 0
 
-    // Calculate the filled portion of the arc
-    const fillAngle = (maxAngle * animatedPercentage) / 100
-    const fillEndAngle = startAngle + fillAngle
-    const fillEndPoint = polarToCartesian(radius, fillEndAngle)
-    const fillLargeArcFlag = fillAngle > 180 ? 1 : 0
-
     // Helper function to convert polar coordinates to cartesian
     function polarToCartesian(radius: number, angleInDegrees: number) {
         const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180
@@ -46,8 +58,13 @@ export function NutrientCircle({ name, consumed, goal, color, size = "normal", i
             y: radius + radius * Math.sin(angleInRadians),
         }
     }
-
-    const strokeDashoffset = circumference * (1 - animatedPercentage / 100);
+    
+    // Animated stroke dashoffset using motion
+    // Use arcLength instead of full circumference since we're only drawing 280 degrees
+    const strokeDashoffset = useTransform(
+        animatedPercentage,
+        (value) => arcLength * (1 - value / 100)
+    )
 
     return (
         <div
@@ -63,32 +80,71 @@ export function NutrientCircle({ name, consumed, goal, color, size = "normal", i
                 // strokeLinecap="round"
                 />
 
-                {/* Filled arc */}
-                <path
-                    d={`M ${startPoint.x} ${startPoint.y} A ${radius} ${radius} 0 ${fillLargeArcFlag} 1 ${fillEndPoint.x} ${fillEndPoint.y}`}
+                {/* Filled arc - animated with motion */}
+                <motion.path
+                    d={`M ${startPoint.x} ${startPoint.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endPoint.x} ${endPoint.y}`}
                     fill="none"
                     stroke={color}
                     strokeWidth={strokeWidth}
-                    // strokeLinecap="round"
+                    strokeDasharray={arcLength}
                     style={{
-                        transition: `${'stroke-dashoffset 1.5s ease-out'}`,
-                        strokeDasharray: circumference,
-                        strokeDashoffset: strokeDashoffset
+                        strokeDashoffset: strokeDashoffset,
+                    }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 50,
+                        damping: 20,
+                        mass: 1,
                     }}
                 />
             </svg>
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <p className={cn("font-bold transition-all duration-1000", size === "large" ? "text-4xl" : "text-2xl")}>
-                    {isLoaded ? consumed : ''}
-                </p>
+                <motion.p 
+                    className={cn("font-bold", size === "large" ? "text-4xl" : "text-2xl")}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ 
+                        opacity: isLoaded ? 1 : 0, 
+                        scale: isLoaded ? 1 : 0.8 
+                    }}
+                    transition={{ 
+                        type: "spring", 
+                        stiffness: 200, 
+                        damping: 15,
+                        duration: 0.3
+                    }}
+                >
+                    {isLoaded ? (
+                        <motion.span
+                            key={consumed}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ 
+                                type: "spring", 
+                                stiffness: 300, 
+                                damping: 20,
+                                duration: 0.2
+                            }}
+                        >
+                            {consumed}
+                        </motion.span>
+                    ) : ''}
+                </motion.p>
                 {
                     !onboarding &&
                     <p className="text-gray-400 text-sm">
                         /{goal}
                     </p>
                 }
-                <p className="text-gray-500 font-medium">{isLoaded ? name : 'Loading...'}</p>
+                <motion.p 
+                    className="text-gray-500 font-medium"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: isLoaded ? 1 : 0 }}
+                    transition={{ delay: 0.2, duration: 0.3 }}
+                >
+                    {isLoaded ? name : 'Loading...'}
+                </motion.p>
             </div>
         </div>
     )

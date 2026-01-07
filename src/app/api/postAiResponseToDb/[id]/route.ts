@@ -22,9 +22,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
         console.log('post data: ', dailyKcalSuggested, dailyFatsSuggested, dailyProteinsSuggested, dailyCarbsSuggested)
 
-        // Update the user's daily calorie suggestion in preferences
+        // Update the user's daily calorie and macro suggestions in preferences
         const preferences = await upsertUserPreferences(id, {
             dailyCaloriesSuggested: dailyKcalSuggested,
+            dailyCarbsSuggested: dailyCarbsSuggested,
+            dailyProteinsSuggested: dailyProteinsSuggested,
+            dailyFatsSuggested: dailyFatsSuggested,
         });
 
         if (!preferences) {

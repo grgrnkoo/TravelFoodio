@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../../_lib/supabase/queries/users";
 import { getUserMealPreferences } from "../../../../_lib/supabase/queries/preferences";
-import { getMealsFromCatalog } from "../../../../_lib/supabase/queries/menus";
+import { getFavoriteMealsWithData } from "../../../../_lib/supabase/queries/menus";
 import FavoriteMealsList from "./FavoriteMealsList";
 import type { IMeal } from "@/types";
 
@@ -25,13 +25,15 @@ export default async function FavoriteMealsPage() {
         );
     }
 
+    // Get user's favorite meal names from preferences
     const mealPreferences = await getUserMealPreferences(user.id);
     const favoriteMealNames = mealPreferences?.favoriteMeals.map(m => m.name) || [];
 
-    // Fetch full meal details from catalog
-    const favoriteMeals: IMeal[] = favoriteMealNames.length > 0 
-        ? await getMealsFromCatalog(favoriteMealNames)
-        : [];
+    // Lookup strategy:
+    // 1. Check meals catalog first - menu meals are automatically saved here via addMealToDb during menu generation
+    // 2. Fallback to single_meals table - for user-generated meals (photo analysis, single meal generation)
+    // This ensures we can display full meal data (nutrition, ingredients, etc.) for all favorited meals
+    const favoriteMeals: IMeal[] = await getFavoriteMealsWithData(user.id, favoriteMealNames);
 
     return (
         <div className="w-full">

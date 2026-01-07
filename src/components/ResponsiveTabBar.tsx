@@ -10,7 +10,7 @@ import { UserContext } from "./UserProvider"
 
 const today = new Date().toISOString().split('T')[0];
 
-export function ResponsiveTabBar({ defaultTab = today, tabs, usedIn }) {
+export function ResponsiveTabBar({ defaultTab = today, tabs, usedIn, onTabClick }) {
     const [activeTab, setActiveTab] = useState(defaultTab)
     const [isMobile, setIsMobile] = useState(false)
     const router = useRouter();
@@ -41,7 +41,11 @@ export function ResponsiveTabBar({ defaultTab = today, tabs, usedIn }) {
 
     const onTabCLick = (tab) => {
         setActiveTab(tab.id);
-        router.push(`/user/${usedIn}/${tab.id}`)
+        if (onTabClick) {
+            onTabClick(tab);
+        } else {
+            router.push(`/user/${usedIn}/${tab.id}`)
+        }
     }
 
     return (

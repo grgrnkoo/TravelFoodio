@@ -108,7 +108,7 @@ export default function Header({ initialIsSignedIn = false }: HeaderProps) {
                     href="/"
                     className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
                 >
-                    FoodSmart AI
+                    TravelFoodio
                 </Link>
             </div>
 
@@ -210,7 +210,7 @@ export default function Header({ initialIsSignedIn = false }: HeaderProps) {
                                         className="hover:bg-transparent! focus:bg-transparent! p-4 text-lg rounded-none"
                                         onSelect={() => closeMenuAndNavigate("#keyAdvantages")}
                                     >
-                                        <span className="text-slate-700">Why FoodSmart?</span>
+                                        <span className="text-slate-700">Why TravelFoodio?</span>
                                     </CommandItem>
                                     <CommandItem
                                         className="hover:bg-transparent! focus:bg-transparent! p-4 text-lg rounded-none"

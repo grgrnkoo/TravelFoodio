@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../../_lib/supabase/queries/users";
 import { getUserMealPreferences } from "../../../../_lib/supabase/queries/preferences";
-import { getMealsFromCatalog } from "../../../../_lib/supabase/queries/menus";
+import { getFavoriteMealsWithData } from "../../../../_lib/supabase/queries/menus";
 import DislikedMealsList from "./DislikedMealsList";
 import type { IMeal } from "@/types";
 
@@ -25,13 +25,12 @@ export default async function DislikedMealsPage() {
         );
     }
 
+    // Get user's disliked meal names from preferences
     const mealPreferences = await getUserMealPreferences(user.id);
     const dislikedMealNames = mealPreferences?.dislikedMeals.map(m => m.name) || [];
 
-    // Fetch full meal details from catalog
-    const dislikedMeals: IMeal[] = dislikedMealNames.length > 0 
-        ? await getMealsFromCatalog(dislikedMealNames)
-        : [];
+    // Lookup strategy: same as favorite meals - check catalog first, then single_meals
+    const dislikedMeals: IMeal[] = await getFavoriteMealsWithData(user.id, dislikedMealNames);
 
     return (
         <div className="w-full">

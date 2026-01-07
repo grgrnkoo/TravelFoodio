@@ -25,14 +25,18 @@ function Menu({ content: menuContent, totalNutrition, showTotal = true, loading,
   return (
     <div className={`w-full px-4 ${className || ''}`}>
 
-      {menuContent?.map((menuDish, index) => (
-        <MenuDish
-          menuDish={menuDish}
-          key={`${menuDish.name}-${date}`}
-          index={index}
-          showLike={true}
-        />
-      ))}
+      {menuContent?.map((menuDish, index) => {
+        const mealId = 'id' in menuDish && menuDish.id ? menuDish.id : undefined;
+        return (
+          <MenuDish
+            menuDish={menuDish}
+            key={mealId ? `${mealId}-${index}` : `${menuDish.name}-${date}-${index}`}
+            index={index}
+            showLike={true}
+            canBeConsumed={true}
+          />
+        );
+      })}
 
       {
         loading &&
@@ -52,6 +56,7 @@ function Menu({ content: menuContent, totalNutrition, showTotal = true, loading,
           <MenuDish
             menuDish={totalNutrition}
             showLike={false}
+            canBeConsumed={false}
           />
         </div>
       }

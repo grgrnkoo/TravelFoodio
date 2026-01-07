@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     image TEXT DEFAULT '',
     name TEXT,
     updates_remaining INTEGER DEFAULT 0,
+    daily_updates INTEGER DEFAULT 3,
     subscription_type TEXT DEFAULT 'free',
     onboarding1_completed BOOLEAN DEFAULT FALSE,
     onboarding2_completed BOOLEAN DEFAULT FALSE,
@@ -39,6 +40,9 @@ CREATE TABLE IF NOT EXISTS user_preferences (
     date_of_birth DATE,
     location TEXT DEFAULT '',
     daily_calories_suggested INTEGER DEFAULT 0,
+    daily_carbs_suggested INTEGER DEFAULT 0,
+    daily_proteins_suggested INTEGER DEFAULT 0,
+    daily_fats_suggested INTEGER DEFAULT 0,
     goals TEXT DEFAULT '',
     dietary_restrictions TEXT DEFAULT '',
     medical_recommendations JSONB DEFAULT '[]'::jsonb,
@@ -166,6 +170,29 @@ CREATE TABLE IF NOT EXISTS meals (
 CREATE INDEX IF NOT EXISTS idx_meals_name ON meals(name);
 
 -- =============================================
+-- CONSUMED MEALS TABLE
+-- Track meals consumed by users for calorie tracking
+-- =============================================
+CREATE TABLE IF NOT EXISTS consumed_meals (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    meal_name TEXT NOT NULL,
+    calories INTEGER,
+    protein INTEGER,
+    fats INTEGER,
+    carbs INTEGER,
+    weight INTEGER,
+    cuisine TEXT,
+    ingredients JSONB DEFAULT '[]'::jsonb,
+    consumed_at TIMESTAMPTZ DEFAULT NOW(),
+    consumed_date DATE DEFAULT CURRENT_DATE
+);
+
+CREATE INDEX IF NOT EXISTS idx_consumed_meals_user_id ON consumed_meals(user_id);
+CREATE INDEX IF NOT EXISTS idx_consumed_meals_consumed_date ON consumed_meals(consumed_date);
+CREATE INDEX IF NOT EXISTS idx_consumed_meals_user_meal_date ON consumed_meals(user_id, meal_name, consumed_date);
+
+-- =============================================
 -- FEEDBACK TABLE
 -- User feedback submissions
 -- =============================================
@@ -225,6 +252,7 @@ ALTER TABLE user_cuisines ENABLE ROW LEVEL SECURITY;
 ALTER TABLE menus ENABLE ROW LEVEL SECURITY;
 ALTER TABLE menu_meals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE consumed_meals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
 
 -- =============================================
@@ -313,6 +341,15 @@ CREATE POLICY "Service role has full access to menu_meals"
 CREATE POLICY "Users can view own menu meals"
     ON menu_meals FOR SELECT
     USING (menu_id IN (SELECT id FROM menus WHERE user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.uid()::text)) OR auth.role() = 'service_role');
+
+-- Consumed meals
+CREATE POLICY "Service role has full access to consumed_meals"
+    ON consumed_meals FOR ALL
+    USING (auth.role() = 'service_role');
+
+CREATE POLICY "Users can manage own consumed meals"
+    ON consumed_meals FOR ALL
+    USING (user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.uid()::text) OR auth.role() = 'service_role');
 
 -- Meals (global catalog - anyone can read, only service role can write)
 CREATE POLICY "Anyone can read meals"

@@ -9,6 +9,7 @@ import {
     getBottomCuisines
 } from '../../../../_lib/usersActions';
 import { getFullUserProfileForGeneration } from '../../../../_lib/supabase/queries';
+import { logErrorFromRequest } from '../../../../_lib/errorLogger';
 
 // const DEEPSEEK_API = process.env.DEEPSEEK_API; // Ensure this is set in your environment variables
 // const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'; // Replace with the actual DeepSeek API URL
@@ -148,13 +149,24 @@ const openai = new OpenAI({
 });
 
 export async function POST(req: Request) {
+    let userId: string | undefined;
     try {
         const body = await req.json();
-        const userId = body?.userId as string | undefined;
+        userId = body?.userId as string | undefined;
         const yesterdaysMeals: string[] = Array.isArray(body?.yesterdaysMeals) ? body.yesterdaysMeals : [];
 
         if (!userId || typeof userId !== 'string') {
             return NextResponse.json({ error: "Missing or invalid userId" }, { status: 400 });
+        }
+
+        // Check if user has updates remaining
+        const { resetUpdatesRemainingIfNeeded } = await import('../../../../_lib/supabase/queries/users');
+        const updatesCheck = await resetUpdatesRemainingIfNeeded(userId);
+        
+        if (!updatesCheck.success || updatesCheck.updatesRemaining <= 0) {
+            return NextResponse.json({ 
+                error: "Daily limit reached. You have used all menu generations for today. Try again tomorrow!" 
+            }, { status: 429 });
         }
 
         const fullProfile = await getFullUserProfileForGeneration(userId);
@@ -208,12 +220,14 @@ export async function POST(req: Request) {
             "fats": 10,
             "carbs": 40,
             "protein": 15,
-            "calories": 350
+            "calories": 350,
+            "weight": 350
           }
         ]
         - Return only JSON. No headings, no markdown, no explanations.
         - Never label a cuisine as "International" or "Fusion". Always choose a specific cuisine based on the dish.
         - Meals must be varied and not repeated from previous generations or days.
+        - Include 'weight' field representing the portion size in grams for accurate nutrition tracking (typically 200-500g for meals).
         `;
 
 
@@ -240,10 +254,11 @@ export async function POST(req: Request) {
         - Meals must be accessible in user's location. Prioritise popular dishes in region
 - Use user preferences for inspiration, but include variety and new dishes.
 - Avoid disliked meals, ingredients, and cuisines. Soft inclusion is acceptable if it improves diversity.
-- Meals must include common, realistic ingredients based on the user’s region.
+- Meals must include common, realistic ingredients based on the user's region.
 - Add as many meals/snacks as needed to reach the calorie target.
 - Each meal should have a specific cuisine. No "International".
 - Calorie values for individual meals should be slightly overestimated to ensure the total meets or slightly exceeds the user's daily goal. This helps avoid underfeeding.
+- Include realistic portion weights in grams (typically 200-500g for meals) for accurate nutrition tracking.
 
         
         Plan should be at least ${Math.ceil(dailyCaloriesSuggested / 370)} meals long.
@@ -331,6 +346,19 @@ export async function POST(req: Request) {
             ? (error as { response?: { data?: unknown } }).response?.data 
             : undefined;
         console.error('OpenAI API Error:', errorData || message);
+        
+        // Log error to database
+        try {
+            await logErrorFromRequest(
+                error instanceof Error ? error : new Error(message),
+                req,
+                userId
+            );
+        } catch (logErr) {
+            // If error logging fails, continue with original error response
+            console.error('Failed to log error:', logErr);
+        }
+        
         return new Response(
             JSON.stringify({ error: 'Failed to generate response' }),
             { status: 500 }

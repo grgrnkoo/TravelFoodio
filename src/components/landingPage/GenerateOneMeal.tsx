@@ -20,6 +20,9 @@ interface GenerateOneMealProps {
   promptValue: string;
   onChangePrompt: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  showLike?: boolean;
+  canBeConsumed?: boolean;
+  placeholder?: string;
 }
 
 export default function GenerateOneMeal({ 
@@ -28,13 +31,18 @@ export default function GenerateOneMeal({
   generatedMeal, 
   promptValue, 
   onChangePrompt, 
-  onKeyDown
+  onKeyDown,
+  showLike = false,
+  canBeConsumed = false,
+  placeholder
 }: GenerateOneMealProps) {
+  const defaultPlaceholder = "Describe your perfect meal, and our AI will generate one for you. Click 'Generate Sample Meal' when you're ready!";
+  
   return (
     <div className="w-full flex flex-1 h-full">
       {screen === 'textarea' ? (
         <TextAreaLanding
-          placeholder={`Describe your perfect meal, and our AI will generate one for you. Click 'Generate Sample Meal' when you're ready!`}
+          placeholder={placeholder || defaultPlaceholder}
           value={promptValue}
           onChange={onChangePrompt}
           onKeyDown={onKeyDown}
@@ -42,9 +50,9 @@ export default function GenerateOneMeal({
         />
       ) : screen === 'meal' ? (
         isLoading ? (
-          <MenuDishSkeleton showLike={false} />
+          <MenuDishSkeleton showLike={showLike} />
         ) : (
-          <MenuDish menuDish={generatedMeal} showLike={false} />
+          <MenuDish menuDish={generatedMeal} showLike={showLike} canBeConsumed={canBeConsumed} />
         )
       ) : null}
     </div>

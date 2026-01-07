@@ -427,6 +427,9 @@ export async function getUserPreferences(userId: string): Promise<IUserPreferenc
         dateOfBirth: data.date_of_birth || undefined,
         location: data.location || undefined,
         dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
+        dailyCarbsSuggested: data.daily_carbs_suggested || undefined,
+        dailyProteinsSuggested: data.daily_proteins_suggested || undefined,
+        dailyFatsSuggested: data.daily_fats_suggested || undefined,
         goals: data.goals || undefined,
         dietaryRestrictions: data.dietary_restrictions || undefined,
         medicalRecommendations: Array.isArray(data.medical_recommendations)
@@ -500,6 +503,9 @@ export async function createUserPreferences(
         date_of_birth: preferences.dateOfBirth ? (typeof preferences.dateOfBirth === 'string' ? preferences.dateOfBirth : preferences.dateOfBirth.toISOString().split('T')[0]) : undefined,
         location: preferences.location ?? undefined,
         daily_calories_suggested: preferences.dailyCaloriesSuggested ?? undefined,
+        daily_carbs_suggested: preferences.dailyCarbsSuggested ?? undefined,
+        daily_proteins_suggested: preferences.dailyProteinsSuggested ?? undefined,
+        daily_fats_suggested: preferences.dailyFatsSuggested ?? undefined,
         goals: preferences.goals ?? undefined,
         dietary_restrictions: preferences.dietaryRestrictions ?? undefined,
         // Store as JSONB array directly; Supabase client will handle serialization
@@ -527,6 +533,9 @@ export async function createUserPreferences(
         dateOfBirth: data.date_of_birth || undefined,
         location: data.location || undefined,
         dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
+        dailyCarbsSuggested: data.daily_carbs_suggested || undefined,
+        dailyProteinsSuggested: data.daily_proteins_suggested || undefined,
+        dailyFatsSuggested: data.daily_fats_suggested || undefined,
         goals: data.goals || undefined,
         dietaryRestrictions: data.dietary_restrictions || undefined,
         medicalRecommendations: Array.isArray(data.medical_recommendations)
@@ -564,6 +573,9 @@ export async function updateUserPreferences(
     }
     if (updates.location !== undefined) updateData.location = updates.location
     if (updates.dailyCaloriesSuggested !== undefined) updateData.daily_calories_suggested = updates.dailyCaloriesSuggested
+    if (updates.dailyCarbsSuggested !== undefined) updateData.daily_carbs_suggested = updates.dailyCarbsSuggested
+    if (updates.dailyProteinsSuggested !== undefined) updateData.daily_proteins_suggested = updates.dailyProteinsSuggested
+    if (updates.dailyFatsSuggested !== undefined) updateData.daily_fats_suggested = updates.dailyFatsSuggested
     if (updates.goals !== undefined) updateData.goals = updates.goals
     if (updates.dietaryRestrictions !== undefined) updateData.dietary_restrictions = updates.dietaryRestrictions
     if (updates.medicalRecommendations !== undefined) {
@@ -593,6 +605,9 @@ export async function updateUserPreferences(
         dateOfBirth: data.date_of_birth || undefined,
         location: data.location || undefined,
         dailyCaloriesSuggested: data.daily_calories_suggested || undefined,
+        dailyCarbsSuggested: data.daily_carbs_suggested || undefined,
+        dailyProteinsSuggested: data.daily_proteins_suggested || undefined,
+        dailyFatsSuggested: data.daily_fats_suggested || undefined,
         goals: data.goals || undefined,
         dietaryRestrictions: data.dietary_restrictions || undefined,
         medicalRecommendations: Array.isArray(data.medical_recommendations)

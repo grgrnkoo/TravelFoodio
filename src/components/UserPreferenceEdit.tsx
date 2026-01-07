@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Input } from "./ui/input";
 import { Check, X } from 'lucide-react';
 
-export default function UserPreferenceEdit(props) {
+export default function UserPreferenceEdit(props: { userData: string, inputState: boolean, onXClick: () => void, onCheckClick: (value: string) => void, handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>, value: string) => void }) {
     const { userData, inputState, onXClick, onCheckClick, handleKeyDown } = props;
     const [inputValue, setInputValue] = useState(userData);
 

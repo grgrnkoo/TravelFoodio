@@ -27,6 +27,9 @@ export interface IUserPreferences {
     dateOfBirth?: Date | string;
     location?: string;
     dailyCaloriesSuggested?: number;
+    dailyCarbsSuggested?: number;
+    dailyProteinsSuggested?: number;
+    dailyFatsSuggested?: number;
     goals?: string;
     dietaryRestrictions?: string;
     medicalRecommendations?: string[];
@@ -52,6 +55,7 @@ export interface IUser {
     ingredients: IUserIngredient[];
     cuisines: IUserCuisine[];
     updatesRemaining: number;
+    dailyUpdates: number;
     subscriptionType: string;
     onboarding1Completed: boolean;
     onboarding2Completed: boolean;
@@ -83,6 +87,7 @@ export interface IUserCore {
     image?: string;
     name?: string;
     updatesRemaining: number;
+    dailyUpdates: number;
     subscriptionType: string;
     onboarding1Completed: boolean;
     onboarding2Completed: boolean;
@@ -150,6 +155,22 @@ export interface TotalNutrition {
     carbs: number;
 }
 
+// Consumed Meal Types
+export interface IConsumedMeal {
+    id: string;
+    userId: string;
+    mealName: string;
+    calories?: number;
+    protein?: number;
+    fats?: number;
+    carbs?: number;
+    weight?: number;
+    cuisine?: string;
+    ingredients?: string[];
+    consumedAt: Date | string;
+    consumedDate: Date | string;
+}
+
 // API Response Types
 export interface ApiResponse<T = unknown> {
     success: boolean;
@@ -175,4 +196,18 @@ export interface GenerateMenuResponse {
         carbs: number;
         fat: number;
     }>;
+}
+
+// Error Log Types
+export interface IErrorLog {
+    id: string;
+    userId?: string;
+    errorType: string;
+    errorMessage: string;
+    errorStack?: string;
+    endpoint?: string;
+    requestData?: Record<string, unknown>;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    resolved: boolean;
+    createdAt: Date | string;
 }

@@ -270,9 +270,11 @@ export async function addMealToDb(meal: {
 
 export async function generateMeal(
     promptValue: string,
-    setIsLoading: SetStateAction<boolean>
-): Promise<MealData | null> {
+    setIsLoading: SetStateAction<boolean>,
+    professionalMode?: boolean
+): Promise<MealData | { error: string } | null> {
     console.log("[generateMeal] Starting with prompt:", promptValue);
+    console.log("[generateMeal] Professional mode:", professionalMode);
     console.log("[generateMeal] baseUrl:", baseUrl);
     console.log("[generateMeal] Full URL:", `${baseUrl}/api/generateOneMeal`);
     
@@ -282,16 +284,30 @@ export async function generateMeal(
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ promptValue }),
+            body: JSON.stringify({ promptValue, professionalMode: professionalMode || false }),
         });
 
         console.log("[generateMeal] Response status:", response.status);
         console.log("[generateMeal] Response headers:", Object.fromEntries(response.headers.entries()));
 
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error("[generateMeal] Failed to generate meal:", response.status, errorText);
-            throw new Error(`Failed to generate meal: ${response.status}`);
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch {
+                errorData = { error: 'Unknown error' };
+            }
+            const errorMessage = errorData.error || `Failed to generate meal: ${response.status}`;
+            console.error("[generateMeal] Failed to generate meal:", response.status, errorMessage);
+            
+            // Return error object with message for limit errors
+            if (response.status === 429) {
+                setIsLoading(false);
+                return { error: errorMessage };
+            }
+            
+            setIsLoading(false);
+            return null;
         }
 
         const contentType = response.headers.get("content-type");

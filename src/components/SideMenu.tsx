@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { PencilIcon, Home, Sparkles, History, Heart, ThumbsDown, Utensils, Globe } from "lucide-react";
+import { PencilIcon, Home, Sparkles, History, Heart, ThumbsDown, Utensils, Globe, Clock, ImageIcon, Shield } from "lucide-react";
 import BlankAvatarSvg from "@/ui/images/BlankAvatarSvg";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
@@ -66,6 +66,16 @@ export default function SideMenu({ className }: { className: string }) {
                     onClick={() => { router.push('/user/generate-menu') }}
                 />
                 <SideMenuButton
+                    icon={<Sparkles className="h-4 w-4 text-muted-foreground" />}
+                    label="Generate One Dish"
+                    onClick={() => { router.push('/user/generate-one-dish') }}
+                />
+                <SideMenuButton
+                    icon={<ImageIcon className="h-4 w-4 text-muted-foreground" />}
+                    label="Inspect Photo with AI"
+                    onClick={() => { router.push('/user/inspect-photo') }}
+                />
+                <SideMenuButton
                     icon={<PencilIcon className="h-4 w-4 text-muted-foreground" />}
                     label="Edit Profile"
                     onClick={() => { router.push('/user/editprofile') }}
@@ -74,6 +84,11 @@ export default function SideMenu({ className }: { className: string }) {
                     icon={<History className="h-4 w-4 text-muted-foreground" />}
                     label="History"
                     onClick={() => { router.push('/user/history') }}
+                />
+                <SideMenuButton
+                    icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+                    label="Consumed Meals"
+                    onClick={() => { router.push('/user/consumed') }}
                 />
                 <SideMenuButton
                     icon={<Heart className="h-4 w-4 text-muted-foreground" />}
@@ -95,6 +110,13 @@ export default function SideMenu({ className }: { className: string }) {
                     label="Cuisines"
                     onClick={() => { router.push('/user/cuisines') }}
                 />
+                {userProfileDynamic?.subscriptionType === 'admin' && (
+                    <SideMenuButton
+                        icon={<Shield className="h-4 w-4 text-muted-foreground" />}
+                        label="Admin Panel"
+                        onClick={() => { router.push('/admin') }}
+                    />
+                )}
             </CardContent>
         </Card >
     );

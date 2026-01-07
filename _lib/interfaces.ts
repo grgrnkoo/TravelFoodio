@@ -100,6 +100,7 @@ export interface User {
     onboarding1Completed?: boolean;
     onboarding2Completed?: boolean;
     updatesRemaining?: number | null;
+    dailyUpdates?: number | null;
     [key: string]: unknown;
 }
 

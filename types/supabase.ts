@@ -17,6 +17,7 @@ export interface Database {
           image: string | null
           name: string | null
           updates_remaining: number
+          daily_updates: number
           subscription_type: string
           onboarding1_completed: boolean
           onboarding2_completed: boolean
@@ -30,6 +31,7 @@ export interface Database {
           image?: string | null
           name?: string | null
           updates_remaining?: number
+          daily_updates?: number
           subscription_type?: string
           onboarding1_completed?: boolean
           onboarding2_completed?: boolean
@@ -43,6 +45,7 @@ export interface Database {
           image?: string | null
           name?: string | null
           updates_remaining?: number
+          daily_updates?: number
           subscription_type?: string
           onboarding1_completed?: boolean
           onboarding2_completed?: boolean
@@ -59,6 +62,9 @@ export interface Database {
           date_of_birth: string | null
           location: string | null
           daily_calories_suggested: number
+          daily_carbs_suggested: number
+          daily_proteins_suggested: number
+          daily_fats_suggested: number
           goals: string | null
           dietary_restrictions: string | null
           medical_recommendations: Json
@@ -75,6 +81,9 @@ export interface Database {
           date_of_birth?: string | null
           location?: string | null
           daily_calories_suggested?: number
+          daily_carbs_suggested?: number
+          daily_proteins_suggested?: number
+          daily_fats_suggested?: number
           goals?: string | null
           dietary_restrictions?: string | null
           medical_recommendations?: Json
@@ -91,6 +100,9 @@ export interface Database {
           date_of_birth?: string | null
           location?: string | null
           daily_calories_suggested?: number
+          daily_carbs_suggested?: number
+          daily_proteins_suggested?: number
+          daily_fats_suggested?: number
           goals?: string | null
           dietary_restrictions?: string | null
           medical_recommendations?: Json
@@ -346,6 +358,58 @@ export interface Database {
         }
         Relationships: []
       }
+      consumed_meals: {
+        Row: {
+          id: string
+          user_id: string
+          meal_name: string
+          calories: number | null
+          protein: number | null
+          fats: number | null
+          carbs: number | null
+          weight: number | null
+          cuisine: string | null
+          ingredients: Json
+          consumed_at: string
+          consumed_date: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          meal_name: string
+          calories?: number | null
+          protein?: number | null
+          fats?: number | null
+          carbs?: number | null
+          weight?: number | null
+          cuisine?: string | null
+          ingredients?: Json
+          consumed_at?: string
+          consumed_date?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          meal_name?: string
+          calories?: number | null
+          protein?: number | null
+          fats?: number | null
+          carbs?: number | null
+          weight?: number | null
+          cuisine?: string | null
+          ingredients?: Json
+          consumed_at?: string
+          consumed_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consumed_meals_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       feedback: {
         Row: {
           id: string
@@ -366,6 +430,107 @@ export interface Database {
           created_at?: string
         }
         Relationships: []
+      }
+      single_meals: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          calories: number | null
+          protein: number | null
+          fats: number | null
+          carbs: number | null
+          weight: number | null
+          cuisine: string | null
+          ingredients: Json
+          source: 'photo' | 'prompt'
+          created_at: string
+          generation_date: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          calories?: number | null
+          protein?: number | null
+          fats?: number | null
+          carbs?: number | null
+          weight?: number | null
+          cuisine?: string | null
+          ingredients?: Json
+          source: 'photo' | 'prompt'
+          created_at?: string
+          generation_date?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          calories?: number | null
+          protein?: number | null
+          fats?: number | null
+          carbs?: number | null
+          weight?: number | null
+          cuisine?: string | null
+          ingredients?: Json
+          source?: 'photo' | 'prompt'
+          created_at?: string
+          generation_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "single_meals_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      error_logs: {
+        Row: {
+          id: string
+          user_id: string | null
+          error_type: string
+          error_message: string
+          error_stack: string | null
+          endpoint: string | null
+          request_data: Json | null
+          severity: 'low' | 'medium' | 'high' | 'critical'
+          resolved: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          error_type: string
+          error_message: string
+          error_stack?: string | null
+          endpoint?: string | null
+          request_data?: Json | null
+          severity?: 'low' | 'medium' | 'high' | 'critical'
+          resolved?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          error_type?: string
+          error_message?: string
+          error_stack?: string | null
+          endpoint?: string | null
+          request_data?: Json | null
+          severity?: 'low' | 'medium' | 'high' | 'critical'
+          resolved?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "error_logs_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
@@ -433,4 +598,11 @@ export type Menu = Tables<'menus'>
 export type MenuMeal = Tables<'menu_meals'>
 export type Meal = Tables<'meals'>
 export type Feedback = Tables<'feedback'>
+export type SingleMeal = Tables<'single_meals'>
+export type SingleMealInsert = InsertTables<'single_meals'>
+export type SingleMealUpdate = UpdateTables<'single_meals'>
+
+export type ErrorLog = Tables<'error_logs'>
+export type ErrorLogInsert = InsertTables<'error_logs'>
+export type ErrorLogUpdate = UpdateTables<'error_logs'>
 

@@ -5,9 +5,8 @@ import Menu from "@/components/Menu";
 import { useEffect, useState, useContext } from "react";
 import { UserContext } from "@/components/UserProvider";
 import { checkDbForMenu, handleGenerateMenu, fetchYesterdayMeals } from "../../../../_lib/menuActions";
-import { decreaseUpdates, resetUpdates } from "../../../../_lib/usersActions";
+import { decreaseUpdates } from "../../../../_lib/usersActions";
 import { usePopup } from "@/components/providers/PopUpProvider";
-import { Alert } from "@/components/Alert";
 import RandomThinkingSvg from "@/components/RandomThinkingSvg";
 // import MenuDish from "@/components/MenuDish";
 import MenuClass from "@/classes/MenuClass";
@@ -24,8 +23,22 @@ export default function MenuGenerator() {
     const [updatesRemaining, setUpdatesRemaining] = useState(userProfileDynamic?.updatesRemaining);
     const [yesterdaysMeals, setYesterdaysMeals] = useState<string[]>([]);
 
-    // Fetch the menu from the database when the user profile is available
+    // Fetch daily updates count (with auto-reset if needed)
+    const fetchDailyUpdates = async () => {
+        try {
+            const response = await fetch('/api/menu-generations');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    setUpdatesRemaining(data.remaining);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching daily updates:', error);
+        }
+    };
 
+    // Fetch the menu from the database when the user profile is available
     const fetchMenu = async () => {
         if (!userProfile?._id) return;
         const userId = userProfile._id as string;
@@ -39,11 +52,6 @@ export default function MenuGenerator() {
                 const totalNutrition = newMenu.calculateTotalNutrition()
                 setTotalNutrition(totalNutrition);
                 setMenuContent(newMenu.meals);
-            } else {
-                const resetResult = await resetUpdates(userId, userProfile?.subscriptionType);
-                if (resetResult.success) {
-                    setUpdatesRemaining(resetResult.updatesRemaining);
-                }
             }
         } else {
             console.error('Failed to fetch menu:', fetchedMenu.message);
@@ -55,6 +63,7 @@ export default function MenuGenerator() {
         let fetched = false;
         if (userProfile?._id && !fetched) {
             fetchMenu();
+            fetchDailyUpdates();
             fetched = true;
         }
         console.log('menuContent', menuContent);
@@ -93,6 +102,7 @@ export default function MenuGenerator() {
                 ingredients: (userProfileDynamic.ingredients || []) as IUserIngredient[],
                 cuisines: (userProfileDynamic.cuisines || []) as IUserCuisine[],
                 updatesRemaining: userProfileDynamic.updatesRemaining,
+                dailyUpdates: userProfileDynamic.dailyUpdates ?? 3,
                 subscriptionType: userProfileDynamic.subscriptionType,
                 onboarding1Completed: userProfileDynamic.onboarding1Completed,
                 onboarding2Completed: userProfileDynamic.onboarding2Completed,
@@ -114,6 +124,8 @@ export default function MenuGenerator() {
                     } else {
                         console.error('Failed to update remaining number of updates:', decreaseResult.error);
                     }
+                    // Refresh count after successful generation
+                    await fetchDailyUpdates();
                 } catch (updateError) {
                     console.error('Error while decreasing updates:', updateError);
                 }
@@ -159,12 +171,11 @@ export default function MenuGenerator() {
                 )
             }
 
-            {!loading && updatesRemaining === 0 && (
-                <Alert variant="red" title="You're out of refreshes!">
-                    {userProfile?.subscriptionType !== "premium" && (
-                        <p>Upgrade your plan to get more refresh attempts!</p>
-                    )}
-                </Alert>
+            {/* Display daily updates count above button */}
+            {updatesRemaining !== null && updatesRemaining !== undefined && (
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
+                    You have {updatesRemaining} generation{updatesRemaining !== 1 ? 's' : ''} left today
+                </p>
             )}
             {/* Button to generate a new menu */}
             {/* <span className="text-xs text-center max-w-[70%] text-gray-400 my-1">Note: It's recommended to refresh a page after updating preferences to reach most specific results!</span> */}

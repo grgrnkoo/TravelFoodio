@@ -10,6 +10,7 @@ import type {
 } from '../../../types'
 import type { UserInsert, UserUpdate } from '../../../types/supabase'
 import { getUserMenuPreferences, getUserMealPreferences } from './preferences'
+import { menuExistsForToday } from './menus'
 
 const supabase = getSupabaseServerClient()
 
@@ -22,6 +23,7 @@ function transformToUserCore(row: Record<string, unknown>): IUserCore {
         image: row.image as string | undefined,
         name: row.name as string | undefined,
         updatesRemaining: row.updates_remaining as number,
+        dailyUpdates: (row.daily_updates as number) ?? 3,
         subscriptionType: row.subscription_type as string,
         onboarding1Completed: (row.onboarding1_completed as boolean) || false,
         onboarding2Completed: (row.onboarding2_completed as boolean) || false,
@@ -167,6 +169,7 @@ export async function getUserFullProfile(clerkUserId: string): Promise<IUser | n
         name: userData.name || undefined,
         preferences: menuPreferences || undefined,
         updatesRemaining: userData.updates_remaining,
+        dailyUpdates: (userData.daily_updates as number) ?? 3,
         subscriptionType: userData.subscription_type,
         onboarding1Completed: userData.onboarding1_completed || false,
         onboarding2Completed: userData.onboarding2_completed || false,
@@ -396,5 +399,66 @@ export async function updateUserUpdatesRemaining(
     }
 
     return { success: true, updatesRemaining: data.updates_remaining }
+}
+
+// Reset updates_remaining to daily_updates if no menus generated today
+export async function resetUpdatesRemainingIfNeeded(
+    userId: string
+): Promise<{ success: boolean; updatesRemaining: number; dailyLimit: number }> {
+    const hasMenuToday = await menuExistsForToday(userId)
+    
+    // If no menu today, reset updates_remaining to daily_updates
+    if (!hasMenuToday) {
+        // First get the daily_updates value
+        const { data: userData, error: fetchError } = await supabase
+            .from('users')
+            .select('daily_updates')
+            .eq('id', userId)
+            .single()
+
+        if (fetchError || !userData) {
+            console.error('[resetUpdatesRemainingIfNeeded] Error fetching user:', fetchError?.message)
+            return { success: false, updatesRemaining: 0, dailyLimit: 3 }
+        }
+
+        const dailyUpdates = userData.daily_updates ?? 3
+
+        // Reset updates_remaining to daily_updates
+        const { data, error } = await supabase
+            .from('users')
+            .update({ updates_remaining: dailyUpdates })
+            .eq('id', userId)
+            .select('updates_remaining, daily_updates')
+            .single()
+
+        if (error) {
+            console.error('[resetUpdatesRemainingIfNeeded] Error:', error.message)
+            return { success: false, updatesRemaining: 0, dailyLimit: dailyUpdates }
+        }
+
+        return { 
+            success: true, 
+            updatesRemaining: data.updates_remaining, 
+            dailyLimit: data.daily_updates ?? 3 
+        }
+    }
+    
+    // If menu exists today, just return current counts
+    const { data, error } = await supabase
+        .from('users')
+        .select('updates_remaining, daily_updates')
+        .eq('id', userId)
+        .single()
+
+    if (error) {
+        console.error('[resetUpdatesRemainingIfNeeded] Error:', error.message)
+        return { success: false, updatesRemaining: 0, dailyLimit: 3 }
+    }
+
+    return { 
+        success: true, 
+        updatesRemaining: data.updates_remaining ?? 0, 
+        dailyLimit: data.daily_updates ?? 3 
+    }
 }
 
