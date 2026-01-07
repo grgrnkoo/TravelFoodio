@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getUserByClerkId } from "../_lib/supabase/queries/users";
 
@@ -49,26 +49,63 @@ export default clerkMiddleware(async (auth, request) => {
     console.log("[Proxy] Checking onboarding status for userId:", userId);
     console.log("[Proxy] sessionClaims structure:", JSON.stringify(sessionClaims, null, 2));
     
+    // Check if publicMetadata object exists in JWT token
+    // Clerk's JWT tokens don't include publicMetadata by default, so we need to check if it exists
+    const hasPublicMetadataInJWT = sessionClaims?.publicMetadata !== undefined;
+    const hasMetadataInJWT = sessionClaims?.metadata !== undefined;
+    
+    console.log("[Proxy] Checking for metadata in JWT - hasPublicMetadata:", hasPublicMetadataInJWT, "hasMetadata:", hasMetadataInJWT);
+    
     // Try both possible paths: publicMetadata (Clerk standard) and metadata (custom type)
-    const onboarding2CompletedFromPublicMetadata = (sessionClaims?.publicMetadata as Record<string, unknown>)?.onboarding2Completed as boolean | undefined;
-    const onboarding1CompletedFromPublicMetadata = (sessionClaims?.publicMetadata as Record<string, unknown>)?.onboarding1Completed as boolean | undefined;
+    const onboarding2CompletedFromPublicMetadata = hasPublicMetadataInJWT 
+        ? (sessionClaims.publicMetadata as Record<string, unknown>)?.onboarding2Completed as boolean | undefined
+        : undefined;
+    const onboarding1CompletedFromPublicMetadata = hasPublicMetadataInJWT
+        ? (sessionClaims.publicMetadata as Record<string, unknown>)?.onboarding1Completed as boolean | undefined
+        : undefined;
     
-    const onboarding2CompletedFromMetadata = sessionClaims?.metadata?.onboarding2Completed as boolean | undefined;
-    const onboarding1CompletedFromMetadata = sessionClaims?.metadata?.onboarding1Completed as boolean | undefined;
+    const onboarding2CompletedFromMetadata = hasMetadataInJWT
+        ? sessionClaims.metadata?.onboarding2Completed as boolean | undefined
+        : undefined;
+    const onboarding1CompletedFromMetadata = hasMetadataInJWT
+        ? sessionClaims.metadata?.onboarding1Completed as boolean | undefined
+        : undefined;
     
-    // Use whichever path has values, prefer publicMetadata (Clerk standard)
     let onboarding2Completed = onboarding2CompletedFromPublicMetadata ?? onboarding2CompletedFromMetadata;
     let onboarding1Completed = onboarding1CompletedFromPublicMetadata ?? onboarding1CompletedFromMetadata;
     
-    console.log("[Proxy] Clerk metadata - onboarding1Completed:", onboarding1Completed, "onboarding2Completed:", onboarding2Completed);
-    console.log("[Proxy] publicMetadata path values:", { onboarding1CompletedFromPublicMetadata, onboarding2CompletedFromPublicMetadata });
-    console.log("[Proxy] metadata path values:", { onboarding1CompletedFromMetadata, onboarding2CompletedFromMetadata });
+    // If metadata is missing from JWT token (which is the default case), fetch directly from Clerk's API
+    // This ensures we always have the latest metadata values without waiting for JWT refresh
+    if (!hasPublicMetadataInJWT && !hasMetadataInJWT) {
+        console.log("[Proxy] publicMetadata not found in JWT token, fetching directly from Clerk API");
+        try {
+            const clerk = await clerkClient();
+            const clerkUser = await clerk.users.getUser(userId);
+            const publicMetadata = (clerkUser.publicMetadata as Record<string, unknown>) || {};
+            
+            onboarding1Completed = publicMetadata.onboarding1Completed as boolean | undefined;
+            onboarding2Completed = publicMetadata.onboarding2Completed as boolean | undefined;
+            
+            console.log("[Proxy] ✅ Fetched metadata from Clerk API:", {
+                onboarding1Completed,
+                onboarding2Completed,
+                fullMetadata: publicMetadata
+            });
+        } catch (clerkError) {
+            console.error("[Proxy] ❌ Error fetching metadata from Clerk API:", clerkError);
+            // Continue with undefined values - will fall back to database below
+        }
+    } else {
+        console.log("[Proxy] Using metadata from JWT token");
+        console.log("[Proxy] Clerk metadata - onboarding1Completed:", onboarding1Completed, "onboarding2Completed:", onboarding2Completed);
+        console.log("[Proxy] publicMetadata path values:", { onboarding1CompletedFromPublicMetadata, onboarding2CompletedFromPublicMetadata });
+        console.log("[Proxy] metadata path values:", { onboarding1CompletedFromMetadata, onboarding2CompletedFromMetadata });
+    }
     
-    // If Clerk metadata is unavailable or incomplete, fall back to database
+    // If Clerk metadata is still unavailable or incomplete, fall back to database
     // This handles cases where:
-    // 1. Metadata is completely missing (both undefined)
-    // 2. Metadata is stale (one or both flags missing but user should be onboarded)
-    // 3. Session cookie hasn't refreshed after metadata update
+    // 1. Metadata fetch from Clerk API failed
+    // 2. Metadata is incomplete (one flag missing)
     const needsDbFallback = 
         (onboarding2Completed === undefined && onboarding1Completed === undefined) ||
         (onboarding2Completed === undefined && onboarding1Completed === true) ||
@@ -79,9 +116,9 @@ export default clerkMiddleware(async (auth, request) => {
         try {
             const userFromDb = await getUserByClerkId(userId);
             if (userFromDb) {
-                // Use database values, but prefer Clerk metadata if it exists (for step 1)
-                onboarding1Completed = onboarding1CompletedFromPublicMetadata ?? onboarding1CompletedFromMetadata ?? userFromDb.onboarding1Completed ?? false;
-                onboarding2Completed = onboarding2CompletedFromPublicMetadata ?? onboarding2CompletedFromMetadata ?? userFromDb.onboarding2Completed ?? false;
+                // Use database values, but prefer Clerk metadata if it exists
+                onboarding1Completed = onboarding1Completed ?? userFromDb.onboarding1Completed ?? false;
+                onboarding2Completed = onboarding2Completed ?? userFromDb.onboarding2Completed ?? false;
                 console.log("[Proxy] Database fallback - onboarding1Completed:", onboarding1Completed, "onboarding2Completed:", onboarding2Completed);
             } else {
                 console.log("[Proxy] User not found in database, defaulting to not onboarded");

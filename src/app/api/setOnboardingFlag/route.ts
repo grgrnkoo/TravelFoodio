@@ -37,6 +37,19 @@ export async function PATCH(req: NextRequest) {
         const userId_db = authenticatedUser.id;
         const clerkUserId = authenticatedUser.clerk_user_id;
 
+        // Fetch current user metadata from Clerk to preserve existing values
+        // This is critical because updateUserMetadata replaces the entire publicMetadata object
+        let existingPublicMetadata: Record<string, unknown> = {};
+        try {
+            const clerk = await clerkClient();
+            const clerkUser = await clerk.users.getUser(clerkUserId);
+            existingPublicMetadata = (clerkUser.publicMetadata as Record<string, unknown>) || {};
+            console.log("Fetched existing Clerk metadata:", existingPublicMetadata);
+        } catch (clerkError) {
+            console.warn("Could not fetch existing Clerk metadata, starting fresh:", clerkError);
+            // Continue with empty metadata - this is fine for new users
+        }
+
         if (stringifiedStep === '1') {
             // Step 1: User has saved preferences
             const { data, error } = await supabase
@@ -52,15 +65,20 @@ export async function PATCH(req: NextRequest) {
 
             console.log("Updated User in DB (Step 1):", data);
 
-            // Update Clerk metadata for step 1 so middleware can check it
+            // Update Clerk metadata for step 1 - merge with existing metadata
+            // This preserves onboarding2Completed if it was already set
             try {
                 const clerk = await clerkClient();
                 await clerk.users.updateUserMetadata(clerkUserId, {
                     publicMetadata: {
+                        ...existingPublicMetadata,
                         onboarding1Completed: true
                     }
                 });
-                console.log("Updated Clerk metadata (Step 1)");
+                console.log("Updated Clerk metadata (Step 1) - merged with existing:", {
+                    ...existingPublicMetadata,
+                    onboarding1Completed: true
+                });
             } catch (clerkError) {
                 console.error("Error updating Clerk metadata:", clerkError);
                 // Don't fail the request if Clerk update fails
@@ -84,16 +102,21 @@ export async function PATCH(req: NextRequest) {
             console.log("Updated User in DB (Step 2 - Onboarding Complete):", data);
 
             // Update Clerk metadata - step 2 completes onboarding
-            // Include both flags to ensure middleware has correct state
+            // Merge both flags with existing metadata to preserve any other fields
             try {
                 const clerk = await clerkClient();
                 await clerk.users.updateUserMetadata(clerkUserId, {
                     publicMetadata: {
+                        ...existingPublicMetadata,
                         onboarding1Completed: true,
                         onboarding2Completed: true
                     }
                 });
-                console.log("Updated Clerk metadata (Step 2 - Onboarding Complete)");
+                console.log("Updated Clerk metadata (Step 2 - Onboarding Complete) - merged with existing:", {
+                    ...existingPublicMetadata,
+                    onboarding1Completed: true,
+                    onboarding2Completed: true
+                });
                 console.log("Note: Client session cookie will need to be refreshed to reflect updated metadata");
             } catch (clerkError) {
                 console.error("Error updating Clerk metadata:", clerkError);
