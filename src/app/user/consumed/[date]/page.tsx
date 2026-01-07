@@ -7,6 +7,8 @@ import ConsumedNutritionBar from "@/components/ConsumedNutritionBar";
 import RandomThinkingSvg from "@/components/RandomThinkingSvg";
 import type { IMeal } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ConsumedByDate({ params }: { params: Promise<{ date: string }> }) {
     const awaitedParams = await params;
     const dateString = awaitedParams.date;

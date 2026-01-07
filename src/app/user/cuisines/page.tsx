@@ -4,6 +4,8 @@ import { getUserMealPreferences } from "../../../../_lib/supabase/queries/prefer
 import CuisinesList from "./CuisinesList";
 import type { IUserCuisine } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CuisinesPage() {
     const { userId } = await auth();
     

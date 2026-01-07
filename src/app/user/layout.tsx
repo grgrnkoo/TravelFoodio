@@ -4,6 +4,8 @@ import { ensureUserExists } from "../../../_lib/supabase/queries/users";
 import SideMenu from "@/components/SideMenu";
 import { MealPreferencesProvider } from "@/components/MealPreferencesProvider";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     let userId = null;
     let userProfile = null;

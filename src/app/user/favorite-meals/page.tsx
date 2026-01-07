@@ -5,6 +5,8 @@ import { getFavoriteMealsWithData } from "../../../../_lib/supabase/queries/menu
 import FavoriteMealsList from "./FavoriteMealsList";
 import type { IMeal } from "@/types";
 
+export const dynamic = 'force-dynamic';
+
 export default async function FavoriteMealsPage() {
     const { userId } = await auth();
     
