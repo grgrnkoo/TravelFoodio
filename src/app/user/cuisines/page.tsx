@@ -1,12 +1,14 @@
+import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../../_lib/supabase/queries/users";
 import { getUserMealPreferences } from "../../../../_lib/supabase/queries/preferences";
 import CuisinesList from "./CuisinesList";
+import CuisinesSkeleton from "@/components/loadingSkeletons/CuisinesSkeleton";
 import type { IUserCuisine } from "@/types";
 
 export const dynamic = 'force-dynamic';
 
-export default async function CuisinesPage() {
+async function CuisinesContent() {
     const { userId } = await auth();
     
     if (!userId) {
@@ -36,5 +38,13 @@ export default async function CuisinesPage() {
         <div className="w-full">
             <CuisinesList cuisines={sortedCuisines} />
         </div>
+    );
+}
+
+export default async function CuisinesPage() {
+    return (
+        <Suspense fallback={<CuisinesSkeleton />}>
+            <CuisinesContent />
+        </Suspense>
     );
 }

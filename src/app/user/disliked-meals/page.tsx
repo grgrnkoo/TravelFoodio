@@ -1,13 +1,15 @@
+import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../../_lib/supabase/queries/users";
 import { getUserMealPreferences } from "../../../../_lib/supabase/queries/preferences";
 import { getFavoriteMealsWithData } from "../../../../_lib/supabase/queries/menus";
 import DislikedMealsList from "./DislikedMealsList";
+import DislikedMealsSkeleton from "@/components/loadingSkeletons/DislikedMealsSkeleton";
 import type { IMeal } from "@/types";
 
 export const dynamic = 'force-dynamic';
 
-export default async function DislikedMealsPage() {
+async function DislikedMealsContent() {
     const { userId } = await auth();
     
     if (!userId) {
@@ -38,5 +40,13 @@ export default async function DislikedMealsPage() {
         <div className="w-full">
             <DislikedMealsList meals={dislikedMeals} />
         </div>
+    );
+}
+
+export default async function DislikedMealsPage() {
+    return (
+        <Suspense fallback={<DislikedMealsSkeleton />}>
+            <DislikedMealsContent />
+        </Suspense>
     );
 }

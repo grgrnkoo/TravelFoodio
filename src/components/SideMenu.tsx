@@ -3,17 +3,16 @@
 import { useContext } from "react";
 import { UserContext } from "./UserProvider";
 import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { PencilIcon, Home, Sparkles, History, Heart, ThumbsDown, Utensils, Globe, Clock, ImageIcon, Shield } from "lucide-react";
 import BlankAvatarSvg from "@/ui/images/BlankAvatarSvg";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
 
 export default function SideMenu({ className }: { className: string }) {
     const { userProfile, userProfileDynamic } = useContext(UserContext);
-    const router = useRouter();
 
 
     if (!userProfile) {
@@ -58,63 +57,63 @@ export default function SideMenu({ className }: { className: string }) {
                 <SideMenuButton
                     icon={<Home className="h-4 w-4 text-muted-foreground" />}
                     label="Homepage"
-                    onClick={() => { router.push('/user') }}
+                    href="/user"
                 />
                 <SideMenuButton
                     icon={<Sparkles className="h-4 w-4 text-muted-foreground" />}
                     label="Generate Menu"
-                    onClick={() => { router.push('/user/generate-menu') }}
+                    href="/user/generate-menu"
                 />
                 <SideMenuButton
                     icon={<Sparkles className="h-4 w-4 text-muted-foreground" />}
                     label="Generate One Dish"
-                    onClick={() => { router.push('/user/generate-one-dish') }}
+                    href="/user/generate-one-dish"
                 />
                 <SideMenuButton
                     icon={<ImageIcon className="h-4 w-4 text-muted-foreground" />}
                     label="Inspect Photo with AI"
-                    onClick={() => { router.push('/user/inspect-photo') }}
+                    href="/user/inspect-photo"
                 />
                 <SideMenuButton
                     icon={<PencilIcon className="h-4 w-4 text-muted-foreground" />}
                     label="Edit Profile"
-                    onClick={() => { router.push('/user/editprofile') }}
+                    href="/user/editprofile"
                 />
                 <SideMenuButton
                     icon={<History className="h-4 w-4 text-muted-foreground" />}
                     label="History"
-                    onClick={() => { router.push('/user/history') }}
+                    href="/user/history"
                 />
                 <SideMenuButton
                     icon={<Clock className="h-4 w-4 text-muted-foreground" />}
                     label="Consumed Meals"
-                    onClick={() => { router.push('/user/consumed') }}
+                    href="/user/consumed"
                 />
                 <SideMenuButton
                     icon={<Heart className="h-4 w-4 text-muted-foreground" />}
                     label="Favorite Meals"
-                    onClick={() => { router.push('/user/favorite-meals') }}
+                    href="/user/favorite-meals"
                 />
                 <SideMenuButton
                     icon={<ThumbsDown className="h-4 w-4 text-muted-foreground" />}
                     label="Disliked Meals"
-                    onClick={() => { router.push('/user/disliked-meals') }}
+                    href="/user/disliked-meals"
                 />
                 <SideMenuButton
                     icon={<Utensils className="h-4 w-4 text-muted-foreground" />}
                     label="Ingredients"
-                    onClick={() => { router.push('/user/ingredients') }}
+                    href="/user/ingredients"
                 />
                 <SideMenuButton
                     icon={<Globe className="h-4 w-4 text-muted-foreground" />}
                     label="Cuisines"
-                    onClick={() => { router.push('/user/cuisines') }}
+                    href="/user/cuisines"
                 />
                 {userProfileDynamic?.subscriptionType === 'admin' && (
                     <SideMenuButton
                         icon={<Shield className="h-4 w-4 text-muted-foreground" />}
                         label="Admin Panel"
-                        onClick={() => { router.push('/admin') }}
+                        href="/admin"
                     />
                 )}
             </CardContent>
@@ -122,13 +121,13 @@ export default function SideMenu({ className }: { className: string }) {
     );
 }
 
-function SideMenuButton({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) {
+function SideMenuButton({ icon, label, href }: { icon: React.ReactNode, label: string, href: string }) {
     return (
-        <>
-            <Button variant="ghost" className="w-full justify-start" onClick={onClick}>
+        <Button variant="ghost" className="w-full justify-start" asChild>
+            <Link href={href}>
                 {icon}
                 {label}
-            </Button>
-        </>
+            </Link>
+        </Button>
     );
 }

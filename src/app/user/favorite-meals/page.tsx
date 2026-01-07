@@ -1,13 +1,15 @@
+import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../../_lib/supabase/queries/users";
 import { getUserMealPreferences } from "../../../../_lib/supabase/queries/preferences";
 import { getFavoriteMealsWithData } from "../../../../_lib/supabase/queries/menus";
 import FavoriteMealsList from "./FavoriteMealsList";
+import FavoriteMealsSkeleton from "@/components/loadingSkeletons/FavoriteMealsSkeleton";
 import type { IMeal } from "@/types";
 
 export const dynamic = 'force-dynamic';
 
-export default async function FavoriteMealsPage() {
+async function FavoriteMealsContent() {
     const { userId } = await auth();
     
     if (!userId) {
@@ -41,5 +43,13 @@ export default async function FavoriteMealsPage() {
         <div className="w-full">
             <FavoriteMealsList meals={favoriteMeals} />
         </div>
+    );
+}
+
+export default async function FavoriteMealsPage() {
+    return (
+        <Suspense fallback={<FavoriteMealsSkeleton />}>
+            <FavoriteMealsContent />
+        </Suspense>
     );
 }

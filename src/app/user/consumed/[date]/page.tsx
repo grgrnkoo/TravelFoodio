@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../../../_lib/supabase/queries/users";
 import { getConsumedMealsByDate, getDailyNutritionTotals } from "../../../../../_lib/supabase/queries/consumedMeals";
@@ -5,11 +6,12 @@ import { getUserPreferences } from "../../../../../_lib/supabase/queries/prefere
 import Menu from "@/components/Menu";
 import ConsumedNutritionBar from "@/components/ConsumedNutritionBar";
 import RandomThinkingSvg from "@/components/RandomThinkingSvg";
+import ConsumedPageSkeleton from "@/components/loadingSkeletons/ConsumedPageSkeleton";
 import type { IMeal } from "@/types";
 
 export const dynamic = 'force-dynamic';
 
-export default async function ConsumedByDate({ params }: { params: Promise<{ date: string }> }) {
+async function ConsumedByDateContent({ params }: { params: Promise<{ date: string }> }) {
     const awaitedParams = await params;
     const dateString = awaitedParams.date;
 
@@ -106,5 +108,13 @@ export default async function ConsumedByDate({ params }: { params: Promise<{ dat
             </div>
         </div>
     )
+}
+
+export default async function ConsumedByDate({ params }: { params: Promise<{ date: string }> }) {
+    return (
+        <Suspense fallback={<ConsumedPageSkeleton />}>
+            <ConsumedByDateContent params={params} />
+        </Suspense>
+    );
 }
 

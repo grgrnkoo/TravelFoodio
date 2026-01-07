@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../../../_lib/supabase/queries/users";
 import { getMenuByDate } from "../../../../../_lib/supabase/queries/menus";
 import { getSingleMealsByDate } from "../../../../../_lib/supabase/queries/singleMeals";
 import Menu from "@/components/Menu";
 import RandomThinkingSvg from "@/components/RandomThinkingSvg";
+import MenuDishSkeleton from "@/components/loadingSkeletons/MenuDishLoading";
 import type { TotalNutrition } from "@/types";
 
 interface HistoryByDateProps {
@@ -11,7 +13,7 @@ interface HistoryByDateProps {
     searchParams: Promise<{ type?: string }>;
 }
 
-export default async function HistoryByDate({ params, searchParams }: HistoryByDateProps) {
+async function HistoryByDateContent({ params, searchParams }: HistoryByDateProps) {
     const awaitedParams = await params;
     const awaitedSearchParams = await searchParams;
     const dateString = awaitedParams.date;
@@ -99,4 +101,22 @@ export default async function HistoryByDate({ params, searchParams }: HistoryByD
             />
         </div>
     )
+}
+
+function HistorySkeleton() {
+    return (
+        <div className="w-full">
+            {Array.from({ length: 3 }).map((_, i) => (
+                <MenuDishSkeleton key={i} showLike={false} />
+            ))}
+        </div>
+    );
+}
+
+export default async function HistoryByDate({ params, searchParams }: HistoryByDateProps) {
+    return (
+        <Suspense fallback={<HistorySkeleton />}>
+            <HistoryByDateContent params={params} searchParams={searchParams} />
+        </Suspense>
+    );
 }

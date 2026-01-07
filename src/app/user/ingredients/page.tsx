@@ -1,10 +1,12 @@
+import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "../../../../_lib/supabase/queries/users";
 import { getUserMealPreferences } from "../../../../_lib/supabase/queries/preferences";
 import IngredientsList from "./IngredientsList";
+import IngredientsSkeleton from "@/components/loadingSkeletons/IngredientsSkeleton";
 import type { IUserIngredient } from "@/types";
 
-export default async function IngredientsPage() {
+async function IngredientsContent() {
     const { userId } = await auth();
     
     if (!userId) {
@@ -34,5 +36,13 @@ export default async function IngredientsPage() {
         <div className="w-full">
             <IngredientsList ingredients={sortedIngredients} />
         </div>
+    );
+}
+
+export default async function IngredientsPage() {
+    return (
+        <Suspense fallback={<IngredientsSkeleton />}>
+            <IngredientsContent />
+        </Suspense>
     );
 }
