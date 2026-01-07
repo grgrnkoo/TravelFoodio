@@ -140,7 +140,7 @@ export default function OnboardingResultClient({
                 onClick={handleFinalise}
                 className="cursor-pointer"
             >
-                Start using FoodSmart
+                Start using TravelFoodio
             </Button>
         </>
     );

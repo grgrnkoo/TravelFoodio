@@ -19,7 +19,7 @@ export function useDetectCountry(onCountryChange?: (countryCode: string) => void
         fetchCountry().then((data) => {
             const newCountry = data?.code
 
-            if (stored !== newCountry) {
+            if (newCountry && stored !== newCountry) {
                 const shouldUpdate = confirm("Do you want to update your country?")
                 if (shouldUpdate) {
                     localStorage.setItem("userCountry", newCountry)

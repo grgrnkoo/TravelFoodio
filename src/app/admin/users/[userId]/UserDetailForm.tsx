@@ -112,10 +112,10 @@ export default function UserDetailForm({ initialData, userId }: UserDetailFormPr
                         <div>
                             <Label>Onboarding Status</Label>
                             <div className="flex gap-2 mt-2">
-                                <Badge variant={user.onboarding1Completed ? "default" : "outline"}>
+                                <Badge variant={user.onboarding1Completed ? "default" : "outline"} className="">
                                     Onboarding 1: {user.onboarding1Completed ? "Completed" : "Pending"}
                                 </Badge>
-                                <Badge variant={user.onboarding2Completed ? "default" : "outline"}>
+                                <Badge variant={user.onboarding2Completed ? "default" : "outline"} className="">
                                     Onboarding 2: {user.onboarding2Completed ? "Completed" : "Pending"}
                                 </Badge>
                             </div>

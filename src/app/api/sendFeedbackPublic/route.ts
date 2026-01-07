@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
     // Send email
     const data = await resend.emails.send({
-      from: 'feedback@foodsm.art',
+      from: 'feedback@travelfoodio.com',
       to: 'grigorenko996@gmail.com',
       subject: 'New Public Feedback Submission',
       html: `<h2>New Public Feedback Received</h2>

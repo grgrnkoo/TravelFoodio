@@ -4,7 +4,7 @@ const Footer = () => {
     return (
         <footer className="w-full text-gray-500 py-6 text-center">
             <div className="container mx-auto px-4">
-                <p className="text-sm mb-2">&copy; {new Date().getFullYear()} FoodSm.art. All rights reserved.</p>
+                <p className="text-sm mb-2">&copy; {new Date().getFullYear()} TravelFoodio. All rights reserved.</p>
                 <div className="mt-2 flex flex-col sm:flex-row justify-center items-center space-x-4">
                     {/* <div className="flex justify-center items-center space-x-4">
                         <span className="text-gray-500 text-sm">Author</span>

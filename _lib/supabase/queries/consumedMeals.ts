@@ -151,12 +151,17 @@ export async function getDailyNutritionTotals(
         return { calories: 0, protein: 0, fats: 0, carbs: 0 }
     }
 
-    const totals = (data || []).reduce(
+    const totals = (data || []).reduce<{
+        calories: number
+        protein: number
+        fats: number
+        carbs: number
+    }>(
         (acc, meal) => ({
-            calories: acc.calories + (meal.calories || 0),
-            protein: acc.protein + (meal.protein || 0),
-            fats: acc.fats + (meal.fats || 0),
-            carbs: acc.carbs + (meal.carbs || 0),
+            calories: (acc.calories ?? 0) + (meal.calories ?? 0),
+            protein: (acc.protein ?? 0) + (meal.protein ?? 0),
+            fats: (acc.fats ?? 0) + (meal.fats ?? 0),
+            carbs: (acc.carbs ?? 0) + (meal.carbs ?? 0),
         }),
         { calories: 0, protein: 0, fats: 0, carbs: 0 }
     )

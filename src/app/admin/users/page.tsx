@@ -48,14 +48,14 @@ async function getUsers(searchParams: { page?: string; search?: string }) {
     const menuCountMap = new Map<string, number>();
     const mealCountMap = new Map<string, number>();
 
-    if (menuCounts.data) {
-        menuCounts.data.forEach((row: { user_id: string }) => {
+    if (menuCounts.data && !menuCounts.error) {
+        (menuCounts.data as Array<{ user_id: string }>).forEach((row) => {
             menuCountMap.set(row.user_id, (menuCountMap.get(row.user_id) || 0) + 1);
         });
     }
 
-    if (mealCounts.data) {
-        mealCounts.data.forEach((row: { user_id: string }) => {
+    if (mealCounts.data && !mealCounts.error) {
+        (mealCounts.data as unknown as Array<{ user_id: string }>).forEach((row) => {
             mealCountMap.set(row.user_id, (mealCountMap.get(row.user_id) || 0) + 1);
         });
     }

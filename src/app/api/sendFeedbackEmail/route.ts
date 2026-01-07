@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
     // Send email using Resend
     const data = await resend.emails.send({
-      from: 'feedback@foodsm.art', // Replace with your verified domain
+      from: 'feedback@travelfoodio.com', // Replace with your verified domain
       to: 'grigorenko996@gmail.com',     // Replace with your receiving email
       subject: 'New Feedback Submission',
       html: `

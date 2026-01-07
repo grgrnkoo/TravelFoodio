@@ -31,7 +31,7 @@ export async function GET(
     } catch (error) {
         const authData = await auth().catch(() => ({ userId: undefined }));
         await logError(error, {
-            userId: authData.userId,
+            userId: authData.userId ?? undefined,
             endpoint: '/api/admin/errors/[errorId]',
             severity: 'high',
         });
@@ -75,7 +75,7 @@ export async function DELETE(
     } catch (error) {
         const authData = await auth().catch(() => ({ userId: undefined }));
         await logError(error, {
-            userId: authData.userId,
+            userId: authData.userId ?? undefined,
             endpoint: '/api/admin/errors/[errorId]',
             severity: 'high',
         });

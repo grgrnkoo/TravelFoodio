@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
         if (error) {
             await logError(error, {
-                userId: authData.userId,
+                userId: authData.userId ?? undefined,
                 endpoint: '/api/admin/users',
                 severity: 'high',
             });
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
     } catch (error) {
         const authData = await auth().catch(() => ({ userId: undefined }));
         await logError(error, {
-            userId: authData.userId,
+            userId: authData.userId ?? undefined,
             endpoint: '/api/admin/users',
             severity: 'high',
         });

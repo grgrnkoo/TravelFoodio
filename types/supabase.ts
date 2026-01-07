@@ -532,6 +532,62 @@ export interface Database {
           }
         ]
       }
+      meal_generations: {
+        Row: {
+          id: string
+          user_id: string
+          generated_at: string
+          generation_date: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          generated_at?: string
+          generation_date?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          generated_at?: string
+          generation_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_generations_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      photo_analyses: {
+        Row: {
+          id: string
+          user_id: string
+          analyzed_at: string
+          analysis_date: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          analyzed_at?: string
+          analysis_date?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          analyzed_at?: string
+          analysis_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_analyses_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

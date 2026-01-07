@@ -160,7 +160,7 @@ export async function GET(req: NextRequest) {
             // Aggregate counts
             const userCounts = new Map<string, { userId: string; email: string; name: string | null; menuCount: number; mealCount: number }>();
 
-            (menuCounts || []).forEach((item: { user_id: string; users: { id: string; email: string; name: string | null } }) => {
+            ((menuCounts || []) as unknown as Array<{ user_id: string; users: { id: string; email: string; name: string | null } }>).forEach((item) => {
                 const existing = userCounts.get(item.user_id);
                 if (existing) {
                     existing.menuCount += 1;
@@ -175,7 +175,7 @@ export async function GET(req: NextRequest) {
                 }
             });
 
-            (mealCounts || []).forEach((item: { user_id: string; users: { id: string; email: string; name: string | null } }) => {
+            ((mealCounts || []) as unknown as Array<{ user_id: string; users: { id: string; email: string; name: string | null } }>).forEach((item) => {
                 const existing = userCounts.get(item.user_id);
                 if (existing) {
                     existing.mealCount += 1;
@@ -202,7 +202,7 @@ export async function GET(req: NextRequest) {
     } catch (error) {
         const authData = await auth().catch(() => ({ userId: undefined }));
         await logError(error, {
-            userId: authData.userId,
+            userId: authData.userId ?? undefined,
             endpoint: '/api/admin/generations',
             severity: 'high',
         });

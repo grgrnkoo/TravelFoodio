@@ -41,7 +41,7 @@ export async function PATCH(
 
         if (error) {
             await logError(error, {
-                userId: authData.userId,
+                userId: authData.userId ?? undefined,
                 endpoint: '/api/admin/users/[userId]/subscription',
                 requestData: body,
                 severity: 'high',
@@ -63,7 +63,7 @@ export async function PATCH(
     } catch (error) {
         const authData = await auth().catch(() => ({ userId: undefined }));
         await logError(error, {
-            userId: authData.userId,
+            userId: authData.userId ?? undefined,
             endpoint: '/api/admin/users/[userId]/subscription',
             severity: 'high',
         });

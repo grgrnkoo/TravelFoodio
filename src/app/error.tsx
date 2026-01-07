@@ -20,7 +20,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
           <h2 className="text-2xl font-bold tracking-tight">Server Error</h2>
           <p className="text-muted-foreground">Sorry, something went wrong on our end.</p>
           <p className="text-sm font-medium text-primary">
-            <Link href="/" className="hover:underline">FoodSm.art</Link>
+            <Link href="/" className="hover:underline">TravelFoodio</Link>
           </p>
         </div>
 

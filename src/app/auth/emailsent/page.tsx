@@ -29,7 +29,7 @@ export default function MagicLinkSuccess() {
           <p className="text-muted-foreground">Check your email for a link to sign in.</p>
           <p className="text-sm font-medium text-primary pt-4">
             <Link href="/" className="hover:underline">
-              FoodSm.art
+              TravelFoodio
             </Link>
           </p>
         </div>

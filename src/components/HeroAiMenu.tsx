@@ -47,7 +47,7 @@ export default function HeroAIMenu() {
         setIsLoading(true)
         setScreen('meal')
         const generatedMealFromPrompt = await generateMeal(promptValue, setIsLoading)
-        if (generatedMealFromPrompt) {
+        if (generatedMealFromPrompt && !('error' in generatedMealFromPrompt)) {
             setGeneratedMeal(generatedMealFromPrompt)
         } else {
             showPopup('Error generating meal', 'error')

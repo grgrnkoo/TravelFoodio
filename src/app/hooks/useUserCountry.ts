@@ -16,7 +16,7 @@ export function useUserCountry() {
         const detected = data?.code
 
         // First time or changed country
-        if (stored && stored !== detected) {
+        if (detected && stored && stored !== detected) {
           const shouldUpdate = confirm(
             `We detected your country as ${detected}. Do you want to update it?`
           )
@@ -29,8 +29,10 @@ export function useUserCountry() {
           }
         } else {
           // First time, or stored matches
-          const final = stored || detected
-          localStorage.setItem('userCountry', final)
+          const final = stored || detected || null
+          if (final) {
+            localStorage.setItem('userCountry', final)
+          }
           setCountry(final)
         }
 

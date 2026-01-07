@@ -27,6 +27,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const countryData = await fetchCountry();
+  const countryCode = countryData?.code || null;
   
   // Check auth cookie for Header
   const { userId } = await auth();
@@ -56,7 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </head>
         <body className="min-h-full flex flex-col w-full justify-start items-center relative">
           <PopUpProvider>
-            <LocationProvider location={countryData}>
+            <LocationProvider location={countryCode}>
               <Header initialIsSignedIn={!!userId} />
               <div className="flex flex-1 w-full">
                 {children}

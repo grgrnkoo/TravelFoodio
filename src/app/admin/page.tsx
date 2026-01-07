@@ -110,7 +110,7 @@ async function getDashboardStats() {
         dailyTrends.push({
             date: date.toISOString().split('T')[0],
             menus: menuResult.count || 0,
-            meals: mealResult.count || 0,
+            meals: mealResult || 0,
         });
     }
 

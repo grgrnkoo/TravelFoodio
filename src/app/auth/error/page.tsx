@@ -24,7 +24,7 @@ export default function AuthError() {
                     </Suspense>
                     <p className="text-sm font-medium text-primary pt-4">
                         <Link href="/" className="hover:underline">
-                            FoodSm.art
+                            TravelFoodio
                         </Link>
                     </p>
                 </div>

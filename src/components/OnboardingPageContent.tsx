@@ -50,7 +50,7 @@ export default function OnboardingPageContent() {
                 <div className="w-full max-w-lg">
                     <div className="mb-8">
                         <h1 className="text-center text-2xl font-bold text-slate-800">
-                            Welcome to FoodSmart AI{nameFromSession && `, ${nameFromSession}`}
+                            Welcome to TravelFoodio{nameFromSession && `, ${nameFromSession}`}
                         </h1>
                         <p className="text-center text-slate-600">
                             Your personalized meals start here — let&apos;s dive in!

@@ -9,7 +9,7 @@ const features = [
   {
     icon: <MapPinPlusIcon className="h-6 w-6 text-primary" />, 
     title: "Stay on Track While Traveling",
-    description: "Your routine shouldn't suffer just because you're on a trip. Simply update your location, and FoodSm.art will find meals that match your taste wherever you are."
+    description: "Your routine shouldn't suffer just because you're on a trip. Simply update your location, and TravelFoodio will find meals that match your taste wherever you are."
   },
   {
     icon: <MessageSquareText className="h-6 w-6 text-primary" />, 
@@ -22,7 +22,7 @@ export default function KeyAdvantages() {
   return (
     <section className="py-20 bg-slate-50 dark:bg-slate-900">
       <div className="container mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Why Choose FoodSm.art?</h2>
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Why Choose TravelFoodio?</h2>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-12">
           Our AI-powered platform offers unique advantages that make meal planning effortless and personalized.
         </p>

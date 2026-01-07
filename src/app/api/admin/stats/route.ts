@@ -147,7 +147,7 @@ export async function GET(req: NextRequest) {
     } catch (error) {
         const authData = await auth().catch(() => ({ userId: undefined }));
         await logError(error, {
-            userId: authData.userId,
+            userId: authData.userId ?? undefined,
             endpoint: '/api/admin/stats',
             severity: 'high',
         });

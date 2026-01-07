@@ -21,6 +21,20 @@ export default function UserProfileLine({
     icon,
     inputType = "text",
     customComponent,
+}: {
+    userData: string | number | Date | string[] | Record<string, unknown> | undefined
+    nameOfLine: string
+    id: string
+    editable?: boolean
+    styleProp?: string
+    setOneEditingFieldBoolean?: (value: boolean) => void
+    oneEditingFieldBoolean?: boolean
+    confirmUpdate?: (id: string, value: unknown) => Promise<boolean> | void
+    isPopupOpen?: boolean
+    setIsPopupOpen?: (value: boolean) => void
+    icon?: React.ReactNode
+    inputType?: string
+    customComponent?: React.ReactNode
 }) {
     const [isEditing, setIsEditing] = useState(false);
     const [optimisticUserData, setOptimisticUserData] = useState(() => userData);
@@ -33,14 +47,18 @@ export default function UserProfileLine({
         }
         if (!isPopupOpen && isEditing) {
             setIsEditing(false);
-            setOneEditingFieldBoolean(false);
+            if (setOneEditingFieldBoolean) {
+                setOneEditingFieldBoolean(false);
+            }
         }
     }, []);
 
     const toggleEditing = () => {
         if (!isEditing && oneEditingFieldBoolean) return;
         setIsEditing(!isEditing);
-        setOneEditingFieldBoolean(!isEditing);
+        if (setOneEditingFieldBoolean) {
+            setOneEditingFieldBoolean(!isEditing);
+        }
         if (!isEditing) setInputValue(optimisticUserData);
     };
 
@@ -48,12 +66,16 @@ export default function UserProfileLine({
         // For custom components, they handle their own updates
         if (customComponent) {
             setIsEditing(false);
-            setOneEditingFieldBoolean(false);
+            if (setOneEditingFieldBoolean) {
+                setOneEditingFieldBoolean(false);
+            }
             return;
         }
         
-        if (inputValue !== optimisticUserData && inputValue !== "" && inputValue !== null) {
-            setIsPopupOpen(true);
+        if (inputValue !== optimisticUserData && inputValue !== "" && inputValue !== null && confirmUpdate) {
+            if (setIsPopupOpen) {
+                setIsPopupOpen(true);
+            }
             const confirmed = await confirmUpdate(id, inputValue);
             if (confirmed) {
                 setOptimisticUserData(inputValue); // Update persists here
@@ -62,16 +84,20 @@ export default function UserProfileLine({
             }
         }
         setIsEditing(false);
-        setOneEditingFieldBoolean(false);
+        if (setOneEditingFieldBoolean) {
+            setOneEditingFieldBoolean(false);
+        }
     };
 
-    const handleKeyDown = async (e) => {
+    const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         if (e.key === "Enter") {
             e.preventDefault();
             await handleSave();
         } else if (e.key === "Escape") {
             setIsEditing(false);
-            setOneEditingFieldBoolean(false);
+            if (setOneEditingFieldBoolean) {
+                setOneEditingFieldBoolean(false);
+            }
             setInputValue(optimisticUserData);
         }
     };
@@ -88,7 +114,10 @@ export default function UserProfileLine({
         if (inputType === 'date' && value) {
             try {
                 const date = typeof value === 'string' ? new Date(value) : value;
-                return date.toLocaleDateString();
+                if (date instanceof Date && !isNaN(date.getTime())) {
+                    return date.toLocaleDateString();
+                }
+                return String(value);
             } catch {
                 return String(value);
             }
@@ -120,7 +149,7 @@ export default function UserProfileLine({
                     {isEditing ? (
                         inputType === "textarea" ? (
                             <Textarea
-                                value={inputValue || ''}
+                                value={typeof inputValue === 'string' ? inputValue : (inputValue ? String(inputValue) : '')}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 className="py-1 mt-1"
@@ -129,7 +158,7 @@ export default function UserProfileLine({
                         ) : inputType === "date" ? (
                             <Input
                                 type="date"
-                                value={inputValue ? (typeof inputValue === 'string' ? inputValue.split('T')[0] : new Date(inputValue).toISOString().split('T')[0]) : ''}
+                                value={inputValue ? (typeof inputValue === 'string' ? inputValue.split('T')[0] : (inputValue instanceof Date ? inputValue.toISOString().split('T')[0] : String(inputValue))) : ''}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 className="py-1"
@@ -138,7 +167,7 @@ export default function UserProfileLine({
                         ) : (
                             <Input
                                 type={inputType}
-                                value={inputValue || ''}
+                                value={typeof inputValue === 'string' || typeof inputValue === 'number' ? String(inputValue) : (inputValue ? String(inputValue) : '')}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 className="py-1"

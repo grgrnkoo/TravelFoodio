@@ -1,6 +1,6 @@
 import { getSupabaseServerClient } from '../server';
 import type { IErrorLog } from '../../../types';
-import type { ErrorLogInsert, ErrorLogUpdate } from '../../../types/supabase';
+import type { ErrorLogInsert, ErrorLogUpdate, Json } from '../../../types/supabase';
 
 const supabase = getSupabaseServerClient();
 
@@ -38,7 +38,7 @@ export async function createErrorLog(
         error_message: errorLog.errorMessage,
         error_stack: errorLog.errorStack || null,
         endpoint: errorLog.endpoint || null,
-        request_data: errorLog.requestData || null,
+        request_data: (errorLog.requestData as Json) || null,
         severity: errorLog.severity || 'medium',
         resolved: false,
     };
@@ -204,7 +204,7 @@ export async function getErrorStats(): Promise<{
     }
 
     // Get count by severity
-    const severities = ['low', 'medium', 'high', 'critical'];
+    const severities: Array<'low' | 'medium' | 'high' | 'critical'> = ['low', 'medium', 'high', 'critical'];
     const bySeverity: Record<string, number> = {};
 
     for (const severity of severities) {

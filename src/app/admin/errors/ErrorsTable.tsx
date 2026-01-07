@@ -190,11 +190,11 @@ export default function ErrorsTable({
                                                     {new Date(err.createdAt).toLocaleString()}
                                                 </td>
                                                 <td className="p-2">
-                                                    <Badge variant="outline">{err.errorType}</Badge>
+                                                    <Badge variant="outline" className="">{err.errorType}</Badge>
                                                 </td>
                                                 <td className="p-2 max-w-md truncate">{err.errorMessage}</td>
                                                 <td className="p-2">
-                                                    <Badge variant={getSeverityColor(err.severity) as any}>
+                                                    <Badge variant={getSeverityColor(err.severity) as any} className="">
                                                         {err.severity}
                                                     </Badge>
                                                 </td>
@@ -289,7 +289,7 @@ export default function ErrorsTable({
                             </div>
                             <div>
                                 <p className="font-semibold">Severity:</p>
-                                <Badge variant={getSeverityColor(selectedError.severity) as any}>
+                                <Badge variant={getSeverityColor(selectedError.severity) as any} className="">
                                     {selectedError.severity}
                                 </Badge>
                             </div>

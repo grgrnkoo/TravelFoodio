@@ -9,8 +9,8 @@ const steps = [
   },
   {
     icon: Utensils,
-    title: "Start using FoodSm.art",
-    description: "Every liked or disliked meal fine-tunes your preferences, helping FoodSm.art suggest better meals just for you.",
+    title: "Start using TravelFoodio",
+    description: "Every liked or disliked meal fine-tunes your preferences, helping TravelFoodio suggest better meals just for you.",
   },
   {
     icon: Settings,
@@ -26,7 +26,7 @@ export default function HowItWorks() {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">How It Works</h2>
           <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Getting started with FoodSm.art is simple. Follow these steps to enjoy personalized meal planning.
+            Getting started with TravelFoodio is simple. Follow these steps to enjoy personalized meal planning.
           </p>
         </div>
 

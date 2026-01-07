@@ -8,7 +8,7 @@ const TermsOfService = () => {
         <h1 className="text-2xl font-bold mb-6">Terms of Service</h1>
         
         <p className="text-gray-700 mb-4">
-          Welcome to FoodSm.art. By using our service, you agree to comply with and be bound by the following terms and conditions.
+          Welcome to TravelFoodio. By using our service, you agree to comply with and be bound by the following terms and conditions.
         </p>
         
         <h2 className="text-xl font-semibold mt-6">1. Acceptance of Terms</h2>
@@ -33,7 +33,7 @@ const TermsOfService = () => {
         
         <h2 className="text-xl font-semibold mt-6">5. Intellectual Property</h2>
         <p className="text-gray-700 mb-4">
-          All content, trademarks, and intellectual property on this site belong to FoodSm.art. Unauthorized use is prohibited.
+          All content, trademarks, and intellectual property on this site belong to TravelFoodio. Unauthorized use is prohibited.
         </p>
         
         <h2 className="text-xl font-semibold mt-6">6. Limitation of Liability</h2>

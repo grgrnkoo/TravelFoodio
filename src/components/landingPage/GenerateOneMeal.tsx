@@ -4,6 +4,7 @@ import MenuDish from "../MenuDish"
 import MenuDishSkeleton from "../loadingSkeletons/MenuDishLoading"
 import TextAreaLanding from "./TextAreaLanding"
 import React from "react"
+import type { IMeal } from "@/types"
 
 interface GenerateOneMealProps {
   screen: 'textarea' | 'meal';
@@ -52,7 +53,7 @@ export default function GenerateOneMeal({
         isLoading ? (
           <MenuDishSkeleton showLike={showLike} />
         ) : (
-          <MenuDish menuDish={generatedMeal} showLike={showLike} canBeConsumed={canBeConsumed} />
+          <MenuDish menuDish={generatedMeal as unknown as IMeal} showLike={showLike} canBeConsumed={canBeConsumed} />
         )
       ) : null}
     </div>

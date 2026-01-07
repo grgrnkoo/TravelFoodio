@@ -11,7 +11,7 @@ export default function CTASection() {
                     Ready to transform your meal planning?
                 </h2>
                 <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8">
-                    Join users who have simplified their meal planning with FoodSm.art.
+                    Join users who have simplified their meal planning with TravelFoodio.
                 </p>
 
                 <div className="flex flex-col items-center">

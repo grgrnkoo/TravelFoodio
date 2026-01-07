@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { ensureUserExists } from "../../../../../_lib/supabase/queries/users";
 
 export const metadata = {
-    title: "Onboarding Completed | FoodSmart AI",
+    title: "Onboarding Completed | TravelFoodio",
 };
 
 export default async function OnboardingCompletedPage() {

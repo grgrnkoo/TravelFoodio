@@ -4,7 +4,17 @@ import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
-export function YesNoPopUp({ isOpen, onClose, onChoice, title = "Are you sure?", content, yesLabel = "Yes", noLabel = "No" }) {
+interface YesNoPopUpProps {
+    isOpen: boolean;
+    onClose: (state: boolean) => void;
+    onChoice: (choice: boolean) => void;
+    title?: string;
+    content?: React.ReactNode;
+    yesLabel?: string;
+    noLabel?: string;
+}
+
+export function YesNoPopUp({ isOpen, onClose, onChoice, title = "Are you sure?", content, yesLabel = "Yes", noLabel = "No" }: YesNoPopUpProps) {
     const [localOpen, setLocalOpen] = useState(isOpen) // Local state to track changes
 
     useEffect(() => {
